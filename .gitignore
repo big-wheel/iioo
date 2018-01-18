@@ -9,3 +9,4 @@ public/
 !/src/__test__/fixture/node_modules/
 client/entry.*.js
 lerna-debug.log
+coverage

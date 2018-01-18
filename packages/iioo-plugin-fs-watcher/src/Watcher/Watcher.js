@@ -5,7 +5,6 @@
  * @description:
  */
 import EventEmitter from 'events'
-import abstract from 'iioo/dist/utils/decorator/abstract'
 
 
 export default class Watcher extends EventEmitter {
@@ -16,13 +15,9 @@ export default class Watcher extends EventEmitter {
     Object.assign(this._options, options)
   }
 
-  @abstract
   add() {}
 
-  @abstract
   unwatch() {}
 
-  @abstract
   close() {}
-
 }

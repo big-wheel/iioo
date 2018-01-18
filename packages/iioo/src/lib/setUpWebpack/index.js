@@ -13,6 +13,7 @@ import getWebpackConfig from './getWebpackConfig'
 
 function setUpWebpackServer(iioo, options = {}) {
   const opts = {
+    cwd: options.cwd,
     dev: true,
     template: options.template,
     hash: false,
@@ -42,6 +43,7 @@ function setUpWebpackServer(iioo, options = {}) {
 
 async function setUpWebpackBuilder(iioo, options = {}) {
   const opts = {
+    cwd: options.cwd,
     dev: false,
     template: options.template,
     hash: false,

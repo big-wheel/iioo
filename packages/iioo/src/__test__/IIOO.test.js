@@ -7,6 +7,15 @@
 import IIOO from '../index'
 
 describe('iioo', () => {
+  test('~iioo.construct', () => {
+    expect(
+      new IIOO() instanceof IIOO
+    ).toBeTruty()
+    expect(
+      IIOO() instanceof IIOO
+    ).toBeTruty()
+  })
+
   test('~iioo.start', () => {
     expect(() => {
       new IIOO()

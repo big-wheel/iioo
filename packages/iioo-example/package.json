@@ -2,6 +2,7 @@
   "name": "iioo-example",
   "private": true,
   "version": "0.0.1",
+  "main": "index.js",
   "scripts": {
     "start": "iioo start"
   },

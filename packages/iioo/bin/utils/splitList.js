@@ -1,5 +1,5 @@
 /**
- * @file: chdir
+ * @file: splitList
  * @author: Cuttle Cong
  * @date: 2018/1/18
  * @description:

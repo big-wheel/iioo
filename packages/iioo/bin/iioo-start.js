@@ -5,8 +5,9 @@
  * @date: 2018/1/17
  * @description:
  */
-var getConfigFilename = require('./utils/getConfigFilename')
+var getConfigFilename = require('../dist/lib/getConfigFilename')
 var splitList = require('./utils/splitList')
+var listOrSingle = require('./utils/listOrSingle')
 var assign = require('../dist/utils/assign')
 
 module.exports = function (commander) {
@@ -14,7 +15,7 @@ module.exports = function (commander) {
     .command('start')
     .description('to start a server')
     .option('-c --config <path>', 'the path of configuration file.')
-    .option('-e --entry <path>', 'the path of the entry.')
+    .option('-e --entry <paths>', 'the path of the entry.', listOrSingle)
     .option('-g --log-level <type>', 'debug|info|warn|error', /^(debug|info|warn|error)$/i)
     .option('-l --plugins <plugins>', 'plugins', splitList)
     .option('-p --port <port>', 'port', Number)
@@ -28,7 +29,7 @@ module.exports = function (commander) {
 
       var md5 = require('md5')
       var IIOO = require('../dist')
-      var configFilename = getConfigFilename(commander.config)
+      var configFilename = getConfigFilename(commander.config, { chdir: true })
 
       var iioo = new IIOO(
         assign(
@@ -46,7 +47,8 @@ module.exports = function (commander) {
             output: assign({}, require(configFilename), {
               path: commander['output.path'],
               publicPath: commander['output.publicPath']
-            })
+            }),
+            noiioo: true
           }
         )
       )

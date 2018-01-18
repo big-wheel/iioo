@@ -28,5 +28,16 @@
     "jest": "^22.1.1",
     "lerna": "^2.7.1",
     "lint-staged": "^6.0.0"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "coverageReporters": [
+      "json",
+      "text",
+      "lcov"
+    ],
+    "transform": {
+      "^\\.jsx?$": "babel-jest"
+    }
   }
 }

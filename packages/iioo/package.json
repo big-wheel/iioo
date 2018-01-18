@@ -2,9 +2,9 @@
   "name": "iioo",
   "version": "0.0.0",
   "description": "✨ A Pluggable watcher server",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "build": "babel ./src -d dist -D --ignore=**/*.test.js,**/__test_/**",
+    "build": "babel ./src -d dist -D --ignore=**/*.test.js,**/__test__",
     "dev": "npm run build -- -w",
     "prepare": "rm -rf dist/ && npm run build"
   },
@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "autoprefixer": "^7.2.5",
+    "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
     "babel-runtime": "^6.26.0",
     "bole": "^3.0.2",

@@ -1,5 +1,0 @@
-{
-  "plugins": [
-    ["fs-watcher", { "paths": ["./md/**/*.{md,markdown}"] }]
-  ]
-}

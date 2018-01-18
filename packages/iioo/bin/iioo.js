@@ -8,8 +8,9 @@
 var commander = require('commander')
 var util = require('util')
 var pkg = require('../package.json')
-var getConfigFilename = require('./utils/getConfigFilename')
+var getConfigFilename = require('../dist/lib/getConfigFilename')
 var rlv = require('../dist/utils/resolvePlugin')
+var registerOverwriteRequire = require('../dist/lib/registerOverwriteRequire')
 
 commander
   .version(pkg.version)
@@ -24,9 +25,13 @@ commander
 })
 
 // Customized command
+
+// NOTE: registerOverwriteRequire, for use iioo in global, and require('iioo/abc') in commander
+registerOverwriteRequire()
+
 var config = {}
 try {
-  var foundConfigFilename = getConfigFilename()
+  var foundConfigFilename = getConfigFilename(void 0, { chdir: true })
   config = require(foundConfigFilename)
 } catch (error) {
   // not found

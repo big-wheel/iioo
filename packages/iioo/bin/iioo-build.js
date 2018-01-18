@@ -5,7 +5,7 @@
  * @date: 2018/1/17
  * @description:
  */
-var getConfigFilename = require('./utils/getConfigFilename.js')
+var getConfigFilename = require('../dist/lib/getConfigFilename')
 var assign = require('../dist/utils/assign')
 
 module.exports = function (commander) {
@@ -21,7 +21,7 @@ module.exports = function (commander) {
       var md5 = require('md5')
       var IIOO = require('../dist')
 
-      var configFilename = getConfigFilename(commander.config)
+      var configFilename = getConfigFilename(commander.config, { chdir: true })
       var iioo = new IIOO(
         assign(
           {},
@@ -32,7 +32,8 @@ module.exports = function (commander) {
             output: assign({}, require(configFilename).output, {
               path: commander['output.path'],
               publicPath: commander['output.publicPath']
-            })
+            }),
+            noiioo: true
           }
         )
       )

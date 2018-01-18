@@ -9,6 +9,7 @@ import socketio from 'socket.io'
 import bole from 'bole'
 import del from 'del'
 import { resolve, join } from 'path'
+import { isArray, isString, inherits } from 'util'
 
 import createServer from './lib/createServer'
 import presetPlugin from './presetPlugin'
@@ -16,13 +17,15 @@ import setUpWebpack from './lib/setUpWebpack'
 import getPluginHelper from './lib/getPluginHelper'
 import paths from './lib/paths'
 import renderer from './lib/wrapRenderTemplate'
+import getConfigFilename from './lib/getConfigFilename'
 import assign from './utils/assign'
 import { version } from '../package.json'
+// import registerOverwriteRequire from './lib/registerOverwriteRequire'
 
 import resolvePlugin, { resolvePluginString } from './utils/resolvePlugin'
-import overwrite from './utils/overwriteRequire'
+import mapShallow from './utils/mapShallow'
 
-export default class IIOO extends EventEmitter {
+class IIOO extends EventEmitter {
   options = {
     silent: false,
     port: 3666,
@@ -30,51 +33,71 @@ export default class IIOO extends EventEmitter {
     // watcher: new FSWatcher(),
     plugins: [presetPlugin],
     logLevel: 'info',
+    cwd: process.cwd(),
     output: {
       publicPath: '',
       path: ''
     },
     template: join(paths.src, 'template.html'),
-    entry: join(paths.client, 'sample-entry.js')
+    entry: join(paths.client, 'sample-entry.js'),
+    noiioo: false
   }
 
-  constructor(options = {}) {
-    super()
-    this.checkOptions()
-
-    assign(this.options, options, {
+  assignOptions(options = {}) {
+    return assign(this.options, options, {
       output: assign({}, this.options.output, options.output),
       // append the customized plugin
       plugins: this.options.plugins.concat(options.plugins).filter(Boolean)
     })
-    this.options.entry = resolvePluginString(this.options.entry, { prefix: 'iioo-app-' })
+  }
+
+  constructor(options = {}) {
+    super()
+    this.console = bole('iioo')
+    this.checkOptions(options)
+    this.assignOptions(options)
+
+    // use iioo config file
+    if (!this.options.noiioo) {
+      let filename = getConfigFilename({ chdir: false, throwError: false, cwd: this.options.cwd })
+      this.console.debug({ type: 'iioo-config-file', message: filename })
+      if (filename) {
+        this.assignOptions(require(filename))
+      }
+    }
+
+    // resolve entry to {}
+    // even this.options.entry is {} or [] or string
+    let entry = mapShallow(this.options.entry, source => resolvePluginString(source, { prefix: 'iioo-app-' }))
+    if (isArray(entry)) {
+      const collection = {}
+      entry.forEach((eachEntry, index) => {
+        if (isString(eachEntry)) {
+          collection[index] = eachEntry
+        }
+      })
+      entry = collection
+    } else if (isString(entry)) {
+      entry = { 'app': resolvePluginString(entry, { prefix: 'iioo-app-' }) }
+    }
+    this.options.entry = entry
+
     this.hash = this.options.hash = this.options.hash || version
+    this.cwd = this.options.cwd
 
     this._init()
   }
 
   _init() {
-
-    this.console = bole('iioo')
-
-    this.registerOverwriteRequire()
+    // use it in bin `registerOverwriteRequire()`
+    // not here, case the operation make `new IIOO()` have global's side effect
+    // registerOverwriteRequire()
     this.registerPlugins()
     this.emit('this-options', this.options)
   }
 
   // TODO
-  checkOptions() {
-  }
-
-  registerOverwriteRequire() {
-    overwrite.unuse()
-    overwrite.use([
-      request => {
-        if (/^\s*io(.*)/.test(request)) {
-          return join(paths.root, RegExp.$1)
-        }
-      }
-    ])
+  checkOptions(options) {
   }
 
   registerPlugins() {
@@ -116,16 +139,11 @@ export default class IIOO extends EventEmitter {
         resolve(data)
         this.emit('after-close')
       }
-      if (this.server/* || this.compiler*/) {
+      if (this.server) {
         this.server && this.server.__server.close(bye)
         this.io && this.io.close(bye)
         delete this.server
         delete this.io
-
-        // if (this.compiler && this.compiler.close) {
-        //   this.compiler.close(resolve)
-        //   delete this.compiler
-        // }
       }
       else {
         bye()
@@ -134,16 +152,30 @@ export default class IIOO extends EventEmitter {
 
   }
 
+  resolve(...pathList) {
+    return resolve(this.cwd, ...pathList)
+  }
+
   clearRuntime() {
     del.sync(join(paths.client, `*.${this.hash}.js`), { force: true })
   }
 
+
+  getEntryFilesEntity() {
+    return Object.keys(this.options.entry)
+      .map(key => ({
+        path: this.resolve(this.options.entry[key]),
+        key
+      }))
+  }
   renderClientFile() {
-    // todo > entry
-    renderer.entry(
-      { version, entry: resolve(this.options.entry) },
-      join(paths.client, `entry.${this.hash}.js`)
-    )
+    this.getEntryFilesEntity()
+      .forEach(({ key, path }) => {
+        renderer.entry(
+          { version, entry: this.resolve(path) },
+          join(paths.client, `entry.${key}.${this.hash}.js`)
+        )
+      })
   }
 
   _initWebpackEnv() {
@@ -151,20 +183,41 @@ export default class IIOO extends EventEmitter {
   }
 
   async setUpWebpack(options) {
+    this.emit('before-setUpWebpack')
     this._initWebpackEnv()
+
+    const entry = {}
+    this.getEntryFilesEntity()
+      .forEach(({ key }) => {
+        let path = join(paths.client, `entry.${key}.${this.hash}.js`)
+        entry[key] = path
+      })
+    this.console.debug({ type: 'entry', message: entry })
 
     options = {
       ...options,
       ...this.options.output,
+      cwd: this.options.cwd,
       template: this.options.template,
-      entry: {
-        app: [join(paths.client, `entry.${this.hash}.js`)]
-      }
+      entry
     }
     try {
-      return await setUpWebpack(this, options)
+      let tmp = await setUpWebpack(this, options)
+      this.emit('after-setUpWebpack')
+      return tmp
     } catch (error) {
       this.emit('error', error)
     }
   }
 }
+
+function iioo(options) {
+  if (!(this instanceof IIOO)) {
+    return new iioo(options)
+  }
+  IIOO.call(this, options)
+}
+inherits(iioo, IIOO)
+
+module.exports = iioo
+module.exports.IIOO = IIOO

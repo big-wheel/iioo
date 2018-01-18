@@ -14,7 +14,15 @@ import { resolve, join } from 'path'
 import babelConfig from './babelConfig'
 
 export default function getWebpackConfig(options = {}) {
-  const { hash = false, dev = true, template, entry, publicPath, path = resolve(process.cwd(), 'public') } = options
+  const {
+    hash = false,
+    dev = true,
+    template,
+    entry,
+    publicPath,
+    cwd = process.cwd(),
+    path = resolve(cwd, 'public')
+  } = options
 
   const filename = hash ? '[name].[hash:6].js' : '[name].js'
   const chunkFilename = hash ? '[name].[chunkhash:6].js' : '[name].js'
@@ -35,6 +43,7 @@ export default function getWebpackConfig(options = {}) {
   }
 
   const config = {
+    // context: cwd,
     cache: true,
     devtool: dev && 'source-map',
     entry,
