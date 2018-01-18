@@ -1,0 +1,4 @@
+#*.test.*
+packages/hawkeyee/public/
+node_modules/
+dist/

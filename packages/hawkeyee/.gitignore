@@ -1,0 +1,9 @@
+.idea/
+~*
+dist/
+node_modules/
+.entry
+public/
+.DS_Store
+!/src/__test__/fixture/node_modules/
+client/entry.*.js
