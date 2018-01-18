@@ -5,7 +5,7 @@
  * @description:
  */
 import EventEmitter from 'events'
-import abstract from '../../../iioo/src/utils/decorator/abstract'
+import abstract from 'iioo/dist/utils/decorator/abstract'
 
 
 export default class Watcher extends EventEmitter {

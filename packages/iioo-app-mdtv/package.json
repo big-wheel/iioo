@@ -1,0 +1,12 @@
+{
+  "name": "iioo-example",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "start": "iioo start"
+  },
+  "dependencies": {
+    "iioo": "0.0.1-0-alpha.c189ff6e",
+    "iioo-plugin-fs-watcher": "0.0.1-0-alpha.c189ff6e"
+  }
+}

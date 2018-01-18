@@ -10,13 +10,14 @@ import { Router } from 'iioo/express'
 export default function ({ paths }) {
   if (!paths) {
     this.console.error('fs-watcher: paths is required, but `' + paths + '`')
+    return
   }
 
   this
-    .on('this-server', server => {
+    .on('before-createServer', () => {
       this.watcher = new FSWatcher().add(paths)
-
-      server.use()
+      this.console.debug('iioo-plugin-fs-watcher: emit-watcher')
+      this.emit('iioo-plugin-fs-watcher-emit-watcher', this.watcher)
     })
     .on('after-close', () => {
       this.watcher && this.watcher.close()
