@@ -7,11 +7,23 @@
 var nps = require('path')
 var findParentDir = require('find-parent-dir')
 
+var basenames = [
+  'iioo.json',
+  'iioo.config.json',
+  'iioo.js',
+  'iioo.config.js'
+]
+
 module.exports = function (configFilename) {
   if (!configFilename) {
-    var dir = findParentDir.sync(process.cwd(), 'iioo.config.js')
+    var dir
+    var basename = basenames.find(function (base) {
+      dir = findParentDir.sync(process.cwd(), base)
+      return !!dir
+    })
+
     if (dir) {
-      configFilename = nps.join(dir, 'iioo.config.js')
+      configFilename = nps.join(dir, basename)
     }
   }
   if (!configFilename) {

@@ -7,6 +7,13 @@
     "link": {
       "scope": "iioo",
       "forceLocal": true
+    },
+    "publish": {
+      "message": "publish: %s",
+      "canary": true,
+      "npmTag": "alpha",
+      "cdVersion": "prepatch",
+      "conventionalCommits": false
     }
   },
   "changelog": {

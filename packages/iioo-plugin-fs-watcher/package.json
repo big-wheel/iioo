@@ -1,0 +1,26 @@
+{
+  "name": "iioo-plugin-fs-watcher",
+  "version": "0.0.1-0-alpha.c189ff6e",
+  "description": "iioo's plugin to set up file watcher",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "babel ./src -d dist -D --ignore=**/*.test.js,**/__test_/**",
+    "dev": "npm run build -- -w",
+    "prepare": "rm -rf dist/ && npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "iioo",
+    "iioo-plugin",
+    "iioo-plugin-fs-watcher",
+    "iioo's plugin to set up file watcher"
+  ],
+  "author": "imcuttle",
+  "license": "ISC",
+  "dependencies": {
+    "chokidar": "^2.0.0"
+  }
+}

@@ -1,4 +1,5 @@
 {
+  "private": true,
   "scripts": {
     "precommit": "lint-staged",
     "test": "jest",

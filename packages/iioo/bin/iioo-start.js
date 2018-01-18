@@ -13,7 +13,7 @@ module.exports = function (commander) {
   commander
     .command('start')
     .description('to start a server')
-    .option('-c --config <path>', 'the path of configuration file.', './iioo.config.js')
+    .option('-c --config <path>', 'the path of configuration file.')
     .option('-e --entry <path>', 'the path of the entry.')
     .option('-g --log-level <type>', 'debug|info|warn|error', /^(debug|info|warn|error)$/i)
     .option('-l --plugins <plugins>', 'plugins', splitList)

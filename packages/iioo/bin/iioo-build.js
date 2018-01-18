@@ -12,7 +12,7 @@ module.exports = function (commander) {
   commander
     .command('build')
     .description('to build and write static files to `config.output`')
-    .option('-c --config <path>', 'the path of configuration file.', './iioo.config.js')
+    .option('-c --config <path>', 'the path of configuration file.')
     .option('--output.path <path>', 'output')
     .option('--output.publicPath <path>', 'publicPath')
     .option('--silent', '   ', false)
