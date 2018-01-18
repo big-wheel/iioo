@@ -1,6 +1,6 @@
 .idea/
 ~*
-packages/hawkeyee/dist/
+packages/iioo/dist/
 node_modules/
 .entry
 public/

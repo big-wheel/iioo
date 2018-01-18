@@ -5,9 +5,20 @@
   ],
   "command": {
     "link": {
-      "scope": "hawkeyee",
+      "scope": "iioo",
       "forceLocal": true
     }
+  },
+  "changelog": {
+    "repo": "big-wheel/iioo",
+    "labels": {
+      "enhance": ":rocket: Enhancement",
+      "fix": ":bug: Bug Fix",
+      "bug": ":bug: Bug Fix",
+      "doc": "Refine Doc",
+      "feat": "New Feature"
+    },
+    "cacheDir": ".changelog"
   },
   "version": "0.0.0"
 }
