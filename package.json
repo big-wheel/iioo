@@ -5,7 +5,8 @@
     "test": "jest",
     "dev": "lerna run --parallel dev",
     "bootstrap": "lerna bootstrap",
-    "link": "lerna exec --scope=iioo -- npm link"
+    "link": "lerna exec --scope=iioo -- npm link",
+    "publish": "lerna publish"
   },
   "lint-staged": {
     "src/**/*.js": [

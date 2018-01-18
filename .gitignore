@@ -2,6 +2,7 @@
 ~*
 packages/iioo/dist/
 node_modules/
+dist/
 .entry
 public/
 .DS_Store
