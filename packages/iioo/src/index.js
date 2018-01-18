@@ -20,6 +20,7 @@ import assign from './utils/assign'
 import { version } from '../package.json'
 
 import resolvePlugin, { resolvePluginString } from './utils/resolvePlugin'
+import overwrite from './utils/overwriteRequire'
 
 export default class IIOO extends EventEmitter {
   options = {
@@ -28,7 +29,7 @@ export default class IIOO extends EventEmitter {
     // move the watcher to external plugin
     // watcher: new FSWatcher(),
     plugins: [presetPlugin],
-    logLevel: 'debug',
+    logLevel: 'info',
     output: {
       publicPath: '',
       path: ''
@@ -55,6 +56,8 @@ export default class IIOO extends EventEmitter {
   _init() {
 
     this.console = bole('iioo')
+
+    this.registerOverwriteRequire()
     this.registerPlugins()
     this.emit('this-options', this.options)
   }
@@ -63,12 +66,23 @@ export default class IIOO extends EventEmitter {
   checkOptions() {
   }
 
+  registerOverwriteRequire() {
+    overwrite.unuse()
+    overwrite.use([
+      request => {
+        if (/^\s*io(.*)/.test(request)) {
+          return join(paths.root, RegExp.$1)
+        }
+      }
+    ])
+  }
+
   registerPlugins() {
     // calculate helper for plugin developer
     this.helper = getPluginHelper(this)
 
     this.options.plugins = this.options.plugins.map(plugin => {
-      const resolvedPlugin = resolvePlugin(plugin)
+      const resolvedPlugin = resolvePlugin(plugin, { prefix: 'iioo-plugin-' })
       resolvedPlugin[0].call(this, resolvedPlugin[1])
       return resolvedPlugin
     })
@@ -81,6 +95,7 @@ export default class IIOO extends EventEmitter {
       this.io = socketio(this.server.__server)
     } catch (error) {
       this.emit('error', error)
+      throw error
     }
 
     this.emit('this-server', this.server)
