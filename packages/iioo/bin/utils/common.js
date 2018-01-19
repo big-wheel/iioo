@@ -13,7 +13,6 @@ module.exports = function (commander) {
     .option('-e --entry <paths>', 'the path of the entry.', listOrSingle)
     .option('-g --log-level <type>', 'debug|info|warn|error', /^(debug|info|warn|error)$/i)
     .option('-l --plugins <plugins>', 'plugins', splitList)
-    .option('-p --port <port>', 'port', Number)
     .option('-s --silent', '  vers ', false)
     .option('-t --template <path>', '  template ')
 }

@@ -17,6 +17,7 @@ module.exports = function (commander) {
       .command('start')
       .description('to start a server')
   )
+    .option('-p --port <port>', 'port', Number)
     .option('-O --open', 'open', false)
     .option('-d --output.path <path>', 'output')
     .option('-P --output.public-path <path>', 'publicPath')
