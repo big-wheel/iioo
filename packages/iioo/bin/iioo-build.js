@@ -40,6 +40,7 @@ module.exports = function (commander) {
           config,
           {
             cwd: configFilename ? nps.dirname(configFilename) : process.cwd(),
+            disableIO: commander.disableIo,
             hash: commander.config && md5(commander.config).slice(1, 7),
             silent: commander.silent,
             output: assign({}, config.output, {

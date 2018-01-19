@@ -42,7 +42,8 @@ class IIOO extends EventEmitter {
     template: join(paths.src, 'template.html'),
     entry: join(paths.client, 'sample-entry.js'),
     noiioo: false,
-    force: false
+    force: false,
+    disableIO: false
   }
 
   // `new IIOO()` trigger initialize cwd
@@ -147,14 +148,16 @@ class IIOO extends EventEmitter {
     this.emit('before-createServer')
     try {
       this.server = await createServer(this.options.port)
-      this.io = socketio(this.server.__server)
+      !this.options.disableIO && (
+        this.io = socketio(this.server.__server)
+      )
     } catch (error) {
       this.emit('error', error)
       throw error
     }
 
     this.emit('this-server', this.server)
-    this.emit('this-io', this.io)
+    !this.options.disableIO && this.emit('this-io', this.io)
     this.emit('after-createServer')
 
     await this.setUpWebpack({ dev: true })
@@ -206,13 +209,14 @@ class IIOO extends EventEmitter {
   }
 
   renderClientFile() {
-    this.getEntryFilesEntity()
-        .forEach(({ key, path }) => {
-          renderer.entry(
-            { version, entry: this.resolve(path) },
-            join(paths.client, `entry.${key}.${this.hash}.js`)
-          )
-        })
+    this
+      .getEntryFilesEntity()
+      .forEach(({ key, path }) => {
+        renderer.entry(
+          { version, entry: this.resolve(path) },
+          join(paths.client, `entry.${key}.${this.hash}.js`)
+        )
+      })
   }
 
   _initWebpackEnv() {

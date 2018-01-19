@@ -4,5 +4,6 @@
   "main": "dist/index.js",
   "dependencies": {
 
-  }
+  },
+  "private": true
 }

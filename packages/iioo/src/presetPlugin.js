@@ -77,8 +77,10 @@ export default function presetPlugin(options) {
       if (options.entry) {
         mapShallow(options.entry, previous => {
           const presets = [
-            'webpack-hot-middleware/client'
-          ]
+            !iioo.options.disableIO && join(paths.root, 'io.js') + '?port=' + iioo.options.port,
+            require.resolve('webpack-hot-middleware/client')
+          ].filter(Boolean)
+
           iioo.emit('entry-presets', presets)
           if (isArray(previous) || isString(previous)) {
             return presets.concat(previous)
@@ -101,11 +103,14 @@ export default function presetPlugin(options) {
         iioo: paths.root,
         ...config.alias
       }
-      config.resolve.modules = unique([
-        join(iioo.cwd, 'node_modules'),
-        join(paths.root, 'node_modules'),
-        'node_modules'
-      ])
+
+      // resolved by `require.resolve('webpack-hot-middleware/client')`
+
+      // config.resolve.modules = unique([
+      //   join(iioo.cwd, 'node_modules'),
+      //   join(paths.root, 'node_modules'),
+      //   'node_modules'
+      // ])
 
       config.resolveLoader = config.resolveLoader || {}
       // if iioo installed in the global

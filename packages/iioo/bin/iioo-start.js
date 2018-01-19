@@ -22,7 +22,6 @@ module.exports = function (commander) {
     .option('-P --output.public-path <path>', 'publicPath')
     .action(function (commander) {
       commander = commander || {}
-
       var md5 = require('md5')
       var IIOO = require('../dist')
       var configFilename = getConfigFilename(commander.config, { chdir: false, throwError: false })
@@ -37,6 +36,7 @@ module.exports = function (commander) {
           config,
           {
             cwd: configFilename ? nps.dirname(configFilename) : process.cwd(),
+            disableIO: commander.disableIo,
             hash: configFilename && md5(configFilename).slice(0, 6),
             silent: commander.silent,
             entry: commander.entry,
