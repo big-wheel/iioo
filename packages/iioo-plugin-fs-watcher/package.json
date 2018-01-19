@@ -1,6 +1,6 @@
 {
   "name": "iioo-plugin-fs-watcher",
-  "version": "0.0.1-0-alpha.c189ff6e",
+  "version": "0.0.2-0",
   "description": "iioo's plugin to set up file watcher",
   "main": "dist/index.js",
   "scripts": {
