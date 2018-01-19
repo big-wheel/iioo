@@ -6,8 +6,8 @@ export default () => {
   overwrite.unuse()
   overwrite.use([
     request => {
-      if (/^\s*io(.*)/.test(request)) {
-        return join(paths.root, RegExp.$1)
+      if (/^\s*iioo(.*)/.test(request)) {
+        return require.resolve(join(paths.root, RegExp.$1))
       }
     }
   ])

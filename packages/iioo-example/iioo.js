@@ -1,10 +1,16 @@
+
 module.exports = {
   'entry': [
     './entry/a.js'
   ],
-  'plugins': [],
+  'plugins': [
+    '../iioo-plugin-fs-watcher'
+  ],
   lifeCircle: {
     'on#this-options': [
+      function () {
+
+      }
     ]
   }
 }

@@ -5,6 +5,8 @@
  * @date: 2018/1/17
  * @description:
  */
+var nps = require('path')
+
 var getConfigFilename = require('../dist/lib/getConfigFilename')
 var splitList = require('./utils/splitList')
 var listOrSingle = require('./utils/listOrSingle')
@@ -36,6 +38,7 @@ module.exports = function (commander) {
           {},
           config,
           {
+            cwd: configFilename ? nps.dirname(configFilename) : process.cwd(),
             hash: configFilename && md5(configFilename).slice(0, 6),
             silent: commander.silent,
             entry: commander.entry,

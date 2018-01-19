@@ -171,7 +171,7 @@ class IIOO extends EventEmitter {
   }
 
   clearRuntime() {
-    del.sync(join(paths.client, `*.${this.hash}.js`), { force: true })
+    del.sync(join(paths.client, `entry*.${this.hash}.js`), { force: true })
   }
 
 

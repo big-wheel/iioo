@@ -101,7 +101,7 @@ export default function presetPlugin(options) {
       //  webpack will find loader from current work directory to iioo global path
       //  DOC: https://webpack.js.org/configuration/resolve/#resolveloader
       config.resolveLoader.modules = unique([
-        join(process.cwd(), 'node_modules'),
+        join(iioo.cwd, 'node_modules'),
         join(paths.root, 'node_modules'),
         'node_modules'
       ])
