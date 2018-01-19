@@ -6,7 +6,7 @@ module.exports = {
   'plugins': [
 
   ],
-  lifeCircle: {
+  lifeCycle: {
     'on#this-options': [
       function () {
 

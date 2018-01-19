@@ -1,5 +1,5 @@
 /**
- * @file: registerLifeCircle
+ * @file: registerLifeCycle
  * @author: Cuttle Cong
  * @date: 2018/1/19
  * @description:
@@ -18,21 +18,21 @@ function understandKeyString(keyString) {
   return [method, event]
 }
 
-export default function registerLifeCircle(iioo, lifeCircle = {}) {
-  if (isObject(lifeCircle)) {
-    Object.keys(lifeCircle)
+export default function registerLifeCycle(iioo, lifeCycle = {}) {
+  if (isObject(lifeCycle)) {
+    Object.keys(lifeCycle)
       .forEach(name => {
         const [method, event] = understandKeyString(name)
         if (!isFunction(iioo[method])) {
-          const error = new Error(`lifeCircle the string of key should be \`${method}#${event}\`. iioo['${method}'] is ${typeof iioo[method]}`)
+          const error = new Error(`lifeCycle the string of key should be \`${method}#${event}\`. iioo['${method}'] is ${typeof iioo[method]}`)
           iioo.emit(error)
           throw error
         }
 
-        const queue = isArray(lifeCircle[name]) ? lifeCircle[name] : [lifeCircle[name]]
+        const queue = isArray(lifeCycle[name]) ? lifeCycle[name] : [lifeCycle[name]]
         queue.forEach(listener => {
           if (isFunction(listener)) {
-            iioo.console.debug({ type: 'lifeCircle', message: `register: iioo['${method}']` })
+            iioo.console.debug({ type: 'lifeCycle', message: `register: iioo['${method}']` })
             iioo[method](event, listener.bind(iioo))
           }
         })

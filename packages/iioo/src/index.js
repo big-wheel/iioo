@@ -20,7 +20,7 @@ import renderer from './lib/wrapRenderTemplate'
 import getConfigFilename from './lib/getConfigFilename'
 import assign from './utils/assign'
 import { version } from '../package.json'
-import registerLifeCircle from './lib/registerLifeCircle'
+import registerLifeCycle from './lib/registerLifeCycle'
 
 import resolvePlugin, { resolvePluginString } from './utils/resolvePlugin'
 import mapShallow from './utils/mapShallow'
@@ -38,7 +38,7 @@ class IIOO extends EventEmitter {
       publicPath: '',
       path: './public'
     },
-    lifeCircle: {},
+    lifeCycle: {},
     template: join(paths.src, 'template.html'),
     entry: join(paths.client, 'sample-entry.js'),
     noiioo: false,
@@ -107,7 +107,7 @@ class IIOO extends EventEmitter {
     // registerOverwriteRequire()
     this.registerPlugins()
     // the priority is most
-    this.registerLifeCircle()
+    this.registerLifeCycle()
     this.emit('this-options', this.options)
   }
 
@@ -127,8 +127,8 @@ class IIOO extends EventEmitter {
     })
   }
 
-  registerLifeCircle() {
-    registerLifeCircle(this, this.options.lifeCircle)
+  registerLifeCycle() {
+    registerLifeCycle(this, this.options.lifeCycle)
   }
 
   _clearBuildPath() {
