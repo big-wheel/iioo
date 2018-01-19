@@ -31,8 +31,12 @@ export default function getConfigFilename(configFilename, options = {}) {
       configFilename = nps.join(dir, basename)
     }
   }
-  if (throwError && !configFilename) {
-    throw new Error('iioo configuration file is not found.')
+
+  if (!configFilename) {
+    if (throwError) {
+      throw new Error('iioo configuration file is not found.')
+    }
+    return
   }
 
   configFilename = nps.resolve(cwd, configFilename)

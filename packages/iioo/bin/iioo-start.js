@@ -29,12 +29,12 @@ module.exports = function (commander) {
 
       var md5 = require('md5')
       var IIOO = require('../dist')
-      var configFilename = getConfigFilename(commander.config, { chdir: true })
-
+      var configFilename = getConfigFilename(commander.config, { chdir: true, throwError: false })
+      var config = configFilename ? require(configFilename) : {}
       var iioo = new IIOO(
         assign(
           {},
-          require(configFilename),
+          config,
           {
             hash: configFilename && md5(configFilename).slice(0, 6),
             silent: commander.silent,
@@ -44,7 +44,7 @@ module.exports = function (commander) {
             port: commander.port,
             logLevel: commander.logLevel,
             template: commander.template,
-            output: assign({}, require(configFilename), {
+            output: assign({}, config, {
               path: commander['output.path'],
               publicPath: commander['output.publicPath']
             }),

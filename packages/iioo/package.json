@@ -1,7 +1,7 @@
 {
   "name": "iioo",
   "version": "0.0.3",
-  "description": "✨ A Pluggable watcher server",
+  "description": " ✨ A Pluggable http server communicating frontend via socket.io",
   "main": "dist/index.js",
   "scripts": {
     "build": "babel ./src -d dist -D --ignore=**/*.test.js,**/__test__",

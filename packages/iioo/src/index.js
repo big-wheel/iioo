@@ -26,7 +26,7 @@ import resolvePlugin, { resolvePluginString } from './utils/resolvePlugin'
 import mapShallow from './utils/mapShallow'
 
 class IIOO extends EventEmitter {
-  options = {
+  static defaultOptions = {
     silent: false,
     port: 3666,
     // move the watcher to external plugin
@@ -36,19 +36,26 @@ class IIOO extends EventEmitter {
     cwd: process.cwd(),
     output: {
       publicPath: '',
-      path: ''
+      path: './public'
     },
     template: join(paths.src, 'template.html'),
     entry: join(paths.client, 'sample-entry.js'),
     noiioo: false
   }
 
+  // `new IIOO()` trigger initialize cwd
+  options = {
+    cwd: process.cwd()
+  }
+
   assignOptions(options = {}) {
-    return assign(this.options, options, {
-      output: assign({}, this.options.output, options.output),
+    this.options = assign({}, IIOO.defaultOptions, this.options, options, {
+      output: assign({}, IIOO.defaultOptions.output, this.options.output, options.output),
       // append the customized plugin
-      plugins: this.options.plugins.concat(options.plugins).filter(Boolean)
+      plugins: IIOO.defaultOptions.plugins.concat(options.plugins).filter(Boolean)
     })
+
+    return this.options
   }
 
   constructor(options = {}) {
@@ -60,8 +67,8 @@ class IIOO extends EventEmitter {
     // use iioo config file
     if (!this.options.noiioo) {
       let filename = getConfigFilename({ chdir: false, throwError: false, cwd: this.options.cwd })
-      this.console.debug({ type: 'iioo-config-file', message: filename })
       if (filename) {
+        this.console.debug({ type: 'iioo-config-file', message: filename })
         this.assignOptions(require(filename))
       }
     }

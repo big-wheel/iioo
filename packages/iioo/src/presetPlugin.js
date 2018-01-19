@@ -12,8 +12,10 @@ import opn from 'opn'
 import FriendlyErrorsPlugin from 'friendly-errors-webpack-plugin'
 import mylocalIP from 'my-local-ip'
 import unique from 'array-unique'
+import { isArray, isString } from 'util'
 
 import paths from './lib/paths'
+import mapShallow from './utils/mapShallow'
 // eslint-disable-next-line no-unused-vars
 export default function presetPlugin(options) {
   const iioo = this
@@ -66,10 +68,16 @@ export default function presetPlugin(options) {
 
   iioo
     .on('getWebpackConfig.options', options => {
-      if (options.entry && options.entry.app) {
-        options.entry.app = [
-          'webpack-hot-middleware/client'
-        ].concat(options.entry.app)
+      if (options.entry) {
+        mapShallow(options.entry, previous => {
+          const presets = [
+            'webpack-hot-middleware/client'
+          ]
+          iioo.emit('entry-presets', presets)
+          if (isArray(previous) || isString(previous)) {
+            return presets.concat(previous)
+          }
+        })
       }
     })
     .on('this-webpackConfig', (config, webpack) => {
