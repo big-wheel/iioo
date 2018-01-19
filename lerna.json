@@ -9,7 +9,7 @@
       "forceLocal": true
     },
     "publish": {
-      "message": "publish: %s",
+      "message": "publish ",
       "ignore": "iioo-example"
     }
   },
