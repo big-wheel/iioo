@@ -1,7 +1,10 @@
-{
-  "entry": [
-    "./entry/a.js"
+module.exports = {
+  'entry': [
+    './entry/a.js'
   ],
-  "plugins": [
-  ]
+  'plugins': [],
+  lifeCircle: {
+    'on#this-options': [
+    ]
+  }
 }

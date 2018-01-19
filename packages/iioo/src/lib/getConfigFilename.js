@@ -9,8 +9,8 @@ import findParentDir from 'find-parent-dir'
 
 const basenames = [
   'iioo.json',
-  'iioo.config.json',
   'iioo.js',
+  'iioo.config.json',
   'iioo.config.js'
 ]
 

@@ -20,7 +20,7 @@ import renderer from './lib/wrapRenderTemplate'
 import getConfigFilename from './lib/getConfigFilename'
 import assign from './utils/assign'
 import { version } from '../package.json'
-// import registerOverwriteRequire from './lib/registerOverwriteRequire'
+import registerLifeCircle from './lib/registerLifeCircle'
 
 import resolvePlugin, { resolvePluginString } from './utils/resolvePlugin'
 import mapShallow from './utils/mapShallow'
@@ -38,6 +38,7 @@ class IIOO extends EventEmitter {
       publicPath: '',
       path: './public'
     },
+    lifeCircle: {},
     template: join(paths.src, 'template.html'),
     entry: join(paths.client, 'sample-entry.js'),
     noiioo: false
@@ -100,6 +101,8 @@ class IIOO extends EventEmitter {
     // not here, case the operation make `new IIOO()` have global's side effect
     // registerOverwriteRequire()
     this.registerPlugins()
+    // the priority is most
+    this.registerLifeCircle()
     this.emit('this-options', this.options)
   }
 
@@ -116,6 +119,10 @@ class IIOO extends EventEmitter {
       resolvedPlugin[0].call(this, resolvedPlugin[1])
       return resolvedPlugin
     })
+  }
+
+  registerLifeCircle() {
+    registerLifeCircle(this, this.options.lifeCircle)
   }
 
   async start() {
