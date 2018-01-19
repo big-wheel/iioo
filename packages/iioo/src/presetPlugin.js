@@ -77,7 +77,6 @@ export default function presetPlugin(options) {
       if (options.entry) {
         mapShallow(options.entry, previous => {
           const presets = [
-            !iioo.options.disableIO && join(paths.root, 'io.js') + '?port=' + iioo.options.port,
             require.resolve('webpack-hot-middleware/client')
           ].filter(Boolean)
 

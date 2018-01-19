@@ -42,8 +42,7 @@ class IIOO extends EventEmitter {
     template: join(paths.src, 'template.html'),
     entry: join(paths.client, 'sample-entry.js'),
     noiioo: false,
-    force: false,
-    disableIO: false
+    force: false
   }
 
   // `new IIOO()` trigger initialize cwd
@@ -148,16 +147,14 @@ class IIOO extends EventEmitter {
     this.emit('before-createServer')
     try {
       this.server = await createServer(this.options.port)
-      !this.options.disableIO && (
-        this.io = socketio(this.server.__server)
-      )
+      this.io = socketio(this.server.__server)
     } catch (error) {
       this.emit('error', error)
       throw error
     }
 
     this.emit('this-server', this.server)
-    !this.options.disableIO && this.emit('this-io', this.io)
+    this.emit('this-io', this.io)
     this.emit('after-createServer')
 
     await this.setUpWebpack({ dev: true })

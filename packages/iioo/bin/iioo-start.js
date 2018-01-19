@@ -17,7 +17,7 @@ module.exports = function (commander) {
       .command('start')
       .description('to start a server')
   )
-    .option('-o --open', 'open', false)
+    .option('-O --open', 'open', false)
     .option('-d --output.path <path>', 'output')
     .option('-P --output.public-path <path>', 'publicPath')
     .action(function (commander) {
@@ -36,7 +36,6 @@ module.exports = function (commander) {
           config,
           {
             cwd: configFilename ? nps.dirname(configFilename) : process.cwd(),
-            disableIO: commander.disableIo,
             hash: configFilename && md5(configFilename).slice(0, 6),
             silent: commander.silent,
             entry: commander.entry,
