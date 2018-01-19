@@ -13,7 +13,8 @@ export default iioo => {
     //  options.force means ignore checking the depend plugin has already existed
     depend(plugins, options = {}) {
       const { force, ...rest } = options
-      plugins = plugins.map(plugin => resolvePlugin(plugin))
+      const opts = { prefix: 'iioo-plugin-', cwd: iioo.cwd, ...rest }
+      plugins = plugins.map(plugin => resolvePlugin(plugin, opts))
       plugins.forEach(plugin => {
         if (isFunction(plugin[0])) {
           if (force || !this.pluginIsExisted(plugin, rest)) {
@@ -25,7 +26,7 @@ export default iioo => {
 
     // TODO  need to compare the `package.json` { name, version }
     pluginIsExisted(plugin, options) {
-      const opts = { ...options, prefix: 'iioo-plugin-' }
+      const opts = { prefix: 'iioo-plugin-', cwd: iioo.cwd, ...options }
       const [reqPlugin] = resolvePlugin(plugin, opts)
 
       return iioo.plugins.find(

@@ -7,12 +7,15 @@
 import Module from 'module'
 import resolve from 'resolve'
 import nps from 'path'
+import unique from 'array-unique'
 
 const _resolveFilename = Module._resolveFilename
 
 export default {
   use(rules = []) {
     if (_resolveFilename === Module._resolveFilename) {
+      rules = unique(rules)
+
       Module._resolveFilename = function (request, parent) {
         if (resolve.isCore(request)) {
           return _resolveFilename.apply(this, arguments)
@@ -26,7 +29,7 @@ export default {
           let isFound = rules.some(function (rule) {
             try {
               if (typeof rule === 'string') {
-                path = resolve.sync(request, { basedir: dirname })
+                path = resolve.sync(request, { basedir: rule })
               }
               else if (typeof rule === 'function') {
                 path = rule(request, parent)

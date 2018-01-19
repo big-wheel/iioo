@@ -67,6 +67,12 @@ export default function presetPlugin(options) {
     })
 
   iioo
+    .on('before-delete-build-assert', () => {
+      log.info({
+        type: 'deleting',
+        message: 'Deleting the previous build assert'
+      })
+    })
     .on('getWebpackConfig.options', options => {
       if (options.entry) {
         mapShallow(options.entry, previous => {
@@ -95,6 +101,11 @@ export default function presetPlugin(options) {
         iioo: paths.root,
         ...config.alias
       }
+      config.resolve.modules = unique([
+        join(iioo.cwd, 'node_modules'),
+        join(paths.root, 'node_modules'),
+        'node_modules'
+      ])
 
       config.resolveLoader = config.resolveLoader || {}
       // if iioo installed in the global

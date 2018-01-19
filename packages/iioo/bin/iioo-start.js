@@ -6,23 +6,17 @@
  * @description:
  */
 var nps = require('path')
-
+var common = require('./utils/common')
 var getConfigFilename = require('../dist/lib/getConfigFilename')
-var splitList = require('./utils/splitList')
-var listOrSingle = require('./utils/listOrSingle')
 var assign = require('../dist/utils/assign')
+var registerOverwriteRequire = require('../dist/lib/registerOverwriteRequire')
 
 module.exports = function (commander) {
-  commander
-    .command('start')
-    .description('to start a server')
-    .option('-c --config <path>', 'the path of configuration file.')
-    .option('-e --entry <paths>', 'the path of the entry.', listOrSingle)
-    .option('-g --log-level <type>', 'debug|info|warn|error', /^(debug|info|warn|error)$/i)
-    .option('-l --plugins <plugins>', 'plugins', splitList)
-    .option('-p --port <port>', 'port', Number)
-    .option('-s --silent', '  vers ', false)
-    .option('-t --template <path>', '  template ')
+  common(
+    commander
+      .command('start')
+      .description('to start a server')
+  )
     .option('-o --open', 'open', false)
     .option('-d --output.path <path>', 'output')
     .option('-P --output.public-path <path>', 'publicPath')
@@ -31,8 +25,12 @@ module.exports = function (commander) {
 
       var md5 = require('md5')
       var IIOO = require('../dist')
-      var configFilename = getConfigFilename(commander.config, { chdir: true, throwError: false })
+      var configFilename = getConfigFilename(commander.config, { chdir: false, throwError: false })
       var config = configFilename ? require(configFilename) : {}
+
+      registerOverwriteRequire(
+        [configFilename && nps.dirname(configFilename)].filter(Boolean)
+      )
       var iioo = new IIOO(
         assign(
           {},

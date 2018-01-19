@@ -38,7 +38,6 @@ export default function getConfigFilename(configFilename, options = {}) {
     }
     return
   }
-
   configFilename = nps.resolve(cwd, configFilename)
   chdir && process.chdir(nps.dirname(configFilename))
 

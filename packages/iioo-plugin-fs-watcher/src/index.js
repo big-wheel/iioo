@@ -15,7 +15,9 @@ export default function ({ paths }) {
 
   this
     .on('before-createServer', () => {
-      this.watcher = new FSWatcher().add(paths)
+      this.watcher = new FSWatcher({
+        cwd: this.cwd
+      }).add(paths)
       this.console.debug('iioo-plugin-fs-watcher: emit-watcher')
       this.emit('iioo-plugin-fs-watcher-emit-watcher', this.watcher)
     })

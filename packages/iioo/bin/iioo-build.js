@@ -6,17 +6,22 @@
  * @description:
  */
 var nps = require('path')
-
+var common = require('./utils/common')
 var getConfigFilename = require('../dist/lib/getConfigFilename')
 var assign = require('../dist/utils/assign')
+var registerOverwriteRequire = require('../dist/lib/registerOverwriteRequire')
 
 module.exports = function (commander) {
-  commander
-    .command('build')
-    .description('to build and write static files to `config.output`')
+
+  common(
+    commander
+      .command('build')
+      .description('to build and write static files to `config.output`')
+  )
     .option('-c --config <path>', 'the path of configuration file.')
     .option('--output.path <path>', 'output')
     .option('--output.publicPath <path>', 'publicPath')
+    .option('-f --force', 'force')
     .option('--silent', '   ', false)
     .action(function (commander) {
       commander = commander || {}
@@ -25,6 +30,10 @@ module.exports = function (commander) {
 
       var configFilename = getConfigFilename(commander.config, { chdir: false, throwError: false })
       var config = configFilename ? require(configFilename) : {}
+      registerOverwriteRequire(
+        [configFilename && nps.dirname(configFilename)].filter(Boolean)
+      )
+
       var iioo = new IIOO(
         assign(
           {},
@@ -37,25 +46,16 @@ module.exports = function (commander) {
               path: commander['output.path'],
               publicPath: commander['output.publicPath']
             }),
-            noiioo: true
+            noiioo: true,
+            force: commander.force
           }
         )
       )
 
       iioo.build()
-        .then(function () {
-          return iioo.close()
-        })
-        .then(function () {
-          iioo.clearRuntime()
-          process.exit()
-        })
-        .catch(function () {
-          process.exit(1)
-        })
-
-      process.on('SIGINT', function () {
-        iioo.close()
+          .then(function () {
+            return iioo.close()
+          })
           .then(function () {
             iioo.clearRuntime()
             process.exit()
@@ -63,6 +63,16 @@ module.exports = function (commander) {
           .catch(function () {
             process.exit(1)
           })
+
+      process.on('SIGINT', function () {
+        iioo.close()
+            .then(function () {
+              iioo.clearRuntime()
+              process.exit()
+            })
+            .catch(function () {
+              process.exit(1)
+            })
       })
     })
 }

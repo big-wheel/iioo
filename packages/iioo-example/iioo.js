@@ -4,7 +4,7 @@ module.exports = {
     './entry/a.js'
   ],
   'plugins': [
-    '../iioo-plugin-fs-watcher'
+
   ],
   lifeCircle: {
     'on#this-options': [

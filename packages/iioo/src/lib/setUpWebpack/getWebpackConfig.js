@@ -41,7 +41,6 @@ export default function getWebpackConfig(options = {}) {
       }
     }
   }
-
   const config = {
     // context: cwd,
     cache: true,

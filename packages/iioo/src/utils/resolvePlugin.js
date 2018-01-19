@@ -64,7 +64,17 @@ export function resolveRequest(request, options = {}) {
   if (isNullOrUndefined(request)) {
     throw new TypeError('`resolveRequest` method can\'t receive the request of ' + typeof request + '.')
   }
-  return typeof request === 'string' ? require(resolvePluginString(request, options)) : request
+  if (typeof request === 'string') {
+    let resolved
+    try {
+      resolved = resolvePluginString(request, { ...options, prefix: '' })
+    } catch (err) {
+      resolved = resolvePluginString(request, options)
+    }
+    return require(resolved)
+  }
+
+  return request
 }
 
 /**

@@ -8,7 +8,7 @@ import EventEmitter from 'events'
 import socketio from 'socket.io'
 import bole from 'bole'
 import del from 'del'
-import { resolve, join } from 'path'
+import { resolve, join, dirname } from 'path'
 import { isArray, isString, inherits } from 'util'
 
 import createServer from './lib/createServer'
@@ -41,7 +41,8 @@ class IIOO extends EventEmitter {
     lifeCircle: {},
     template: join(paths.src, 'template.html'),
     entry: join(paths.client, 'sample-entry.js'),
-    noiioo: false
+    noiioo: false,
+    force: false
   }
 
   // `new IIOO()` trigger initialize cwd
@@ -76,7 +77,9 @@ class IIOO extends EventEmitter {
 
     // resolve entry to {}
     // even this.options.entry is {} or [] or string
-    let entry = mapShallow(this.options.entry, source => resolvePluginString(source, { prefix: 'iioo-app-' }))
+    let entry = mapShallow(this.options.entry, source => resolvePluginString(source, {
+      prefix: 'iioo-app-', cwd: this.cwd
+    }))
     if (isArray(entry)) {
       const collection = {}
       entry.forEach((eachEntry, index) => {
@@ -86,12 +89,14 @@ class IIOO extends EventEmitter {
       })
       entry = collection
     } else if (isString(entry)) {
-      entry = { 'app': resolvePluginString(entry, { prefix: 'iioo-app-' }) }
+      entry = { 'app': resolvePluginString(entry, { prefix: 'iioo-app-', cwd: this.cwd }) }
     }
     this.options.entry = entry
-
     this.hash = this.options.hash = this.options.hash || version
     this.cwd = this.options.cwd
+    if (this.options.output) {
+      this.options.output.path = this.resolve(this.options.output.path)
+    }
 
     this._init()
   }
@@ -115,7 +120,8 @@ class IIOO extends EventEmitter {
     this.helper = getPluginHelper(this)
 
     this.options.plugins = this.options.plugins.map(plugin => {
-      const resolvedPlugin = resolvePlugin(plugin, { prefix: 'iioo-plugin-' })
+      this.console.debug(JSON.stringify(plugin))
+      const resolvedPlugin = resolvePlugin(plugin, { prefix: 'iioo-plugin-', cwd: this.cwd })
       resolvedPlugin[0].call(this, resolvedPlugin[1])
       return resolvedPlugin
     })
@@ -123,6 +129,18 @@ class IIOO extends EventEmitter {
 
   registerLifeCircle() {
     registerLifeCircle(this, this.options.lifeCircle)
+  }
+
+  _clearBuildPath() {
+    if (this.options.force && this.options.output.path) {
+      this.emit('before-delete-build-assert')
+      del.sync([
+        join(this.options.output.path, '*'),
+        // ignore .git
+        `!${join(this.options.output.path, '.git')}`
+      ], { force: true })
+      this.emit('after-delete-build-assert')
+    }
   }
 
   async start() {
@@ -143,6 +161,7 @@ class IIOO extends EventEmitter {
   }
 
   async build() {
+    this._clearBuildPath()
     await this.setUpWebpack({ dev: false })
   }
 
@@ -176,20 +195,24 @@ class IIOO extends EventEmitter {
 
 
   getEntryFilesEntity() {
-    return Object.keys(this.options.entry)
-      .map(key => ({
-        path: this.resolve(this.options.entry[key]),
-        key
-      }))
+    return Object
+      .keys(this.options.entry)
+      .map(key => (
+        {
+          path: this.resolve(this.options.entry[key]),
+          key
+        }
+      ))
   }
+
   renderClientFile() {
     this.getEntryFilesEntity()
-      .forEach(({ key, path }) => {
-        renderer.entry(
-          { version, entry: this.resolve(path) },
-          join(paths.client, `entry.${key}.${this.hash}.js`)
-        )
-      })
+        .forEach(({ key, path }) => {
+          renderer.entry(
+            { version, entry: this.resolve(path) },
+            join(paths.client, `entry.${key}.${this.hash}.js`)
+          )
+        })
   }
 
   _initWebpackEnv() {
@@ -202,16 +225,16 @@ class IIOO extends EventEmitter {
 
     const entry = {}
     this.getEntryFilesEntity()
-      .forEach(({ key }) => {
-        let path = join(paths.client, `entry.${key}.${this.hash}.js`)
-        entry[key] = path
-      })
+        .forEach(({ key }) => {
+          let path = join(paths.client, `entry.${key}.${this.hash}.js`)
+          entry[key] = path
+        })
     this.console.debug({ type: 'entry', message: entry })
 
     options = {
       ...options,
       ...this.options.output,
-      cwd: this.options.cwd,
+      cwd: this.cwd,
       template: this.options.template,
       entry
     }
@@ -226,11 +249,14 @@ class IIOO extends EventEmitter {
 }
 
 function iioo(options) {
-  if (!(this instanceof IIOO)) {
+  if (!(
+      this instanceof IIOO
+    )) {
     return new iioo(options)
   }
   IIOO.call(this, options)
 }
+
 inherits(iioo, IIOO)
 
 module.exports = iioo

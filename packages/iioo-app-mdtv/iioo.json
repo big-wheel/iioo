@@ -1,0 +1,8 @@
+{
+  "lifeCircle": {
+  },
+  "plugins": [
+    ["../iioo-plugin-fs-watcher", { "paths": "./md/**/*.{md,markdown}" }],
+    ["./plugin"]
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "name": "iioo-app-mdtv",
+  "version": "0.0.0",
+  "main": "dist/index.js",
+  "dependencies": {
+
+  }
+}
