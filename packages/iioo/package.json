@@ -1,6 +1,6 @@
 {
   "name": "iioo",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": " ✨ A Pluggable http server communicating frontend via socket.io",
   "main": "dist/index.js",
   "scripts": {
