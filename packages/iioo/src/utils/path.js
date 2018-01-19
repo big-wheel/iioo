@@ -24,6 +24,10 @@ export function escapeWinPath(path) {
   return path.replace(/\\/g, '\\\\')
 }
 
+export function toUriPath(path) {
+  return path.replace(/\\/g, '/')
+}
+
 export function isAbsolute(path) {
   assertPath(path)
 
