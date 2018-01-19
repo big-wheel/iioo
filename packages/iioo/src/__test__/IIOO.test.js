@@ -9,11 +9,11 @@ import IIOO from '../index'
 describe('iioo', () => {
   test('~iioo.construct', () => {
     expect(
-      new IIOO() instanceof IIOO
-    ).toBeTruty()
+      (new IIOO() instanceof IIOO)
+    ).toBeTruthy()
     expect(
       IIOO() instanceof IIOO
-    ).toBeTruty()
+    ).toBeTruthy()
   })
 
   test('~iioo.start', () => {

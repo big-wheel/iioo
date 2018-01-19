@@ -36,9 +36,6 @@
       "json",
       "text",
       "lcov"
-    ],
-    "transform": {
-      "^\\.jsx?$": "babel-jest"
-    }
+    ]
   }
 }

@@ -15,10 +15,8 @@ install:
   - npm run bootstrap
 
 before_script:
-#  - npm install codecov nyc
+  - npm install codecov
 script:
-#  - ./node_modules/.bin/nyc npm test
   - npm test
 after_script:
-#  - ./node_modules/.bin/nyc report --reporter=text-lcov > coverage.lcov
-#  - ./node_modules/.bin/codecov --token=$CODECOV_TOKEN
+  codecov --token=$CODECOV_TOKEN
