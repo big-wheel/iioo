@@ -29,7 +29,7 @@ export function isAbsolute(path) {
 
   if (isWin) {
     path = escapeWinPath(path)
-    return ABSOLUTE_WIN_RGX.test(path) && ABSOLUTE_POSIX_RGX.test(path)
+    return ABSOLUTE_WIN_RGX.test(path) || ABSOLUTE_POSIX_RGX.test(path)
   }
   return ABSOLUTE_POSIX_RGX.test(path)
 }
