@@ -10,11 +10,10 @@
     },
     "publish": {
       "message": "publish: %s",
-      "canary": true,
       "npmTag": "alpha",
       "cdVersion": "prepatch",
       "conventionalCommits": false
     }
   },
-  "version": "0.0.0"
+  "version": "independent"
 }
