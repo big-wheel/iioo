@@ -18,9 +18,20 @@ function assertPath(path) {
   }
 }
 
+// require('D:\ss') => require('D:ss')
+//  D:\ss -> D:\\ss => D:\ss
+export function escapeWinPath(path) {
+  return path.replace(/\\/g, '\\\\')
+}
+
 export function isAbsolute(path) {
   assertPath(path)
-  return isWin ? ABSOLUTE_WIN_RGX.test(path) && ABSOLUTE_POSIX_RGX.test(path) : ABSOLUTE_POSIX_RGX.test(path)
+
+  if (isWin) {
+    path = escapeWinPath(path)
+    return ABSOLUTE_WIN_RGX.test(path) && ABSOLUTE_POSIX_RGX.test(path)
+  }
+  return ABSOLUTE_POSIX_RGX.test(path)
 }
 
 export function isRelative(path) {
