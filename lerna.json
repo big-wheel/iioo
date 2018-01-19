@@ -10,9 +10,7 @@
     },
     "publish": {
       "message": "publish: %s",
-      "npmTag": "alpha",
-      "cdVersion": "prepatch",
-      "conventionalCommits": false
+      "ignore": "iioo-example"
     }
   },
   "version": "independent"
