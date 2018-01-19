@@ -10,7 +10,7 @@
     "publish": "lerna publish"
   },
   "lint-staged": {
-    "src/**/*.js": [
+    "packages/*/src/**/*.js": [
       "eslint --fix",
       "git add"
     ]
