@@ -19,7 +19,7 @@ import paths from './lib/paths'
 import renderer from './lib/wrapRenderTemplate'
 import getConfigFilename from './lib/getConfigFilename'
 import assign from './utils/assign'
-import { toUriPath } from './utils/path'
+import { toUriPath, escapeWinPath } from './utils/path'
 import { version } from '../package.json'
 import registerLifeCycle from './lib/registerLifeCycle'
 
@@ -211,7 +211,7 @@ class IIOO extends EventEmitter {
       .getEntryFilesEntity()
       .forEach(({ key, path }) => {
         renderer.entry(
-          { version, entry: toUriPath(this.resolve(path)) },
+          { version, entry: toUriPath(escapeWinPath(this.resolve(path))) },
           join(paths.client, `entry.${key}.${this.hash}.js`)
         )
       })

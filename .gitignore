@@ -10,3 +10,4 @@ public/
 client/entry.*.js
 lerna-debug.log
 coverage
+yarn.lock
