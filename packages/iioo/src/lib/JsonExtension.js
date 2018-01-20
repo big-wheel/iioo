@@ -26,13 +26,14 @@ export function flatten(object) {
 }
 
 /**
- * the reverse process of flatten
+ * the *reverse* process of flatten
+ * NOTE: { '0': 'y', '1': 'x' } -> flatten -> summon -> [ 'y', 'x' ]
  * some error cases:
  *  case1. input is not {}
  *  case2. input is not shape of { 'refPath': value }
- * @param flatted
+ * @param flattened
  * @return {{}}
  */
-export function unflatten(flatted) {
+export function summon(flattened) {
   return {}
 }
