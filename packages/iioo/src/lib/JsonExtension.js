@@ -1,5 +1,5 @@
 /**
- * @file: calculateEntry
+ * @file: JsonExtension
  * @author: Cuttle Cong
  * @date: 2018/1/20
  * @description:
@@ -19,9 +19,13 @@ import { isArray, isObject, isString, isNullOrUndefined } from 'util'
  *            'd.k': 123
  *          }
  * @param object
+ * @param isAtomValue value => boolean
+ *      check the value is atom value or not.
+ *      atom value will not flatten continue,
+ *      BTW: the primitive value is atom value in default case.
  * @return {{refPath: string}}
  */
-export function flatten(object) {
+export function flatten(object, isAtomValue) {
   return { 'refPath': object }
 }
 
