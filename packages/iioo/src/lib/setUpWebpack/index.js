@@ -10,22 +10,27 @@ import webpackDevMiddleware from 'webpack-dev-middleware'
 import webpackHotMiddleware from 'webpack-hot-middleware'
 
 import getWebpackConfig from './getWebpackConfig'
+import normalizeOptions from './normalizeOptions'
 
-function setUpWebpackServer(iioo, options = {}) {
-  const opts = {
-    cwd: options.cwd,
-    dev: true,
-    template: options.template,
-    hash: false,
-    path: options.path,
-    publicPath: options.publicPath,
-    entry: options.entry
-  }
-  iioo.emit('getWebpackConfig.options', opts)
-  const webpackConfig = iioo.webpackConfig = getWebpackConfig(opts)
-  const { server } = iioo
+
+function emitWebpackConfig(iioo, opts = []) {
+  const webpackConfig = iioo.webpackConfig = opts.map(opt => {
+    iioo.emit('getWebpackConfig.options', opt)
+    const webpackConfig = getWebpackConfig(opts)
+    iioo.emit('each-webpackConfig', webpackConfig, webpack)
+    return webpackConfig
+  })
   iioo.emit('this-webpackConfig', webpackConfig, webpack)
 
+  return webpackConfig
+}
+
+function setUpWebpackServer(iioo, options = {}) {
+  const webpackConfig = emitWebpackConfig(iioo, normalizeOptions(options, { dev: true }))
+  console.log(webpackConfig)
+  process.exit()
+
+  const { server } = iioo
   iioo.emit('before-webpackServer', server)
   const compiler = iioo.compiler = webpack(webpackConfig)
   iioo.emit('this-webpackCompiler', compiler)
@@ -42,18 +47,8 @@ function setUpWebpackServer(iioo, options = {}) {
 }
 
 async function setUpWebpackBuilder(iioo, options = {}) {
-  const opts = {
-    cwd: options.cwd,
-    dev: false,
-    template: options.template,
-    hash: false,
-    path: options.path,
-    publicPath: options.publicPath,
-    entry: options.entry
-  }
-  iioo.emit('getWebpackConfig.options', opts)
-  const webpackConfig = iioo.webpackConfig = getWebpackConfig(opts)
-  iioo.emit('this-webpackConfig', webpackConfig, webpack)
+  const webpackConfig = emitWebpackConfig(iioo, normalizeOptions(options, { dev: false }))
+
   iioo.emit('before-webpackBuilder')
   const compiler = iioo.compiler = webpack(webpackConfig)
   iioo.emit('this-webpackCompiler', compiler)

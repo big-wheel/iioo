@@ -12,6 +12,6 @@ var runner = iioo({
 
 runner.start()
 
-runner.on('this-webpackConfig', function (config) {
+runner.on('each-webpackConfig', function (config) {
   console.log(config.entry)
 })

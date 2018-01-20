@@ -9,7 +9,7 @@ import HtmlWebpackPlugin from 'html-webpack-plugin'
 import ExtractTextPlugin from 'extract-text-webpack-plugin'
 import ProgressBarPlugin from 'progress-bar-webpack-plugin'
 import FriendlyErrorsWebpackPlugin from 'friendly-errors-webpack-plugin'
-import { resolve, join } from 'path'
+import { resolve } from 'path'
 
 import babelConfig from './babelConfig'
 
@@ -21,13 +21,14 @@ export default function getWebpackConfig(options = {}) {
     entry,
     publicPath,
     cwd = process.cwd(),
-    path = resolve(cwd, 'public')
+    path = resolve(cwd, 'public'),
+    name
   } = options
 
-  const filename = hash ? '[name].[hash:6].js' : '[name].js'
+  const filename = hash ? '[name].[chunkhash:6].js' : '[name].js'
   const chunkFilename = hash ? '[name].[chunkhash:6].js' : '[name].js'
   const cssFilename = hash ? '[name].[contenthash:6].css' : '[name].css'
-  const commonFilename = hash ? '[name].[hash:6].js' : '[name].js'
+  const commonFilename = hash ? '[name].[chunkname:6].js' : '[name].js'
 
   const postcssLoader = {
     loader: 'postcss-loader',
@@ -42,7 +43,9 @@ export default function getWebpackConfig(options = {}) {
     }
   }
   const config = {
-    // context: cwd,
+    name: name,
+    context: cwd,
+    bail: true,
     cache: true,
     devtool: dev && 'source-map',
     entry,
@@ -183,6 +186,7 @@ export default function getWebpackConfig(options = {}) {
         filename: commonFilename,
         name: 'common'
       }),
+      dev ? new webpack.NamedModulesPlugin() : new webpack.HashedModuleIdsPlugin(),
       dev && new webpack.HotModuleReplacementPlugin(),
       !dev && new webpack.optimize.UglifyJsPlugin({
         parallel: true,
@@ -190,7 +194,15 @@ export default function getWebpackConfig(options = {}) {
       }),
       new HtmlWebpackPlugin({
         hash: false,
-        template
+        template,
+        minify: !dev ? {
+          removeAttributeQuotes: true,
+          collapseWhitespace: true,
+          html5: true,
+          minifyCSS: true,
+          removeComments: true,
+          removeEmptyAttributes: true
+        } : false
       }),
       new ProgressBarPlugin(),
       new FriendlyErrorsWebpackPlugin()

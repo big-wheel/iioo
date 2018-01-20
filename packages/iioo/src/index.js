@@ -9,7 +9,7 @@ import socketio from 'socket.io'
 import bole from 'bole'
 import del from 'del'
 import { resolve, join } from 'path'
-import { isArray, isString, inherits } from 'util'
+import { isArray, isString, inherits, isObject } from 'util'
 
 import createServer from './lib/createServer'
 import presetPlugin from './presetPlugin'
@@ -76,23 +76,24 @@ class IIOO extends EventEmitter {
       }
     }
 
-    // resolve entry to {}
+    // resolve entry
     // even this.options.entry is {} or [] or string
     let entry = mapShallow(this.options.entry, source => resolvePluginString(source, {
       prefix: 'iioo-app-', cwd: this.cwd
     }))
     if (isArray(entry)) {
-      const collection = {}
-      entry.forEach((eachEntry, index) => {
+      const collection = []
+      entry.forEach((eachEntry) => {
         if (isString(eachEntry)) {
-          collection[index] = eachEntry
+          collection.push(eachEntry)
         }
       })
       entry = collection
     } else if (isString(entry)) {
-      entry = { 'app': resolvePluginString(entry, { prefix: 'iioo-app-', cwd: this.cwd }) }
+      entry = [resolvePluginString(entry, { prefix: 'iioo-app-', cwd: this.cwd })]
     }
     this.options.entry = entry
+
     this.hash = this.options.hash = this.options.hash || version
     this.cwd = this.options.cwd
     if (this.options.output) {
@@ -145,6 +146,7 @@ class IIOO extends EventEmitter {
   }
 
   async start() {
+    this.mode = 'dev'
     this.emit('before-createServer')
     try {
       this.server = await createServer(this.options.port)
@@ -162,6 +164,7 @@ class IIOO extends EventEmitter {
   }
 
   async build() {
+    this.mode = 'prod'
     this._clearBuildPath()
     await this.setUpWebpack({ dev: false })
   }
@@ -187,29 +190,51 @@ class IIOO extends EventEmitter {
   }
 
   resolve(...pathList) {
-    return resolve(this.cwd, ...pathList)
+    return resolve(this.cwd, ...pathList.filter(Boolean))
   }
 
   clearRuntime() {
     del.sync(join(paths.client, `entry*.${this.hash}.js`), { force: true })
   }
 
+  _getEntryList(entry, prefix = '') {
+    let array
+    if (isString(entry)) {
+      array = [entry]
+    }
+    if (isArray(array)) {
+      array = entry
+    }
 
-  getEntryFilesEntity() {
-    return Object
-      .keys(this.options.entry)
-      .map(key => (
-        {
-          path: this.resolve(this.options.entry[key]),
-          key
-        }
-      ))
+    return array.map((path, i) => (
+      { key: prefix + i, path: this.resolve(path) }
+    ))
+  }
+
+  getMultiEntryList(entry = this.options.entry, prefix = '') {
+    if (isObject(entry)) {
+      let list = []
+      Object
+        .keys(entry)
+        .forEach(key => {
+          const newPrefix = prefix + '.' + key + '.'
+          if (isObject(entry[key])) {
+            list = list.concat(this.getMultiEntryList(entry[key], newPrefix))
+          }
+          list.push(this._getEntryList(entry[key], newPrefix))
+        })
+
+      return list
+    }
+
+    return [this._getEntryList(entry)]
   }
 
   renderClientFile() {
     this
       .getEntryFilesEntity()
       .forEach(({ key, path }) => {
+        // console.log(key, path)
         renderer.entry(
           { version, entry: toUriPath(escapeWinPath(this.resolve(path))) },
           join(paths.client, `entry.${key}.${this.hash}.js`)
@@ -226,17 +251,19 @@ class IIOO extends EventEmitter {
     this._initWebpackEnv()
 
     const entry = {}
-    this.getEntryFilesEntity()
-        .forEach(({ key }) => {
-          let path = join(paths.client, `entry.${key}.${this.hash}.js`)
-          entry[key] = path
-        })
+    this
+      .getEntryFilesEntity()
+      .forEach(({ key }) => {
+        let path = join(paths.client, `entry.${key}.${this.hash}.js`)
+        entry[key] = path
+      })
     this.console.debug({ type: 'entry', message: entry })
 
     options = {
       ...options,
       ...this.options.output,
       cwd: this.cwd,
+      name: 'iioo',
       template: this.options.template,
       entry
     }
@@ -252,8 +279,8 @@ class IIOO extends EventEmitter {
 
 function iioo(options) {
   if (!(
-      this instanceof IIOO
-    )) {
+    this instanceof IIOO
+  )) {
     return new iioo(options)
   }
   IIOO.call(this, options)

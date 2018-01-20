@@ -19,11 +19,13 @@ console.log(
 console.log('')
 
 function start() {
-  require('<%= entry %>')
+  <% entryList.forEach(function (entry) { %>
+    require(<%= JSON.stringify(entry) %>)
+  <% }) %>
 }
 
 if (module.hot) {
-  module.hot.accept('<%= entry %>', start)
+  module.hot.accept(<%= JSON.stringify(entryList) %>, start)
 }
 
 start()

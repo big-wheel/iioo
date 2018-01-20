@@ -74,12 +74,19 @@ export default function presetPlugin(options) {
       })
     })
     .on('getWebpackConfig.options', options => {
-      if (options.entry) {
-        mapShallow(options.entry, previous => {
-          const presets = [
-            require.resolve('webpack-hot-middleware/client')
-          ].filter(Boolean)
+      let presets = []
+      if (iioo.mode === 'dev') {
+        presets = [
+          require.resolve('webpack-hot-middleware/client') + (options.name ? ('?name=' + options.name) : '')
+        ].filter(Boolean)
+      }
 
+      if (options.entry) {
+        if (isString(options.entry)) {
+          options.entry = presets.concat(options.entry)
+        }
+
+        mapShallow(options.entry, (previous, key) => {
           iioo.emit('entry-presets', presets)
           if (isArray(previous) || isString(previous)) {
             return presets.concat(previous)
@@ -87,7 +94,7 @@ export default function presetPlugin(options) {
         })
       }
     })
-    .on('this-webpackConfig', (config, webpack) => {
+    .on('each-webpackConfig', (config, webpack) => {
       const loader = config.module.rules.find(({ use }) => use.loader === 'babel-loader')
       loader.exclude = [
         function (name) {
@@ -136,16 +143,18 @@ export default function presetPlugin(options) {
       }
     })
     .on('this-webpackCompiler', compiler => {
+
       // Files created right before watching starts make watching go into a loop
       // https://github.com/webpack/watchpack/issues/25
-      const timefix = 11000
-      compiler.plugin('watch-run', (watching, callback) => {
-        watching.startTime += timefix
-        callback()
-      })
-      compiler.plugin('done', (stats) => {
-        stats.startTime -= timefix
-      })
+      // const timefix = 11000
+      // compiler.plugin('watch-run', (watching, callback) => {
+      //   watching.startTime += timefix
+      //   callback()
+      // })
+      // compiler.plugin('done', (stats) => {
+      //   stats.startTime -= timefix
+      // })
+
     })
     .on('after-webpackBuilder', stats => {
       log.info('iioo build done!')

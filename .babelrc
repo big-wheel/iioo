@@ -28,5 +28,8 @@
         "regenerator": true
       }
     ]
+  ],
+  "ignore": [
+    "templates/*.template.js"
   ]
 }
