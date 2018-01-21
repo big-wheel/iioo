@@ -15,7 +15,7 @@ import normalizeOptions from './normalizeOptions'
 
 function emitWebpackConfig(iioo, opts = []) {
   const webpackConfig = iioo.webpackConfig = opts.map(opt => {
-    iioo.emit('getWebpackConfig.options', opt)
+    await iioo.emit('getWebpackConfig.options', opt)
     const webpackConfig = getWebpackConfig(opts)
     iioo.emit('each-webpackConfig', webpackConfig, webpack)
     return webpackConfig

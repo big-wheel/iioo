@@ -6,6 +6,9 @@
  */
 import { isArray, isObject, isString, isNullOrUndefined } from 'util'
 
+function defaultIsAtomValue(value) {
+  return !isObject(value)
+}
 /**
  * flatten the object
  * eg.
@@ -19,14 +22,32 @@ import { isArray, isObject, isString, isNullOrUndefined } from 'util'
  *            'd.k': 123
  *          }
  * @param object
- * @param isAtomValue value => boolean
+ * @param isAtomValue :Function value => boolean
  *      check the value is atom value or not.
  *      atom value will not flatten continue,
  *      BTW: the primitive value is atom value in default case.
  * @return {{refPath: string}}
  */
-export function flatten(object, isAtomValue) {
-  return { 'refPath': object }
+export function flatten(obj, isAtomValue = defaultIsAtomValue) {
+  if (!isObject(obj)) {
+    throw new TypeError('flatten is require {}/[], but ' + typeof obj)
+  }
+  let temp, targetObj = {}
+
+  Object.keys(obj).map(key => {
+    const value = obj[key]
+    if (!isAtomValue(value)) {
+      temp = {}
+      Object.keys(value).map((subKey) => {
+        temp[`${key}.${subKey}`] = value[subKey]
+      })
+      Object.assign(targetObj, flatten(temp, isAtomValue))
+    } else {
+      targetObj[key] = value
+    }
+  })
+
+  return targetObj
 }
 
 /**

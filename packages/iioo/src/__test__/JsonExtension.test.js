@@ -4,19 +4,20 @@
  * @date: 2018/1/20
  * @description:
  */
-import { unflatten, flatten } from '../lib/JsonExtension'
+import { flatten } from '../lib/JsonExtension'
+import { isObject, isArray } from 'util'
 
 describe('JsonExt', () => {
   it('JsonExt#flatten  ', function () {
-    expect(flatten({ a: '[]', b: null, c: [1, 3, { a: 'io' }], d: { k: 123 } })).toMatchSnapShot()
+    expect(
+      flatten({ a: '[]', b: null, c: [1, 3, { a: 'io' }], d: { k: 123 } })
+    ).toMatchSnapshot()
   })
 
-  it('JsonExt#unflatten  error', function () {
-    expect(() => unflatten({ 'a': 123, 'a.bc': 123 })).toThrow()
-  })
-
-  it('JsonExt#unflatten  ', function () {
-    expect(unflatten({ 'a.x.0': 123, 'a.x.1': 321, 'a.bc': 123 })).toEqual({ a: { x: [123, 321], bc: 123 } })
+  it('JsonExt#flatten isAtomValue ', function () {
+    expect(
+      flatten({ a: '[]', b: null, c: [1, 3, { a: 'io' }], d: { k: 123 } }, value => !isObject(value) || isArray(value))
+    ).toMatchSnapshot()
   })
 
 })
