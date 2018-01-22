@@ -33,22 +33,30 @@ export function flatten(obj, isAtomValue = defaultIsAtomValue) {
   if (!isObject(obj)) {
     throw new TypeError('flatten is require {}/[], but ' + typeof obj)
   }
-  let temp, targetObj = {}
 
-  Object.keys(obj).forEach(key => {
-    const value = obj[key]
-    if (!isAtomValue(value)) {
-      temp = {}
-      Object.keys(value).map(subKey => {
-        temp[`${key}.${subKey}`] = value[subKey]
-      })
-      Object.assign(targetObj, flatten(temp, isAtomValue))
-    } else {
-      targetObj[key] = value
-    }
-  })
+  function _flatten(obj, isAtomValue, collections) {
+    let temp, targetObj = {}
+    Object.keys(obj).forEach(key => {
+      const value = obj[key]
+      if (!isAtomValue(value)) {
+        if (collections.indexOf(value) >= 0) {
+          throw new Error('The object has circle reference, paths: ' + key)
+        }
+        collections.push(value)
+        temp = {}
+        Object.keys(value).map(subKey => {
+          temp[`${key}.${subKey}`] = value[subKey]
+        })
+        Object.assign(targetObj, _flatten(temp, isAtomValue, collections))
+      } else {
+        targetObj[key] = value
+      }
+    })
 
-  return targetObj
+    return targetObj
+  }
+
+  return _flatten(obj, isAtomValue, [])
 }
 
 /**
@@ -67,12 +75,13 @@ export function summon(flattened) {
 
 
   function _summon(flattened) {
-    if (!isObject(flattened) || isArray(flattened)) {
+    if (!isObject(flattened)) {
       return flattened
     }
     let i, tempKey, subKey, obj = {}, needSummon = {}, arr = [], times = 0
 
     Object.keys(flattened).forEach(key => {
+      tempKey = key
       i = key.indexOf('.')
       if (i !== -1) {
         tempKey = key.substring(0, i)
@@ -80,23 +89,36 @@ export function summon(flattened) {
 
         obj[tempKey] = obj[tempKey] || {}
         obj[tempKey][subKey] = flattened[key]
+        /* eslint-disable eqeqeq */
+        if (parseInt(tempKey) == tempKey) {
+          if (!needSummon[tempKey]) {
+            times++
+          }
+          arr[+tempKey] = arr[+tempKey] || {}
+          arr[+tempKey][subKey] = flattened[key]
+        }
+
         needSummon[tempKey] = 1
       } else {
-        /* eslint-disable eqeqeq */
-        // key is integer
-        if (parseInt(key) == key) {
-          arr[+key] = flattened[key]
+        obj[tempKey] = flattened[tempKey]
+        if (parseInt(tempKey) == tempKey) {
+          arr[+tempKey] = flattened[tempKey]
           times++
         }
-        obj[key] = flattened[key]
       }
+
     })
 
-    if (Object.keys(needSummon).length === 0 && Object.keys(obj).length === times && times === arr.length) {
+    let isarr = false
+    if (Object.keys(obj).length === times && times === arr.length) {
+      isarr = true
       obj = arr
     }
 
     Object.keys(needSummon).forEach(key => {
+      if (isarr) {
+        key = +key
+      }
       obj[key] = _summon(obj[key])
     })
 
