@@ -4,7 +4,7 @@
  * @date: 2018/1/20
  * @description:
  */
-import { isArray, isNumber, isObject, isString, isNullOrUndefined } from 'util'
+import { isArray, isObject, isPrimitive } from 'util'
 
 function defaultIsAtomValue(value) {
   return !isObject(value)
@@ -39,10 +39,12 @@ export function flatten(obj, isAtomValue = defaultIsAtomValue) {
     Object.keys(obj).forEach(key => {
       const value = obj[key]
       if (!isAtomValue(value)) {
-        if (collections.indexOf(value) >= 0) {
-          throw new Error('The object has circle reference, paths: ' + key)
+        if (!isPrimitive(value)) {
+          if (collections.indexOf(value) >= 0) {
+            throw new Error('The object has circle reference, paths: ' + key)
+          }
+          collections.push(value)
         }
-        collections.push(value)
         temp = {}
         Object.keys(value).map(subKey => {
           temp[`${key}.${subKey}`] = value[subKey]
