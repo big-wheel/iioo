@@ -4,7 +4,7 @@
  * @date: 2018/1/20
  * @description:
  */
-import { isArray, isObject, isString, isNullOrUndefined } from 'util'
+import { isArray, isNumber, isObject, isString, isNullOrUndefined } from 'util'
 
 function defaultIsAtomValue(value) {
   return !isObject(value)
@@ -60,5 +60,33 @@ export function flatten(obj, isAtomValue = defaultIsAtomValue) {
  * @return {{}}
  */
 export function summon(flattened) {
-  return {}
+  if(!isObject(flattened)) {
+    throw new TypeError('summon is require {}/[], but ' + typeof flattened)
+  }
+  let i, tempKey, obj = {}
+
+  Object.keys(flattened).map((key) => {
+    i = key.indexOf('.')
+    if(i !== -1) {
+      tempKey = key.substring(0, i)
+      obj[tempKey] = obj[tempKey] ? obj[tempKey] : {}
+      obj[tempKey][key.substring(i + 1)] = flattened[key]
+    } else {
+      obj[key] = flattened[key]
+    }
+  })
+  for(let key in obj){
+    if (isObject(obj[key])) {
+      obj[key] = summon(obj[key])
+    }
+  }
+  // to Array
+  if(Object.keys(obj).every(isNumber)) {
+    let arr = []
+    for(let key in obj) {
+      arr[key] = obj[key]
+    }
+    obj = arr
+  }
+  return obj
 }
