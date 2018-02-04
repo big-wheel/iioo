@@ -45,7 +45,7 @@ export function getInvokeByClass(
     getKeys(target)
       .filter(filterKey)
       .forEach(key => {
-        let descriptor = Object.getOwnPropertyDescriptor(target.prototype, 'constructor')
+        let descriptor = Object.getOwnPropertyDescriptor(target.prototype, key)
         Object.defineProperty(
           target.prototype,
           key,
