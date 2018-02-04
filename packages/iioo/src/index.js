@@ -22,6 +22,7 @@ import assign from './utils/assign'
 import { toUriPath, escapeWinPath } from './utils/path'
 import { version } from '../package.json'
 import registerLifeCycle from './lib/registerLifeCycle'
+import { flatten } from './lib/JsonExtension'
 
 import resolvePlugin, { resolvePluginString } from './utils/resolvePlugin'
 import mapShallow from './utils/mapShallow'
@@ -78,17 +79,15 @@ class IIOO extends EventEmitter {
 
     // resolve entry
     // even this.options.entry is {} or [] or string
-    let entry = mapShallow(this.options.entry, source => resolvePluginString(source, {
-      prefix: 'iioo-app-', cwd: this.cwd
-    }))
+    let entry = mapShallow(this.options.entry, source =>
+      isString(source)
+        ? resolvePluginString(source, {
+          prefix: 'iioo-app-', cwd: this.cwd
+        })
+        : source
+    )
     if (isArray(entry)) {
-      const collection = []
-      entry.forEach((eachEntry) => {
-        if (isString(eachEntry)) {
-          collection.push(eachEntry)
-        }
-      })
-      entry = collection
+      entry = entry.filter(isString)
     } else if (isString(entry)) {
       entry = [resolvePluginString(entry, { prefix: 'iioo-app-', cwd: this.cwd })]
     }
@@ -211,35 +210,32 @@ class IIOO extends EventEmitter {
     ))
   }
 
-  getMultiEntryList(entry = this.options.entry, prefix = '') {
-    if (isObject(entry)) {
-      let list = []
-      Object
-        .keys(entry)
-        .forEach(key => {
-          const newPrefix = prefix + '.' + key + '.'
-          if (isObject(entry[key])) {
-            list = list.concat(this.getMultiEntryList(entry[key], newPrefix))
-          }
-          list.push(this._getEntryList(entry[key], newPrefix))
-        })
-
-      return list
+  getEntry() {
+    let entry = this.options.entry
+    if (isObject(entry) && !isArray(entry)) {
+      let flattened = flatten(entry, value => !isObject(value) || isArray(value))
+      const computed = {}
+      mapShallow(flattened, (value, key) => {
+        computed[key] = value
+      })
+      return computed
     }
-
-    return [this._getEntryList(entry)]
+    return entry
   }
 
   renderClientFile() {
-    this
-      .getEntryFilesEntity()
-      .forEach(({ key, path }) => {
-        // console.log(key, path)
-        renderer.entry(
-          { version, entry: toUriPath(escapeWinPath(this.resolve(path))) },
-          join(paths.client, `entry.${key}.${this.hash}.js`)
-        )
-      })
+    const entryObj = this.getEntry()
+    mapShallow(entryObj, (value, key) => {
+      renderer.entry(
+        {
+          version,
+          entryList: [].concat(value).map(
+            path => toUriPath(escapeWinPath(this.resolve(path)))
+          )
+        },
+        join(paths.client, `entry.${key}.${this.hash}.js`)
+      )
+    })
   }
 
   _initWebpackEnv() {
@@ -249,21 +245,22 @@ class IIOO extends EventEmitter {
   async setUpWebpack(options) {
     this.emit('before-setUpWebpack')
     this._initWebpackEnv()
-
-    const entry = {}
-    this
-      .getEntryFilesEntity()
-      .forEach(({ key }) => {
-        let path = join(paths.client, `entry.${key}.${this.hash}.js`)
-        entry[key] = path
+    let entry = this.getEntry()
+    if (isArray(entry)) {
+      entry = join(paths.client, `entry.${0}.${this.hash}.js`)
+    }
+    else {
+      mapShallow(entry, (value, key) => {
+        return join(paths.client, `entry.${key}.${this.hash}.js`)
       })
-    this.console.debug({ type: 'entry', message: entry })
+    }
+    this.console.debug({ type: 'entry', message: JSON.stringify(entry, null, 2) })
 
     options = {
       ...options,
       ...this.options.output,
       cwd: this.cwd,
-      name: 'iioo',
+      // name: 'iioo',
       template: this.options.template,
       entry
     }
@@ -278,9 +275,7 @@ class IIOO extends EventEmitter {
 }
 
 function iioo(options) {
-  if (!(
-    this instanceof IIOO
-  )) {
+  if (!(this instanceof IIOO)) {
     return new iioo(options)
   }
   IIOO.call(this, options)

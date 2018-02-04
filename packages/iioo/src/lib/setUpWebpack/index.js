@@ -11,12 +11,13 @@ import webpackHotMiddleware from 'webpack-hot-middleware'
 
 import getWebpackConfig from './getWebpackConfig'
 import normalizeOptions from './normalizeOptions'
+import { inspect } from 'util'
 
 
 function emitWebpackConfig(iioo, opts = []) {
   const webpackConfig = iioo.webpackConfig = opts.map(opt => {
-    await iioo.emit('getWebpackConfig.options', opt)
-    const webpackConfig = getWebpackConfig(opts)
+    iioo.emit('getWebpackConfig.options', opt)
+    const webpackConfig = getWebpackConfig(opt)
     iioo.emit('each-webpackConfig', webpackConfig, webpack)
     return webpackConfig
   })
@@ -27,8 +28,7 @@ function emitWebpackConfig(iioo, opts = []) {
 
 function setUpWebpackServer(iioo, options = {}) {
   const webpackConfig = emitWebpackConfig(iioo, normalizeOptions(options, { dev: true }))
-  console.log(webpackConfig)
-  process.exit()
+  // iioo.console.debug({ type: 'webpackConfig', message: inspect(webpackConfig, { depth: 5 }) })
 
   const { server } = iioo
   iioo.emit('before-webpackServer', server)
@@ -36,9 +36,12 @@ function setUpWebpackServer(iioo, options = {}) {
   iioo.emit('this-webpackCompiler', compiler)
   // TODO better cli performance
   const devMiddleware = iioo.devMiddleware = webpackDevMiddleware(compiler, {
-    logLevel: !iioo.options.silent ? 'warn' : 'silent',
-    // stats: false,
-    publicPath: webpackConfig.output.publicPath
+    logLevel: iioo.options.logLevel !== 'debug' && (!iioo.options.silent ? 'warn' : 'silent'),
+    stats: iioo.options.logLevel === 'debug' && {
+      colors: true,
+      context: process.cwd()
+    },
+    publicPath: options.publicPath
   })
   server.use(devMiddleware)
   const hotMiddleware = iioo.hotMiddleware = webpackHotMiddleware(compiler, { log: false })
@@ -54,7 +57,7 @@ async function setUpWebpackBuilder(iioo, options = {}) {
   iioo.emit('this-webpackCompiler', compiler)
 
   return new Promise((resolve, reject) => {
-    // setTimeout for log some information before webpack cli progressBar
+    // ensure that log information before webpack cli progressBar
     setTimeout(() => {
       compiler.run((err, stats) => {
         if (err) {

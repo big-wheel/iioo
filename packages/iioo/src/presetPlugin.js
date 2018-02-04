@@ -49,12 +49,12 @@ export default function presetPlugin(options) {
     .on('after-webpackServer', server => {
 
       // https://juejin.im/entry/57bacd81165abd0066262eae
-      iioo.compiler.plugin('compilation', function (compilation) {
-        compilation.plugin('html-webpack-plugin-after-emit', function (data, callback) {
-          iioo.hotMiddleware.publish({ action: 'reload' })
-          callback()
-        })
-      })
+      // iioo.compiler.plugin('compilation', function (compilation) {
+      //   compilation.plugin('html-webpack-plugin-after-emit', function (data, callback) {
+      //     iioo.hotMiddleware.publish({ action: 'reload' })
+      //     callback()
+      //   })
+      // })
     })
     .on('this-io', io => {
       // io.on('connection', client => {
@@ -74,6 +74,9 @@ export default function presetPlugin(options) {
       })
     })
     .on('getWebpackConfig.options', options => {
+      const templateEntryPath = Array.isArray(options.entry) ? options.entry[0] : options.entry
+
+
       let presets = []
       if (iioo.mode === 'dev') {
         presets = [
@@ -82,16 +85,17 @@ export default function presetPlugin(options) {
       }
 
       if (options.entry) {
-        if (isString(options.entry)) {
+        iioo.emit('entry-presets', presets)
+        if (isString(options.entry) || isArray(options.entry)) {
           options.entry = presets.concat(options.entry)
         }
-
-        mapShallow(options.entry, (previous, key) => {
-          iioo.emit('entry-presets', presets)
-          if (isArray(previous) || isString(previous)) {
-            return presets.concat(previous)
-          }
-        })
+        else {
+          mapShallow(options.entry, (previous, key) => {
+            if (isArray(previous) || isString(previous)) {
+              return presets.concat(previous)
+            }
+          })
+        }
       }
     })
     .on('each-webpackConfig', (config, webpack) => {
@@ -109,14 +113,6 @@ export default function presetPlugin(options) {
         iioo: paths.root,
         ...config.alias
       }
-
-      // resolved by `require.resolve('webpack-hot-middleware/client')`
-
-      // config.resolve.modules = unique([
-      //   join(iioo.cwd, 'node_modules'),
-      //   join(paths.root, 'node_modules'),
-      //   'node_modules'
-      // ])
 
       config.resolveLoader = config.resolveLoader || {}
       // if iioo installed in the global
@@ -143,17 +139,6 @@ export default function presetPlugin(options) {
       }
     })
     .on('this-webpackCompiler', compiler => {
-
-      // Files created right before watching starts make watching go into a loop
-      // https://github.com/webpack/watchpack/issues/25
-      // const timefix = 11000
-      // compiler.plugin('watch-run', (watching, callback) => {
-      //   watching.startTime += timefix
-      //   callback()
-      // })
-      // compiler.plugin('done', (stats) => {
-      //   stats.startTime -= timefix
-      // })
 
     })
     .on('after-webpackBuilder', stats => {

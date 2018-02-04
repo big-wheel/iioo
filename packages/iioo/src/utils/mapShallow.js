@@ -19,9 +19,7 @@ export default function mapShallow(source, track) {
     return newValue
   }
 
-  if (isArray(source)) {
-    source.map(mapToNewValue)
-  } else if (isObject(source)) {
+  if (isObject(source)) {
     for (const key in source) {
       if (source.hasOwnProperty(key)) {
         source[key] = mapToNewValue(source[key], key, source)

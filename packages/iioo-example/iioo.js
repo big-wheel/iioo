@@ -1,8 +1,11 @@
 
 module.exports = {
-  'entry': [
-    './entry/a.js'
-  ],
+  'entry': {
+    xxoo: './entry/a.js',
+    appsds: [
+      './entry/a.js'
+    ]
+  },
   'plugins': [
 
   ],

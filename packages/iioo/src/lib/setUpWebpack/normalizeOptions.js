@@ -9,13 +9,13 @@ import { resolve } from 'path'
 import mapShallow from '../../utils/mapShallow'
 
 export default function normalizeOptions(options, ...optionsList) {
-  const mixed = Object.assign({
+  const mixed = Object.assign({}, {
     cwd: options.cwd,
     // string | array (multi-entry)
     template: options.template,
     hash: false,
     path: options.path,
-    name: options.name || 'iioo',
+    name: options.name || 'index',
     publicPath: options.publicPath,
     entry: options.entry
   }, ...optionsList)
@@ -24,7 +24,7 @@ export default function normalizeOptions(options, ...optionsList) {
   // will use multi-compiler to split the page
   //   - app/index.html
   //   - appX/index.html
-  if (isObject(mixed.entry)) {
+  if (isObject(mixed.entry) && !isArray(mixed.entry)) {
     let optionsList = []
     let index = 0
     mapShallow(mixed.entry, (value, name) => {
@@ -46,7 +46,9 @@ export default function normalizeOptions(options, ...optionsList) {
           ...mixed,
           entry: value,
           name,
-          path: resolve(mixed.path, name),
+
+          // can't use different path, cause webpack-dev-middleware broken
+          // path: resolve(mixed.path, name),
           template
         })
       )

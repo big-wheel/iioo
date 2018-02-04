@@ -12,9 +12,10 @@ import FriendlyErrorsWebpackPlugin from 'friendly-errors-webpack-plugin'
 import { resolve } from 'path'
 
 import babelConfig from './babelConfig'
+import TimeFixPlugin from './plugins/TimeFixPlugin'
 
 export default function getWebpackConfig(options = {}) {
-  const {
+  let {
     hash = false,
     dev = true,
     template,
@@ -26,9 +27,13 @@ export default function getWebpackConfig(options = {}) {
   } = options
 
   const filename = hash ? '[name].[chunkhash:6].js' : '[name].js'
-  const chunkFilename = hash ? '[name].[chunkhash:6].js' : '[name].js'
-  const cssFilename = hash ? '[name].[contenthash:6].css' : '[name].css'
-  const commonFilename = hash ? '[name].[chunkname:6].js' : '[name].js'
+  const chunkFilename = hash ? `[name]-${name}.chunk.[chunkhash:6].js` : `[name]-${name}.chunk.js`
+  const cssFilename = hash ? `[name]-${name}.[contenthash:6].css` : `[name]-${name}.css`
+  const commonFilename = hash ? `[name]_-${name}.[hash:6].js` : `[name]_-${name}.js`
+
+  if (Array.isArray(entry) || typeof entry === 'string') {
+    entry = { [name]: entry }
+  }
 
   const postcssLoader = {
     loader: 'postcss-loader',
@@ -43,9 +48,9 @@ export default function getWebpackConfig(options = {}) {
     }
   }
   const config = {
-    name: name,
+    name,
     context: cwd,
-    bail: true,
+    // bail: true,
     cache: true,
     devtool: dev && 'source-map',
     entry,
@@ -55,6 +60,41 @@ export default function getWebpackConfig(options = {}) {
       publicPath,
       path: resolve(path)
     },
+    plugins: [
+      new TimeFixPlugin(),
+      new webpack.DefinePlugin({
+        'process.env.NODE_ENV': JSON.stringify(dev ? 'development' : 'production')
+      }),
+      new ExtractTextPlugin({
+        filename: cssFilename,
+        disable: dev
+      }),
+      new webpack.optimize.CommonsChunkPlugin({
+        filename: commonFilename,
+        name: 'common'
+      }),
+      new HtmlWebpackPlugin({
+        hash: false,
+        template,
+        filename: name + '.html',
+        minify: !dev ? {
+          removeAttributeQuotes: true,
+          collapseWhitespace: true,
+          html5: true,
+          minifyCSS: true,
+          removeComments: true,
+          removeEmptyAttributes: true
+        } : false
+      }),
+      new ProgressBarPlugin(),
+      new FriendlyErrorsWebpackPlugin(),
+      dev ? new webpack.NamedModulesPlugin() : new webpack.HashedModuleIdsPlugin(),
+      dev && new webpack.HotModuleReplacementPlugin(),
+      !dev && new webpack.optimize.UglifyJsPlugin({
+        parallel: true,
+        uglifyOptions: { ie8: true }
+      })
+    ].filter(Boolean),
     module: {
       rules: [
         {
@@ -173,40 +213,7 @@ export default function getWebpackConfig(options = {}) {
           }
         }
       ]
-    },
-    plugins: [
-      new webpack.DefinePlugin({
-        'process.env.NODE_ENV': JSON.stringify(dev ? 'development' : 'production')
-      }),
-      new ExtractTextPlugin({
-        filename: cssFilename,
-        disable: dev
-      }),
-      new webpack.optimize.CommonsChunkPlugin({
-        filename: commonFilename,
-        name: 'common'
-      }),
-      dev ? new webpack.NamedModulesPlugin() : new webpack.HashedModuleIdsPlugin(),
-      dev && new webpack.HotModuleReplacementPlugin(),
-      !dev && new webpack.optimize.UglifyJsPlugin({
-        parallel: true,
-        uglifyOptions: { ie8: true }
-      }),
-      new HtmlWebpackPlugin({
-        hash: false,
-        template,
-        minify: !dev ? {
-          removeAttributeQuotes: true,
-          collapseWhitespace: true,
-          html5: true,
-          minifyCSS: true,
-          removeComments: true,
-          removeEmptyAttributes: true
-        } : false
-      }),
-      new ProgressBarPlugin(),
-      new FriendlyErrorsWebpackPlugin()
-    ].filter(Boolean)
+    }
   }
   return config
 }
