@@ -1,6 +1,6 @@
 {
   "name": "iioo",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": " ✨ A Pluggable http server communicating frontend via socket.io",
   "main": "dist/index.js",
   "scripts": {
@@ -61,5 +61,13 @@
     "webpack": "^3.10.0",
     "webpack-dev-middleware": "^2.0.4",
     "webpack-hot-middleware": "^2.21.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/big-wheel/iioo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/big-wheel/iioo/issues"
+  },
+  "homepage": "https://github.com/big-wheel/iioo#readme"
 }
