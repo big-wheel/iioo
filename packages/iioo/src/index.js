@@ -103,8 +103,8 @@ class IIOO extends EventEmitter {
   }
 
   _init() {
-    // use it in bin `registerOverwriteRequire()`
-    // not here, case the operation make `new IIOO()` have global's side effect
+    // Use it in bin `registerOverwriteRequire()` not here.
+    // The cause is the operation making `new IIOO()` have a global's side effect.
     // registerOverwriteRequire()
     this.registerPlugins()
     // the priority is most

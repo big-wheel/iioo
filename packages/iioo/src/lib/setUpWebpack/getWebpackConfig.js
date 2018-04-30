@@ -42,7 +42,11 @@ export default function getWebpackConfig(options = {}) {
       plugins(/*loader*/) {
         return [
           require('autoprefixer')(),
-          require('cssnano')({ zindex: false })
+          require('cssnano')({
+            zindex: false,
+            // https://github.com/ben-eb/cssnano/issues/361
+            reduceIdents: false
+          })
         ]
       }
     }

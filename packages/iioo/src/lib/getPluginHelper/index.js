@@ -29,9 +29,7 @@ export default iioo => {
       const opts = { prefix: 'iioo-plugin-', cwd: iioo.cwd, ...options }
       const [reqPlugin] = resolvePlugin(plugin, opts)
 
-      return iioo.plugins.find(
-        plugin => reqPlugin === plugin
-      )
+      return iioo.plugins.find(plugin => reqPlugin === plugin)
     }
   }
 }
