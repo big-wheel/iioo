@@ -80,3 +80,33 @@ function walkDOM(node, func) {
 }
 
 exports.walk = walkDOM
+
+function getSelector(el, root = document) {
+  if (!el || el.nodeType !== Node.ELEMENT_NODE) {
+    throw new Error('getSelector requires element.')
+  }
+  if (root === el) {
+    return null
+  }
+  if (el.hasAttribute('id')) {
+    return `#${el.getAttribute('id')}`
+  }
+
+  const children = Array.from(el.parentElement.children)
+  let index = -1, hasBrother = false
+  children.forEach((x, i) => {
+    if (x === el) {
+      index = i + 1
+    } else if (el.tagName === x.tagName) {
+      hasBrother = true
+    }
+  })
+
+  let selector = el.localName
+  if (index > 0 && hasBrother) {
+    selector = `${el.localName}:nth-child(${index})`
+  }
+  let ps = getSelector(el.parentElement)
+  return ps !== null ? `${ps} > ${selector}` : selector
+}
+exports.getSelector = getSelector

@@ -4,7 +4,7 @@
  * @date 2018/4/30
  * @description
  */
-const highlight = require('./plugins/highlight')
+const highlight = require('./plugins/highlight/index')
 
 const isBrowser = typeof document !== 'undefined'
 
@@ -29,12 +29,21 @@ module.exports = function(element, options = {}) {
   }
   options = {
     enableHighlight: true,
+    save(key, map) {
+
+    },
+    fetch(key) {
+
+    },
     ...options
   }
   const { enableHighlight, ...restOptions } = options
 
+  const ctx = window.markCTX = {
+
+  }
   // highlight
-  enableHighlight && run(highlight, 'highlight', element, restOptions)
+  enableHighlight && run.call(ctx, highlight, 'highlight', element, restOptions)
 
   console.log(element)
 }
