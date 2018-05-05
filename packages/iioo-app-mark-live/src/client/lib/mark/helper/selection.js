@@ -10,8 +10,82 @@ const {
   hasParent,
   hasPrev,
   walk,
-  hasNext
+  hasNext,
+  getSelector
 } = require('./dom')
+
+function makeReset(fn) {
+  let wrap = function() {
+    if (wrap.__called) {
+      return
+    }
+    wrap.__called = true
+
+    // range.setStart(cloneRange.startContainer, cloneRange.startOffset)
+    // range.setEnd(cloneRange.endContainer, cloneRange.endOffset)
+    fn()
+  }
+  return wrap
+}
+
+export function sliceNode(node, { offset, length } = {}) {
+  if (node && node.nodeType === Node.ELEMENT_NODE) {
+    let sumOffset = 0,
+      relativeOffset = offset
+    for (let i = 0; i < node.childNodes.length; i++) {
+      let child = node.childNodes[i]
+      if (child && 'textContent' in child) {
+        sumOffset += child.textContent.length
+        relativeOffset = relativeOffset - child.textContent.length
+      }
+
+      if (sumOffset > offset) {
+        return sliceNode(child, {
+          offset: relativeOffset + child.textContent.length,
+          length
+        })
+      }
+    }
+  }
+
+  if (node && 'textContent' in node) {
+    const text = node.textContent
+    const pNode = node.parentNode
+    if (!pNode) {
+      return {}
+    }
+
+    if (text.length <= offset && node.nextSibling) {
+      return sliceNode(node.nextSibling, { offset: offset - text.length, length })
+    }
+    const nodes = [
+      text.slice(offset + length),
+      text.slice(offset, offset + length),
+      text.slice(0, offset)
+    ]
+      // .filter(text => text.trim() !== '')
+      .map(text => document.createTextNode(text))
+
+    let head = nodes[0]
+    pNode.replaceChild(nodes[0], node)
+    let resetNodes = nodes.slice(1)
+
+    let reset = makeReset(function() {
+      pNode.replaceChild(node, nodes[0])
+      resetNodes.forEach(function(node) {
+        node.remove()
+      })
+    })
+
+    resetNodes.forEach(function(node) {
+      pNode.insertBefore(node, head)
+      head = node
+    })
+
+    return { reset, nodes }
+  }
+  return {}
+}
 
 exports.getLastRangePos = function(selection = window.getSelection()) {
   let range = selection.getRangeAt(selection.rangeCount - 1)
@@ -19,21 +93,7 @@ exports.getLastRangePos = function(selection = window.getSelection()) {
   let pos
 
   if (range) {
-    let cloneRange = range.cloneRange()
     // eslint-disable-next-line no-inner-declarations
-    function makeReset(fn) {
-      let wrap = function() {
-        if (wrap.__called) {
-          return
-        }
-        wrap.__called = true
-
-        // range.setStart(cloneRange.startContainer, cloneRange.startOffset)
-        // range.setEnd(cloneRange.endContainer, cloneRange.endOffset)
-        fn()
-      }
-      return wrap
-    }
 
     const startContainer = range.startContainer
     const endContainer = range.endContainer
@@ -50,29 +110,14 @@ exports.getLastRangePos = function(selection = window.getSelection()) {
     //  " hello world "
     //      _____
     if (startContainer === endContainer) {
-      const nodes = [
-        startWholeText.slice(endOffset),
-        startWholeText.slice(startOffset, endOffset),
-        startWholeText.slice(0, startOffset)
-      ].map(x => document.createTextNode(x))
-      let head = nodes[0]
-      startParentContainer.replaceChild(nodes[0], startContainer)
-      let resetNodes = nodes.slice(1)
-
-      reset = makeReset(function() {
-        startParentContainer.replaceChild(startContainer, nodes[0])
-        resetNodes.forEach(function(node) {
-          startParentContainer.removeChild(node)
-        })
+      let data = sliceNode(startContainer, {
+        offset: startOffset,
+        length: endOffset - startOffset
       })
-
-      resetNodes.forEach(function(node) {
-        startParentContainer.insertBefore(node, head)
-        head = node
-      })
-
+      let nodes = data.nodes
       range.selectNodeContents(nodes[1])
       pos = getTextNodeSize(range)
+      reset = data.reset
     } else {
       //  " hello<code>x</code>world "
       //      ^^^^^^^^^^^^^^^^^^^
@@ -88,7 +133,7 @@ exports.getLastRangePos = function(selection = window.getSelection()) {
         reset = makeReset(function() {
           startParentContainer.replaceChild(startContainer, nodes[0])
           resetNodes.forEach(function(node) {
-            startParentContainer.removeChild(node)
+            node.remove()
           })
         })
 
@@ -113,7 +158,7 @@ exports.getLastRangePos = function(selection = window.getSelection()) {
             reset && reset()
             endParentContainer.replaceChild(endContainer, nodes[0])
             resetNodes.forEach(function(node) {
-              endParentContainer.removeChild(node)
+              node.remove()
             })
           }))(reset)
 
@@ -171,12 +216,12 @@ function getSelectionContainsList(cond) {
 }
 exports.getSelectionContainsList = getSelectionContainsList
 
-exports.getSelectionTextList = getSelectionContainsList(node => {
+const getTextList = getSelectionContainsList(node => {
   if (isText(node)) {
     if (node.parentNode) {
       if (
         node.parentNode.tagName &&
-        ['style', 'script', 'noscript'].includes(
+        ['style', 'script', 'noscript', 'title'].includes(
           node.parentNode.tagName.toLowerCase()
         )
       ) {
@@ -187,3 +232,30 @@ exports.getSelectionTextList = getSelectionContainsList(node => {
   }
   return false
 })
+exports.getSelectionTextList = getTextList
+
+function isEmpty(node) {
+  return node.textContent.trim() === ''
+}
+
+// TODO
+exports.getSelectionTextSeqList = function() {
+  const textList = getTextList()
+  if (!textList || !textList.length) {
+    return textList
+  }
+
+  let newList = [textList.shift()]
+  while (textList.length) {
+    let head = newList[newList.length - 1]
+    let node = textList.shift()
+    if (node.previousSibling === head) {
+      head.textContent = head.textContent + node.textContent
+      node.remove()
+    } else {
+      newList.push(node)
+    }
+  }
+
+  return newList.filter(x => !isEmpty(x))
+}

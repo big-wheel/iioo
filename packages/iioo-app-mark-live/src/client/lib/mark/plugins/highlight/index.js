@@ -6,10 +6,100 @@
  */
 const debounce = require('lodash.debounce')
 const domUtil = require('../../helper/dom')
+const md5 = require('md5')
 const selectionUtil = require('../../helper/selection')
-const Persistence = require('./persistence')
 
-function getPopover(ele) {
+function replaceToMark(textNode, { color, uid } = {}) {
+  // eslint-disable-next-line no-use-before-define
+  if (isItemNode(textNode)) {
+    return
+  }
+  let mark = document.createElement('mark')
+  mark.className = 'mark-highlight-item'
+  mark.style.backgroundColor = color
+  mark.setAttribute('data-mark-id', uid)
+  textNode.parentNode && textNode.parentNode.replaceChild(mark, textNode)
+  mark.appendChild(textNode)
+}
+
+class MapQueue {
+  constructor() {
+    this.mapQueue = {}
+  }
+  get(id) {
+    return this.mapQueue[id]
+  }
+  add(id, val) {
+    let list = this.get(id)
+    if (list) {
+      list.push(val)
+    } else {
+      this.mapQueue[id] = [val]
+    }
+  }
+  get keys() {
+    return Object.keys(this.mapQueue)
+  }
+  clear(id) {
+    this.reset(id, false)
+  }
+  reset(id, exec = true) {
+    if (typeof id === 'undefined') {
+      this.keys.map(key => this.reset(key, exec))
+    } else {
+      let list = this.get(id)
+      if (list) {
+        exec && list.forEach(reset => reset())
+        list.splice(0, list.length)
+      }
+    }
+  }
+}
+const resetQueue = new MapQueue()
+
+function prependTextNodeChunks(textNode) {
+  if (!domUtil.isText(textNode)) {
+    return
+  }
+  let prev = textNode.previousSibling
+  while (domUtil.isText(prev)) {
+    textNode.textContent = prev.textContent + textNode.textContent
+    let tmpPrev = prev.previousSibling
+    prev.remove()
+    prev = tmpPrev
+  }
+}
+
+function appendTextNodeChunks(textNode) {
+  if (!domUtil.isText(textNode)) {
+    return
+  }
+  let next = textNode.nextSibling
+  while (domUtil.isText(next)) {
+    textNode.textContent = textNode.textContent + next.textContent
+    let tmpNext = next.nextSibling
+    next.remove()
+    next = tmpNext
+  }
+}
+
+function remove(removeId, ele) {
+  let doms = ele.querySelectorAll(
+    `mark[data-mark-id=${JSON.stringify(removeId)}]`
+  )
+  /* eslint-disable no-use-before-define */
+  for (let i = 0; i < doms.length; i++) {
+    let dom = doms[i]
+    if (dom.parentNode) {
+      let textNode = dom.firstChild
+      dom.parentNode.replaceChild(textNode, dom)
+      prependTextNodeChunks(textNode)
+      appendTextNodeChunks(textNode)
+    }
+  }
+}
+
+function getPopover(ele, opt) {
   let popover = domUtil.getSingleDOM('div')
   popover.style.position = 'absolute'
   popover.style.display = 'none'
@@ -63,7 +153,7 @@ function getPopover(ele) {
   })
   document.body.appendChild(popover)
 
-  popover.addEventListener('click', (evt) => {
+  popover.addEventListener('click', async evt => {
     let target = evt.target
     if (target.classList.contains('mark-highlight-color')) {
       let color = target.style.backgroundColor
@@ -71,38 +161,29 @@ function getPopover(ele) {
         target.classList.contains('mark-highlight-active-color') &&
         target.hasAttribute('data-mark-id')
       ) {
+        let removeId = target.getAttribute('data-mark-id')
         // Remove
-        let doms = ele.querySelectorAll(
-          `mark[data-mark-id=${JSON.stringify(
-            target.getAttribute('data-mark-id')
-          )}]`
-        )
-
-        /* eslint-disable no-use-before-define */
-        for (let i = 0; i < doms.length; i++) {
-          if (doms[i].parentNode) {
-            doms[i].parentNode.replaceChild(doms[i].firstChild, doms[i])
-          }
-        }
-        // target.resetQueue && reset(target.resetQueue)
+        await this.emit('highlight-remove', removeId)
+        remove(removeId, ele)
         popover.hide()
       } else {
         let active = popover.getActive()
         if (active) {
+          await this.emit('highlight-change:color', { id: active.id, color })
+
           popover.selectColor(color, active.id)
           let doms = ele.querySelectorAll(
             `mark[data-mark-id=${JSON.stringify(
               target.getAttribute('data-mark-id')
             )}]`
           )
-
           for (let i = 0; i < doms.length; i++) {
             doms[i].style.backgroundColor = color
           }
           return
         }
 
-        const list = selectionUtil.getSelectionTextList()
+        let list = selectionUtil.getSelectionTextList()
         let containsMarked = list.find(textNode =>
           isItemNode(textNode.parentNode)
         )
@@ -110,22 +191,44 @@ function getPopover(ele) {
           return
         }
 
-        let uid = new Date().getTime() + Math.random() + ''
+        // slice side effect
+        selectionUtil.getLastRangePos()
+
+        list = selectionUtil.getSelectionTextSeqList()
+
+        let uid = opt.generateUid()
         target.setAttribute('data-mark-id', uid)
         let nodeList = list.filter(textNode => ele.contains(textNode))
-        this.hlPersistence.addTextNodeList(uid, nodeList, color)
+
+        const chunks = nodeList.map(node => {
+          let parentNode = node.parentNode
+          let offset = 0
+          for (let i = 0; i < parentNode.childNodes.length; i++) {
+            let childNode = parentNode.childNodes[i]
+            if (childNode === node) {
+              break
+            }
+            if (childNode && 'textContent' in childNode) {
+              offset += childNode.textContent.length
+            }
+          }
+
+          return {
+            offset,
+            length: node.textContent.length,
+            parentSelector: domUtil.getSelector(parentNode, ele)
+          }
+        })
+        if (chunks && chunks.length) {
+          await this.emit('highlight-add', { chunks, id: uid, color })
+        }
+
         nodeList.forEach(textNode => {
-          let mark = document.createElement('mark')
-          mark.className = 'mark-highlight-item'
-          mark.style.backgroundColor = color
-          mark.setAttribute('data-mark-id', uid)
-          textNode.parentNode &&
-            textNode.parentNode.replaceChild(mark, textNode)
-          mark.appendChild(textNode)
+          replaceToMark(textNode, { uid, color })
         })
         selectionUtil.removeRanges()
         /* eslint-disable no-use-before-define */
-        resetQueue = []
+        resetQueue.clear()
       }
       target.classList.toggle('mark-highlight-active-color')
     }
@@ -147,14 +250,29 @@ let style = document.createElement('style')
 style.innerHTML = require('./style')
 document.head.appendChild(style)
 
-let resetQueue = []
-function reset(resetQueue = resetQueue) {
-  try {
-    resetQueue.forEach(reset => reset())
-    resetQueue.splice(0, resetQueue.length)
-  } catch (e) {}
+function _fill({ color, id, offset, length } = {}, dom) {
+  const { reset, nodes } = selectionUtil.sliceNode(dom, { offset, length })
+  // if (reset) {
+  //   resetQueue.add(id, reset)
+  // }
+  if (nodes && nodes[1]) {
+    replaceToMark(nodes[1], { uid: id, color })
+  }
 }
-function mouseUpCore(opt, ele, popover, { target }) {
+
+function fill({ color, id, chunks = [] } = {}, ele = document) {
+  if (!Array.isArray(chunks)) {
+    return
+  }
+  let domList = chunks.map(({ parentSelector }) =>
+    ele.querySelector(parentSelector)
+  )
+  chunks.forEach((chunk, i) => {
+    domList[i] && _fill({ color, id, ...chunk }, domList[i])
+  })
+}
+
+async function mouseUpCore(opt, ele, popover, { target }) {
   let selection = window.getSelection()
   if (!selection.isCollapsed) {
     const markedList = selectionUtil.getSelectionContainsList(
@@ -167,7 +285,7 @@ function mouseUpCore(opt, ele, popover, { target }) {
 
     let { reset, pos } = selectionUtil.getLastRangePos(selection)
     if (reset) {
-      resetQueue.push(reset)
+      resetQueue.add('TEMP', reset)
     }
 
     if (pos) {
@@ -185,11 +303,13 @@ function mouseDown(opt, ele, popover, { target }) {
   ) {
     return
   }
-  reset()
+  resetQueue.reset('TEMP')
   popover.hide()
 }
 
-function click(opt, ele, popover, evt) {
+window.resetQueue = resetQueue
+
+async function click(opt, ele, popover, evt) {
   let target = evt.target
   if (
     target.classList.contains('mark-highlight-item') &&
@@ -197,9 +317,13 @@ function click(opt, ele, popover, evt) {
   ) {
     let id = target.getAttribute('data-mark-id')
     let color = target.style.backgroundColor
-    popover.show(domUtil.getPageOffset(target), opt.highlightColors)
+
+    let colorList = opt.highlightColors.slice()
+    if (!colorList.includes(color)) {
+      colorList.push(color)
+    }
+    popover.show(domUtil.getPageOffset(target), colorList)
     popover.selectColor(color, id)
-    // TODO: high id~
   }
 }
 
@@ -210,7 +334,9 @@ function mouseEnter(opt, ele, popover, { target }) {
   ) {
     // let color = target.style.backgroundColor
     let domList = ele.querySelectorAll(
-      `[data-mark-id=${JSON.stringify(target.getAttribute('data-mark-id'))}]`
+      `.mark-highlight-item[data-mark-id=${JSON.stringify(
+        target.getAttribute('data-mark-id')
+      )}]`
     )
     Array.from(domList).forEach(dom => {
       dom.style.filter = 'brightness(85%)'
@@ -245,12 +371,14 @@ module.exports = function highlight(element, options) {
   }
 
   options = {
+    generateUid() {
+      return md5(new Date().getTime() + Math.random() + '')
+    },
     highlightColors: ['red', 'pink', 'blue'],
     ...options
   }
 
-  const popover = getPopover.call(this, element)
-  this.hlPersistence = new Persistence(element, options)
+  const popover = getPopover.call(this, element, options)
   const debouncedMouseUp = debounce(mouseUpCore, 100).bind(
     this,
     options,
@@ -282,4 +410,17 @@ module.exports = function highlight(element, options) {
   element.addEventListener('mouseout', onMouseLeave)
   element.addEventListener('mouseup', debouncedMouseUp)
   element.addEventListener('mousedown', debouncedMouseDown)
+
+  this.highlight = {
+    fill: function(data, ele = element) {
+      return fill(data, ele)
+    },
+    remove: function(id, ele = element) {
+      let active = popover.getActive()
+      if (active && active.id === id) {
+        popover.hide()
+      }
+      return remove(id, ele)
+    }
+  }
 }

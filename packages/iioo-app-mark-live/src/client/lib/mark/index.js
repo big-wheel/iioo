@@ -5,6 +5,8 @@
  * @description
  */
 const highlight = require('./plugins/highlight/index')
+const badge = require('./plugins/badge')
+const AwaitEventEmitter = require('await-event-emitter')
 
 const isBrowser = typeof document !== 'undefined'
 
@@ -37,13 +39,22 @@ module.exports = function(element, options = {}) {
     },
     ...options
   }
-  const { enableHighlight, ...restOptions } = options
+  const { enableHighlight, enableBadge, ...restOptions } = options
 
-  const ctx = window.markCTX = {
-
-  }
+  const ctx = new AwaitEventEmitter()
   // highlight
   enableHighlight && run.call(ctx, highlight, 'highlight', element, restOptions)
+  enableBadge && run.call(ctx, badge, 'badge', element, restOptions)
 
-  console.log(element)
+  // const _emit = ctx.emit
+  // ctx.emit = async function () {
+  //   try {
+  //     return await _emit.apply(this, arguments)
+  //   } catch (e) {
+  //     _emit.apply(this, ['error', e])
+  //     throw e
+  //   }
+  // }
+
+  return ctx
 }

@@ -92,8 +92,9 @@ function getSelector(el, root = document) {
     return `#${el.getAttribute('id')}`
   }
 
-  const children = Array.from(el.parentElement.children)
-  let index = -1, hasBrother = false
+  const children = Array.from(el.parentNode ? el.parentNode.children : [])
+  let index = -1,
+    hasBrother = false
   children.forEach((x, i) => {
     if (x === el) {
       index = i + 1
@@ -106,7 +107,7 @@ function getSelector(el, root = document) {
   if (index > 0 && hasBrother) {
     selector = `${el.localName}:nth-child(${index})`
   }
-  let ps = getSelector(el.parentElement)
+  let ps = getSelector(el.parentNode, root)
   return ps !== null ? `${ps} > ${selector}` : selector
 }
 exports.getSelector = getSelector
