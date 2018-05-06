@@ -2410,3 +2410,4 @@
 	return markInLocalStorage;
 
 })));
+//# sourceMappingURL=index.umd.js.map

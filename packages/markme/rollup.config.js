@@ -21,7 +21,8 @@ const config = {
   input: 'index.js',
   output: {
     name: 'Markme',
-    globals: null
+    globals: null,
+    sourcemap: true
   },
   external: [],
   plugins: [

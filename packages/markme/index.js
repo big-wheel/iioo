@@ -41,7 +41,7 @@ export default function mark(element, options = {}) {
     enablePlugins: ['highlight', 'badge'],
     ...options,
     highlight: {
-      disableDefaultClick: true,
+      disableDefaultClick: false,
       ...options.highlight
     }
   }

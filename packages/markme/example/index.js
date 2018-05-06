@@ -6,22 +6,22 @@
  * @description
  */
 
-import mark from '../'
+import mark from '../index'
 import markLocalStorage from '../localStorage'
-import markmeLeancloud from 'markme-leancloud'
+// import markmeLeancloud from 'markme-leancloud'
 
 let m
 function run(which) {
   m && m.remove()
   switch (which) {
     case 'basic':
-      m = mark(window.root, {})
+      m = mark(document.body, {})
       break
     case 'ls':
-      m = markLocalStorage(window.root, {})
+      m = markLocalStorage(document.body, {})
       break
     case 'lc':
-      m = markmeLeancloud(window.root, {
+      m = markmeLeancloud(document.body, {
         AVOptions: {
           appId: 'YY0ajzbgR0NlSODErX04ya3E-gzGzoHsz',
           appKey: 'KRSsdRICas0xDPmnO9znHY5E'

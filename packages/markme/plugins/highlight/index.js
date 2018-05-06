@@ -153,7 +153,7 @@ function getPopover(ele, opt) {
           })
           .join('')
       }
-      this.innerHTML += '<textarea autofocus="autofocus" placeholder="input your idea" style="display: none"></textarea>'
+      this.innerHTML += '<textarea placeholder="input your idea" style="display: none"></textarea>'
       this.style.display = ''
     },
     selectColor(color, id) {
@@ -172,6 +172,8 @@ function getPopover(ele, opt) {
       let textarea = this.querySelector('textarea')
       textarea.style.display = ''
       textarea.value = text
+
+      textarea.focus()
       textarea.onblur = async () => {
         let activeItem = popover.getActive()
         if (!activeItem) {
@@ -262,7 +264,14 @@ function getPopover(ele, opt) {
           }
         })
         if (chunks && chunks.length) {
-          await this.emit('highlight-add', { chunks, id: uid, color })
+          this.highlight.lock = true
+          try {
+            await this.emit('highlight-add', { chunks, id: uid, color })
+            this.highlight.lock = false
+          } catch (e) {
+            this.highlight.lock = false
+            throw e
+          }
         }
 
         nodeList.forEach(textNode => {
@@ -316,6 +325,9 @@ function fill({ color, id, words, chunks = [] } = {}, ele = document, opt) {
 }
 
 async function mouseUpCore(opt, ele, popover, { target }) {
+  if (this.highlight.lock) {
+    return
+  }
   // console.log('mouseUpCore')
   let selection = opt.window.getSelection()
   if (!selection.isCollapsed) {
@@ -341,17 +353,28 @@ async function mouseUpCore(opt, ele, popover, { target }) {
 }
 
 function mouseDown(opt, ele, popover, { target }) {
+  if (this.highlight.lock) {
+    return
+  }
+
   if (
     target.classList.contains('mark-highlight-item') &&
     target.hasAttribute('data-mark-id')
   ) {
     return
   }
-  resetQueue.reset('TEMP')
-  popover.hide()
+  if (!popover.contains(target)) {
+    popover.hide()
+    resetQueue.reset('TEMP')
+    // console.log(target)
+  }
 }
 
 async function click(opt, ele, popover, evt) {
+  if (this.highlight.lock) {
+    return
+  }
+
   let target = evt.target
   if (
     target.classList.contains('mark-highlight-item') &&

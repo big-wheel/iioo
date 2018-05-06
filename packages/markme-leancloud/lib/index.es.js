@@ -296,3 +296,4 @@ function markInLocalStorage(element) {
 }
 
 export default markInLocalStorage;
+//# sourceMappingURL=index.es.js.map

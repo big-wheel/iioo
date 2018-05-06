@@ -3287,11 +3287,19 @@ var mouseUpCore = function () {
       while (1) {
         switch (_context3.prev = _context3.next) {
           case 0:
+            if (!this.highlight.lock) {
+              _context3.next = 2;
+              break;
+            }
+
+            return _context3.abrupt('return');
+
+          case 2:
             // console.log('mouseUpCore')
             selection = opt.window.getSelection();
 
             if (selection.isCollapsed) {
-              _context3.next = 8;
+              _context3.next = 10;
               break;
             }
 
@@ -3301,13 +3309,13 @@ var mouseUpCore = function () {
             // Selected contains marked item
 
             if (!markedList.length) {
-              _context3.next = 5;
+              _context3.next = 7;
               break;
             }
 
             return _context3.abrupt('return');
 
-          case 5:
+          case 7:
             _selectionUtil$getLas = getLastRangePos(opt.window), reset = _selectionUtil$getLas.reset, pos = _selectionUtil$getLas.pos;
 
             if (reset) {
@@ -3320,7 +3328,7 @@ var mouseUpCore = function () {
               popover.hide();
             }
 
-          case 8:
+          case 10:
           case 'end':
             return _context3.stop();
         }
@@ -3340,6 +3348,14 @@ var click = function () {
       while (1) {
         switch (_context4.prev = _context4.next) {
           case 0:
+            if (!this.highlight.lock) {
+              _context4.next = 2;
+              break;
+            }
+
+            return _context4.abrupt('return');
+
+          case 2:
             target = evt.target;
 
             if (target.classList.contains('mark-highlight-item') && target.hasAttribute('data-mark-id')) {
@@ -3362,7 +3378,7 @@ var click = function () {
               evt.preventDefault();
             }
 
-          case 3:
+          case 5:
           case 'end':
             return _context4.stop();
         }
@@ -3552,7 +3568,7 @@ function getPopover(ele, opt) {
           return '<span class="' + className + '" style="background-color: ' + c + '"></span>';
         }).join('');
       }
-      this.innerHTML += '<textarea autofocus="autofocus" placeholder="input your idea" style="display: none"></textarea>';
+      this.innerHTML += '<textarea placeholder="input your idea" style="display: none"></textarea>';
       this.style.display = '';
     },
     selectColor: function selectColor(color, id) {
@@ -3573,6 +3589,8 @@ function getPopover(ele, opt) {
       var textarea = this.querySelector('textarea');
       textarea.style.display = '';
       textarea.value = text;
+
+      textarea.focus();
       textarea.onblur = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee() {
         var activeItem, words;
         return regenerator.wrap(function _callee$(_context) {
@@ -3630,7 +3648,7 @@ function getPopover(ele, opt) {
               target = evt.target;
 
               if (!target.classList.contains('mark-highlight-color')) {
-                _context2.next = 36;
+                _context2.next = 45;
                 break;
               }
 
@@ -3651,7 +3669,7 @@ function getPopover(ele, opt) {
               _remove(removeId, ele);
               popover.hide();
               target.classList.remove('mark-highlight-active-color');
-              _context2.next = 36;
+              _context2.next = 45;
               break;
 
             case 12:
@@ -3719,14 +3737,28 @@ function getPopover(ele, opt) {
               });
 
               if (!(chunks && chunks.length)) {
-                _context2.next = 32;
+                _context2.next = 41;
                 break;
               }
 
-              _context2.next = 32;
+              _this3.highlight.lock = true;
+              _context2.prev = 31;
+              _context2.next = 34;
               return _this3.emit('highlight-add', { chunks: chunks, id: uid, color: color });
 
-            case 32:
+            case 34:
+              _this3.highlight.lock = false;
+              _context2.next = 41;
+              break;
+
+            case 37:
+              _context2.prev = 37;
+              _context2.t0 = _context2['catch'](31);
+
+              _this3.highlight.lock = false;
+              throw _context2.t0;
+
+            case 41:
 
               nodeList.forEach(function (textNode) {
                 replaceToMark(textNode, { uid: uid, color: color }, opt);
@@ -3736,12 +3768,12 @@ function getPopover(ele, opt) {
               resetQueue.clear();
               popover.selectColor(color, uid);
 
-            case 36:
+            case 45:
             case 'end':
               return _context2.stop();
           }
         }
-      }, _callee2, _this3);
+      }, _callee2, _this3, [[31, 37]]);
     }));
 
     return function (_x3) {
@@ -3805,11 +3837,18 @@ function _fill2() {
 function mouseDown(opt, ele, popover, _ref10) {
   var target = _ref10.target;
 
+  if (this.highlight.lock) {
+    return;
+  }
+
   if (target.classList.contains('mark-highlight-item') && target.hasAttribute('data-mark-id')) {
     return;
   }
-  resetQueue.reset('TEMP');
-  popover.hide();
+  if (!popover.contains(target)) {
+    popover.hide();
+    resetQueue.reset('TEMP');
+    // console.log(target)
+  }
 }
 
 function mouseEnter(opt, ele, popover, _ref12) {
@@ -4134,7 +4173,7 @@ function mark(element) {
     enablePlugins: ['highlight', 'badge']
   }, options, {
     highlight: _extends$1({
-      disableDefaultClick: true
+      disableDefaultClick: false
     }, options.highlight)
   });
 
@@ -4169,3 +4208,4 @@ function mark(element) {
 return mark;
 
 })));
+//# sourceMappingURL=index.umd.js.map

@@ -21,6 +21,7 @@ const config = {
   input: 'index.js',
   output: {
     name: 'MarkmeLeancloud',
+    sourcemap: true,
     globals: {
       'leancloud-storage': 'AV',
       markme: 'Markme'

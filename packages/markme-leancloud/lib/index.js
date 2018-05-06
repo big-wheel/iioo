@@ -300,3 +300,4 @@ function markInLocalStorage(element) {
 }
 
 module.exports = markInLocalStorage;
+//# sourceMappingURL=index.js.map
