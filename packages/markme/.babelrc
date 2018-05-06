@@ -1,6 +1,5 @@
 {
-  "env": {
-  },
+  "env": {},
   "presets": [
     [
       "env",
@@ -17,8 +16,6 @@
     // "react"
   ],
   "plugins": [
-    "add-module-exports",
-    "transform-decorators-legacy",
     "transform-class-properties",
     "transform-object-rest-spread",
     [
@@ -28,8 +25,5 @@
         "regenerator": true
       }
     ]
-  ],
-  "ignore": [
-    "templates/*.template.js"
   ]
 }

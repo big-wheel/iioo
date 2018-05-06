@@ -1,8 +1,33 @@
 {
   "name": "markme-leancloud",
   "version": "0.0.1",
+  "scripts": {
+    "prepublish": "rollup -c"
+  },
+  "files": [
+    "lib"
+  ],
+  "unpkg": "lib/index.umd.min.js",
+  "jsdelivr": "lib/index.umd.min.js",
+  "jsnext:main": "lib/index.es.js",
+  "module": "lib/index.es.js",
+  "main": "lib/index.js",
   "dependencies": {
+    "babel-runtime": "^6.26.0",
     "leancloud-storage": "^3.6.8",
     "markme": "^0.0.1"
+  },
+  "devDependencies": {
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.6.1",
+    "rollup": "^0.58.2",
+    "rollup-plugin-babel": "^3.0.4",
+    "rollup-plugin-commonjs": "^9.1.3",
+    "rollup-plugin-filesize": "^1.5.0",
+    "rollup-plugin-node-resolve": "^3.3.0",
+    "rollup-plugin-uglify": "^3.0.0"
   }
 }

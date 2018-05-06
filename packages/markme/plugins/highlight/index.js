@@ -412,7 +412,7 @@ function mouseLeave(opt, ele, popover, { target }) {
   }
 }
 
-module.exports = function highlight(element, options) {
+export default function highlight(element, options) {
   if (!window.getSelection) {
     throw new Error('window.getSelection is not existed')
   }

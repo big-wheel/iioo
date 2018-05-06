@@ -5,8 +5,8 @@
  * @description
  */
 
-const AV = require('leancloud-storage')
-const mark = require('markme')
+import AV from 'leancloud-storage'
+import mark from 'markme'
 
 module.exports = function markInLocalStorage(element, options = {}) {
   options = {

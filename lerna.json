@@ -10,7 +10,8 @@
     },
     "publish": {
       "message": "publish ",
-      "ignore": "iioo-example"
+      "ignore": "iioo-example",
+      "scope": "markme*"
     }
   },
   "version": "independent"

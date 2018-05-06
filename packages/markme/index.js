@@ -4,9 +4,9 @@
  * @date 2018/4/30
  * @description
  */
-const highlight = require('./plugins/highlight/index')
-const badge = require('./plugins/badge/index')
-const AwaitEventEmitter = require('await-event-emitter')
+import highlight from './plugins/highlight/index'
+import badge from './plugins/badge/index'
+import AwaitEventEmitter from 'await-event-emitter'
 
 const isBrowser = typeof document !== 'undefined'
 

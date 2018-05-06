@@ -7,7 +7,7 @@
 
 
 
-module.exports = function (element) {
+export default function (element) {
   const ctx = this
 
 }
