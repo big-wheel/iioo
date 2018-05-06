@@ -5,7 +5,7 @@ import _extends from 'babel-runtime/helpers/extends';
 import AV from 'leancloud-storage';
 import mark from 'markme';
 
-module.exports = function markInLocalStorage(element) {
+function markInLocalStorage(element) {
   var _this = this;
 
   var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -289,4 +289,6 @@ module.exports = function markInLocalStorage(element) {
       return _ref9.apply(this, arguments);
     };
   }());
-};
+}
+
+export default markInLocalStorage;

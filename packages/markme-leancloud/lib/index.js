@@ -9,7 +9,7 @@ var _extends = _interopDefault(require('babel-runtime/helpers/extends'));
 var AV = _interopDefault(require('leancloud-storage'));
 var mark = _interopDefault(require('markme'));
 
-module.exports = function markInLocalStorage(element) {
+function markInLocalStorage(element) {
   var _this = this;
 
   var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -293,4 +293,6 @@ module.exports = function markInLocalStorage(element) {
       return _ref9.apply(this, arguments);
     };
   }());
-};
+}
+
+module.exports = markInLocalStorage;

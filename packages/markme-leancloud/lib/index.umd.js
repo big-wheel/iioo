@@ -1,7 +1,7 @@
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(require('leancloud-storage'), require('markme')) :
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('leancloud-storage'), require('markme')) :
 	typeof define === 'function' && define.amd ? define(['leancloud-storage', 'markme'], factory) :
-	(factory(global.AV,global.Markme));
+	(global.MarkmeLeancloud = factory(global.AV,global.Markme));
 }(this, (function (AV,mark) { 'use strict';
 
 	AV = AV && AV.hasOwnProperty('default') ? AV['default'] : AV;
@@ -2117,7 +2117,7 @@
 
 	var _extends$1 = unwrapExports(_extends);
 
-	module.exports = function markInLocalStorage(element) {
+	function markInLocalStorage(element) {
 	  var _this = this;
 
 	  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -2401,6 +2401,8 @@
 	      return _ref9.apply(this, arguments);
 	    };
 	  }());
-	};
+	}
+
+	return markInLocalStorage;
 
 })));

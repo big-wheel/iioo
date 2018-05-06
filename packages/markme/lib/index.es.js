@@ -1059,7 +1059,7 @@ function registerCommonMethod(ctx, methodName) {
   };
 }
 
-function index (element) {
+function mark(element) {
   var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
   if (!isBrowser) {
@@ -1099,4 +1099,4 @@ function index (element) {
   return ctx;
 }
 
-export default index;
+export default mark;
