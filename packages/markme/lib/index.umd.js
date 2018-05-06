@@ -4,6 +4,10 @@
 	(factory());
 }(this, (function () { 'use strict';
 
+var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+
+
 function unwrapExports (x) {
 	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
 }
@@ -2174,6 +2178,1105 @@ exports.default = function () {
 
 var _createClass = unwrapExports(createClass);
 
+/**
+ * lodash (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+ * Released under MIT license <https://lodash.com/license>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ */
+
+/** Used as the `TypeError` message for "Functions" methods. */
+var FUNC_ERROR_TEXT = 'Expected a function';
+
+/** Used as references for various `Number` constants. */
+var NAN = 0 / 0;
+
+/** `Object#toString` result references. */
+var symbolTag = '[object Symbol]';
+
+/** Used to match leading and trailing whitespace. */
+var reTrim = /^\s+|\s+$/g;
+
+/** Used to detect bad signed hexadecimal string values. */
+var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
+
+/** Used to detect binary string values. */
+var reIsBinary = /^0b[01]+$/i;
+
+/** Used to detect octal string values. */
+var reIsOctal = /^0o[0-7]+$/i;
+
+/** Built-in method references without a dependency on `root`. */
+var freeParseInt = parseInt;
+
+/** Detect free variable `global` from Node.js. */
+var freeGlobal = typeof commonjsGlobal == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
+
+/** Detect free variable `self`. */
+var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
+
+/** Used as a reference to the global object. */
+var root = freeGlobal || freeSelf || Function('return this')();
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objectToString = objectProto.toString;
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeMax = Math.max;
+var nativeMin = Math.min;
+
+/**
+ * Gets the timestamp of the number of milliseconds that have elapsed since
+ * the Unix epoch (1 January 1970 00:00:00 UTC).
+ *
+ * @static
+ * @memberOf _
+ * @since 2.4.0
+ * @category Date
+ * @returns {number} Returns the timestamp.
+ * @example
+ *
+ * _.defer(function(stamp) {
+ *   console.log(_.now() - stamp);
+ * }, _.now());
+ * // => Logs the number of milliseconds it took for the deferred invocation.
+ */
+var now = function() {
+  return root.Date.now();
+};
+
+/**
+ * Creates a debounced function that delays invoking `func` until after `wait`
+ * milliseconds have elapsed since the last time the debounced function was
+ * invoked. The debounced function comes with a `cancel` method to cancel
+ * delayed `func` invocations and a `flush` method to immediately invoke them.
+ * Provide `options` to indicate whether `func` should be invoked on the
+ * leading and/or trailing edge of the `wait` timeout. The `func` is invoked
+ * with the last arguments provided to the debounced function. Subsequent
+ * calls to the debounced function return the result of the last `func`
+ * invocation.
+ *
+ * **Note:** If `leading` and `trailing` options are `true`, `func` is
+ * invoked on the trailing edge of the timeout only if the debounced function
+ * is invoked more than once during the `wait` timeout.
+ *
+ * If `wait` is `0` and `leading` is `false`, `func` invocation is deferred
+ * until to the next tick, similar to `setTimeout` with a timeout of `0`.
+ *
+ * See [David Corbacho's article](https://css-tricks.com/debouncing-throttling-explained-examples/)
+ * for details over the differences between `_.debounce` and `_.throttle`.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Function
+ * @param {Function} func The function to debounce.
+ * @param {number} [wait=0] The number of milliseconds to delay.
+ * @param {Object} [options={}] The options object.
+ * @param {boolean} [options.leading=false]
+ *  Specify invoking on the leading edge of the timeout.
+ * @param {number} [options.maxWait]
+ *  The maximum time `func` is allowed to be delayed before it's invoked.
+ * @param {boolean} [options.trailing=true]
+ *  Specify invoking on the trailing edge of the timeout.
+ * @returns {Function} Returns the new debounced function.
+ * @example
+ *
+ * // Avoid costly calculations while the window size is in flux.
+ * jQuery(window).on('resize', _.debounce(calculateLayout, 150));
+ *
+ * // Invoke `sendMail` when clicked, debouncing subsequent calls.
+ * jQuery(element).on('click', _.debounce(sendMail, 300, {
+ *   'leading': true,
+ *   'trailing': false
+ * }));
+ *
+ * // Ensure `batchLog` is invoked once after 1 second of debounced calls.
+ * var debounced = _.debounce(batchLog, 250, { 'maxWait': 1000 });
+ * var source = new EventSource('/stream');
+ * jQuery(source).on('message', debounced);
+ *
+ * // Cancel the trailing debounced invocation.
+ * jQuery(window).on('popstate', debounced.cancel);
+ */
+function debounce(func, wait, options) {
+  var lastArgs,
+      lastThis,
+      maxWait,
+      result,
+      timerId,
+      lastCallTime,
+      lastInvokeTime = 0,
+      leading = false,
+      maxing = false,
+      trailing = true;
+
+  if (typeof func != 'function') {
+    throw new TypeError(FUNC_ERROR_TEXT);
+  }
+  wait = toNumber(wait) || 0;
+  if (isObject$1(options)) {
+    leading = !!options.leading;
+    maxing = 'maxWait' in options;
+    maxWait = maxing ? nativeMax(toNumber(options.maxWait) || 0, wait) : maxWait;
+    trailing = 'trailing' in options ? !!options.trailing : trailing;
+  }
+
+  function invokeFunc(time) {
+    var args = lastArgs,
+        thisArg = lastThis;
+
+    lastArgs = lastThis = undefined;
+    lastInvokeTime = time;
+    result = func.apply(thisArg, args);
+    return result;
+  }
+
+  function leadingEdge(time) {
+    // Reset any `maxWait` timer.
+    lastInvokeTime = time;
+    // Start the timer for the trailing edge.
+    timerId = setTimeout(timerExpired, wait);
+    // Invoke the leading edge.
+    return leading ? invokeFunc(time) : result;
+  }
+
+  function remainingWait(time) {
+    var timeSinceLastCall = time - lastCallTime,
+        timeSinceLastInvoke = time - lastInvokeTime,
+        result = wait - timeSinceLastCall;
+
+    return maxing ? nativeMin(result, maxWait - timeSinceLastInvoke) : result;
+  }
+
+  function shouldInvoke(time) {
+    var timeSinceLastCall = time - lastCallTime,
+        timeSinceLastInvoke = time - lastInvokeTime;
+
+    // Either this is the first call, activity has stopped and we're at the
+    // trailing edge, the system time has gone backwards and we're treating
+    // it as the trailing edge, or we've hit the `maxWait` limit.
+    return (lastCallTime === undefined || (timeSinceLastCall >= wait) ||
+      (timeSinceLastCall < 0) || (maxing && timeSinceLastInvoke >= maxWait));
+  }
+
+  function timerExpired() {
+    var time = now();
+    if (shouldInvoke(time)) {
+      return trailingEdge(time);
+    }
+    // Restart the timer.
+    timerId = setTimeout(timerExpired, remainingWait(time));
+  }
+
+  function trailingEdge(time) {
+    timerId = undefined;
+
+    // Only invoke if we have `lastArgs` which means `func` has been
+    // debounced at least once.
+    if (trailing && lastArgs) {
+      return invokeFunc(time);
+    }
+    lastArgs = lastThis = undefined;
+    return result;
+  }
+
+  function cancel() {
+    if (timerId !== undefined) {
+      clearTimeout(timerId);
+    }
+    lastInvokeTime = 0;
+    lastArgs = lastCallTime = lastThis = timerId = undefined;
+  }
+
+  function flush() {
+    return timerId === undefined ? result : trailingEdge(now());
+  }
+
+  function debounced() {
+    var time = now(),
+        isInvoking = shouldInvoke(time);
+
+    lastArgs = arguments;
+    lastThis = this;
+    lastCallTime = time;
+
+    if (isInvoking) {
+      if (timerId === undefined) {
+        return leadingEdge(lastCallTime);
+      }
+      if (maxing) {
+        // Handle invocations in a tight loop.
+        timerId = setTimeout(timerExpired, wait);
+        return invokeFunc(lastCallTime);
+      }
+    }
+    if (timerId === undefined) {
+      timerId = setTimeout(timerExpired, wait);
+    }
+    return result;
+  }
+  debounced.cancel = cancel;
+  debounced.flush = flush;
+  return debounced;
+}
+
+/**
+ * Checks if `value` is the
+ * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+ * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(_.noop);
+ * // => true
+ *
+ * _.isObject(null);
+ * // => false
+ */
+function isObject$1(value) {
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+}
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+/**
+ * Checks if `value` is classified as a `Symbol` primitive or object.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
+ * @example
+ *
+ * _.isSymbol(Symbol.iterator);
+ * // => true
+ *
+ * _.isSymbol('abc');
+ * // => false
+ */
+function isSymbol(value) {
+  return typeof value == 'symbol' ||
+    (isObjectLike(value) && objectToString.call(value) == symbolTag);
+}
+
+/**
+ * Converts `value` to a number.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to process.
+ * @returns {number} Returns the number.
+ * @example
+ *
+ * _.toNumber(3.2);
+ * // => 3.2
+ *
+ * _.toNumber(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toNumber(Infinity);
+ * // => Infinity
+ *
+ * _.toNumber('3.2');
+ * // => 3.2
+ */
+function toNumber(value) {
+  if (typeof value == 'number') {
+    return value;
+  }
+  if (isSymbol(value)) {
+    return NAN;
+  }
+  if (isObject$1(value)) {
+    var other = typeof value.valueOf == 'function' ? value.valueOf() : value;
+    value = isObject$1(other) ? (other + '') : other;
+  }
+  if (typeof value != 'string') {
+    return value === 0 ? value : +value;
+  }
+  value = value.replace(reTrim, '');
+  var isBinary = reIsBinary.test(value);
+  return (isBinary || reIsOctal.test(value))
+    ? freeParseInt(value.slice(2), isBinary ? 2 : 8)
+    : (reIsBadHex.test(value) ? NAN : +value);
+}
+
+var lodash_debounce = debounce;
+
+/**
+ * @file selection
+ * @author Cuttle Cong
+ * @date 2018/4/30
+ * @description
+ */
+
+function isText(node) {
+  return node && node.nodeType === document.TEXT_NODE;
+}
+
+function createElem(tagName) {
+  var document = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : document;
+
+  return document.createElement(tagName);
+}
+var doms = new Map();
+function getSingleDOM() {
+  var tagName = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'div';
+  var id = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : Math.random();
+  var document = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : document;
+
+  if (doms.has(id)) {
+    return doms.get(id);
+  }
+  var ele = createElem(tagName, document);
+  doms.set(id, ele);
+  return ele;
+}
+
+function getPageOffset(el) {
+  el = el.getBoundingClientRect();
+  return {
+    width: el.width,
+    height: el.height,
+    left: el.left + window.scrollX,
+    top: el.top + window.scrollY
+  };
+}
+
+function getTextNodeSize(node) {
+  var window = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : window;
+
+  if (!(node instanceof window.Range)) {
+    var range = window.document.createRange();
+    range.selectNodeContents(node);
+    node = range;
+  }
+  return getPageOffset(node);
+}
+
+
+
+
+
+function walkDOM(node, func) {
+  var rlt = func(node); // this will invoke the functionToInvoke from arg
+  // skip
+  if (rlt === false) {
+    return;
+  }
+  node = node.firstChild;
+  while (node) {
+    walkDOM(node, func);
+    node = node.nextSibling;
+  }
+}
+
+var walk = walkDOM;
+
+function getSelector(el) {
+  var root = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : document;
+
+  if (!el || el.nodeType !== Node.ELEMENT_NODE) {
+    throw new Error('getSelector requires element.');
+  }
+  if (root === el) {
+    return null;
+  }
+  if (el.hasAttribute('id')) {
+    return '#' + el.getAttribute('id');
+  }
+
+  var children = Array.from(el.parentNode ? el.parentNode.children : []);
+  var index = -1,
+      hasBrother = false;
+  children.forEach(function (x, i) {
+    if (x === el) {
+      index = i + 1;
+    } else if (el.tagName === x.tagName) {
+      hasBrother = true;
+    }
+  });
+
+  var selector = el.localName;
+  if (index > 0 && hasBrother) {
+    selector = el.localName + ':nth-child(' + index + ')';
+  }
+  var ps = getSelector(el.parentNode, root);
+  return ps !== null ? ps + ' > ' + selector : selector;
+}
+
+var rgbHex = createCommonjsModule(function (module) {
+module.exports = (red, green, blue, alpha) => {
+	const isPercent = (red + (alpha || '')).toString().includes('%');
+
+	if (typeof red === 'string') {
+		const res = red.match(/(0?\.?\d{1,3})%?\b/g).map(Number);
+		// TODO: use destructuring when targeting Node.js 6
+		red = res[0];
+		green = res[1];
+		blue = res[2];
+		alpha = res[3];
+	} else if (alpha !== undefined) {
+		alpha = parseFloat(alpha);
+	}
+
+	if (typeof red !== 'number' ||
+		typeof green !== 'number' ||
+		typeof blue !== 'number' ||
+		red > 255 ||
+		green > 255 ||
+		blue > 255) {
+		throw new TypeError('Expected three numbers below 256');
+	}
+
+	if (typeof alpha === 'number') {
+		if (!isPercent && alpha >= 0 && alpha <= 1) {
+			alpha = Math.round(255 * alpha);
+		} else if (isPercent && alpha >= 0 && alpha <= 100) {
+			alpha = Math.round(255 * alpha / 100);
+		} else {
+			throw new TypeError(`Expected alpha value (${alpha}) as a fraction or percentage`);
+		}
+		alpha = (alpha | 1 << 8).toString(16).slice(1);
+	} else {
+		alpha = '';
+	}
+
+	return ((blue | green << 8 | red << 16) | 1 << 24).toString(16).slice(1) + alpha;
+};
+});
+
+var crypt = createCommonjsModule(function (module) {
+(function() {
+  var base64map
+      = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
+
+  crypt = {
+    // Bit-wise rotation left
+    rotl: function(n, b) {
+      return (n << b) | (n >>> (32 - b));
+    },
+
+    // Bit-wise rotation right
+    rotr: function(n, b) {
+      return (n << (32 - b)) | (n >>> b);
+    },
+
+    // Swap big-endian to little-endian and vice versa
+    endian: function(n) {
+      // If number given, swap endian
+      if (n.constructor == Number) {
+        return crypt.rotl(n, 8) & 0x00FF00FF | crypt.rotl(n, 24) & 0xFF00FF00;
+      }
+
+      // Else, assume array and swap all items
+      for (var i = 0; i < n.length; i++)
+        n[i] = crypt.endian(n[i]);
+      return n;
+    },
+
+    // Generate an array of any length of random bytes
+    randomBytes: function(n) {
+      for (var bytes = []; n > 0; n--)
+        bytes.push(Math.floor(Math.random() * 256));
+      return bytes;
+    },
+
+    // Convert a byte array to big-endian 32-bit words
+    bytesToWords: function(bytes) {
+      for (var words = [], i = 0, b = 0; i < bytes.length; i++, b += 8)
+        words[b >>> 5] |= bytes[i] << (24 - b % 32);
+      return words;
+    },
+
+    // Convert big-endian 32-bit words to a byte array
+    wordsToBytes: function(words) {
+      for (var bytes = [], b = 0; b < words.length * 32; b += 8)
+        bytes.push((words[b >>> 5] >>> (24 - b % 32)) & 0xFF);
+      return bytes;
+    },
+
+    // Convert a byte array to a hex string
+    bytesToHex: function(bytes) {
+      for (var hex = [], i = 0; i < bytes.length; i++) {
+        hex.push((bytes[i] >>> 4).toString(16));
+        hex.push((bytes[i] & 0xF).toString(16));
+      }
+      return hex.join('');
+    },
+
+    // Convert a hex string to a byte array
+    hexToBytes: function(hex) {
+      for (var bytes = [], c = 0; c < hex.length; c += 2)
+        bytes.push(parseInt(hex.substr(c, 2), 16));
+      return bytes;
+    },
+
+    // Convert a byte array to a base-64 string
+    bytesToBase64: function(bytes) {
+      for (var base64 = [], i = 0; i < bytes.length; i += 3) {
+        var triplet = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
+        for (var j = 0; j < 4; j++)
+          if (i * 8 + j * 6 <= bytes.length * 8)
+            base64.push(base64map.charAt((triplet >>> 6 * (3 - j)) & 0x3F));
+          else
+            base64.push('=');
+      }
+      return base64.join('');
+    },
+
+    // Convert a base-64 string to a byte array
+    base64ToBytes: function(base64) {
+      // Remove non-base-64 characters
+      base64 = base64.replace(/[^A-Z0-9+\/]/ig, '');
+
+      for (var bytes = [], i = 0, imod4 = 0; i < base64.length;
+          imod4 = ++i % 4) {
+        if (imod4 == 0) continue;
+        bytes.push(((base64map.indexOf(base64.charAt(i - 1))
+            & (Math.pow(2, -2 * imod4 + 8) - 1)) << (imod4 * 2))
+            | (base64map.indexOf(base64.charAt(i)) >>> (6 - imod4 * 2)));
+      }
+      return bytes;
+    }
+  };
+
+  module.exports = crypt;
+})();
+});
+
+var charenc = {
+  // UTF-8 encoding
+  utf8: {
+    // Convert a string to a byte array
+    stringToBytes: function(str) {
+      return charenc.bin.stringToBytes(unescape(encodeURIComponent(str)));
+    },
+
+    // Convert a byte array to a string
+    bytesToString: function(bytes) {
+      return decodeURIComponent(escape(charenc.bin.bytesToString(bytes)));
+    }
+  },
+
+  // Binary encoding
+  bin: {
+    // Convert a string to a byte array
+    stringToBytes: function(str) {
+      for (var bytes = [], i = 0; i < str.length; i++)
+        bytes.push(str.charCodeAt(i) & 0xFF);
+      return bytes;
+    },
+
+    // Convert a byte array to a string
+    bytesToString: function(bytes) {
+      for (var str = [], i = 0; i < bytes.length; i++)
+        str.push(String.fromCharCode(bytes[i]));
+      return str.join('');
+    }
+  }
+};
+
+var charenc_1 = charenc;
+
+/*!
+ * Determine if an object is a Buffer
+ *
+ * @author   Feross Aboukhadijeh <https://feross.org>
+ * @license  MIT
+ */
+
+// The _isBuffer check is for Safari 5-7 support, because it's missing
+// Object.prototype.constructor. Remove this eventually
+var isBuffer_1 = function (obj) {
+  return obj != null && (isBuffer(obj) || isSlowBuffer(obj) || !!obj._isBuffer)
+};
+
+function isBuffer (obj) {
+  return !!obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
+}
+
+// For Node v0.10 support. Remove this eventually.
+function isSlowBuffer (obj) {
+  return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
+}
+
+var md5 = createCommonjsModule(function (module) {
+(function(){
+  var crypt$$1 = crypt,
+      utf8 = charenc_1.utf8,
+      isBuffer = isBuffer_1,
+      bin = charenc_1.bin,
+
+  // The core
+  md5 = function (message, options) {
+    // Convert to byte array
+    if (message.constructor == String)
+      if (options && options.encoding === 'binary')
+        message = bin.stringToBytes(message);
+      else
+        message = utf8.stringToBytes(message);
+    else if (isBuffer(message))
+      message = Array.prototype.slice.call(message, 0);
+    else if (!Array.isArray(message))
+      message = message.toString();
+    // else, assume byte array already
+
+    var m = crypt$$1.bytesToWords(message),
+        l = message.length * 8,
+        a =  1732584193,
+        b = -271733879,
+        c = -1732584194,
+        d =  271733878;
+
+    // Swap endian
+    for (var i = 0; i < m.length; i++) {
+      m[i] = ((m[i] <<  8) | (m[i] >>> 24)) & 0x00FF00FF |
+             ((m[i] << 24) | (m[i] >>>  8)) & 0xFF00FF00;
+    }
+
+    // Padding
+    m[l >>> 5] |= 0x80 << (l % 32);
+    m[(((l + 64) >>> 9) << 4) + 14] = l;
+
+    // Method shortcuts
+    var FF = md5._ff,
+        GG = md5._gg,
+        HH = md5._hh,
+        II = md5._ii;
+
+    for (var i = 0; i < m.length; i += 16) {
+
+      var aa = a,
+          bb = b,
+          cc = c,
+          dd = d;
+
+      a = FF(a, b, c, d, m[i+ 0],  7, -680876936);
+      d = FF(d, a, b, c, m[i+ 1], 12, -389564586);
+      c = FF(c, d, a, b, m[i+ 2], 17,  606105819);
+      b = FF(b, c, d, a, m[i+ 3], 22, -1044525330);
+      a = FF(a, b, c, d, m[i+ 4],  7, -176418897);
+      d = FF(d, a, b, c, m[i+ 5], 12,  1200080426);
+      c = FF(c, d, a, b, m[i+ 6], 17, -1473231341);
+      b = FF(b, c, d, a, m[i+ 7], 22, -45705983);
+      a = FF(a, b, c, d, m[i+ 8],  7,  1770035416);
+      d = FF(d, a, b, c, m[i+ 9], 12, -1958414417);
+      c = FF(c, d, a, b, m[i+10], 17, -42063);
+      b = FF(b, c, d, a, m[i+11], 22, -1990404162);
+      a = FF(a, b, c, d, m[i+12],  7,  1804603682);
+      d = FF(d, a, b, c, m[i+13], 12, -40341101);
+      c = FF(c, d, a, b, m[i+14], 17, -1502002290);
+      b = FF(b, c, d, a, m[i+15], 22,  1236535329);
+
+      a = GG(a, b, c, d, m[i+ 1],  5, -165796510);
+      d = GG(d, a, b, c, m[i+ 6],  9, -1069501632);
+      c = GG(c, d, a, b, m[i+11], 14,  643717713);
+      b = GG(b, c, d, a, m[i+ 0], 20, -373897302);
+      a = GG(a, b, c, d, m[i+ 5],  5, -701558691);
+      d = GG(d, a, b, c, m[i+10],  9,  38016083);
+      c = GG(c, d, a, b, m[i+15], 14, -660478335);
+      b = GG(b, c, d, a, m[i+ 4], 20, -405537848);
+      a = GG(a, b, c, d, m[i+ 9],  5,  568446438);
+      d = GG(d, a, b, c, m[i+14],  9, -1019803690);
+      c = GG(c, d, a, b, m[i+ 3], 14, -187363961);
+      b = GG(b, c, d, a, m[i+ 8], 20,  1163531501);
+      a = GG(a, b, c, d, m[i+13],  5, -1444681467);
+      d = GG(d, a, b, c, m[i+ 2],  9, -51403784);
+      c = GG(c, d, a, b, m[i+ 7], 14,  1735328473);
+      b = GG(b, c, d, a, m[i+12], 20, -1926607734);
+
+      a = HH(a, b, c, d, m[i+ 5],  4, -378558);
+      d = HH(d, a, b, c, m[i+ 8], 11, -2022574463);
+      c = HH(c, d, a, b, m[i+11], 16,  1839030562);
+      b = HH(b, c, d, a, m[i+14], 23, -35309556);
+      a = HH(a, b, c, d, m[i+ 1],  4, -1530992060);
+      d = HH(d, a, b, c, m[i+ 4], 11,  1272893353);
+      c = HH(c, d, a, b, m[i+ 7], 16, -155497632);
+      b = HH(b, c, d, a, m[i+10], 23, -1094730640);
+      a = HH(a, b, c, d, m[i+13],  4,  681279174);
+      d = HH(d, a, b, c, m[i+ 0], 11, -358537222);
+      c = HH(c, d, a, b, m[i+ 3], 16, -722521979);
+      b = HH(b, c, d, a, m[i+ 6], 23,  76029189);
+      a = HH(a, b, c, d, m[i+ 9],  4, -640364487);
+      d = HH(d, a, b, c, m[i+12], 11, -421815835);
+      c = HH(c, d, a, b, m[i+15], 16,  530742520);
+      b = HH(b, c, d, a, m[i+ 2], 23, -995338651);
+
+      a = II(a, b, c, d, m[i+ 0],  6, -198630844);
+      d = II(d, a, b, c, m[i+ 7], 10,  1126891415);
+      c = II(c, d, a, b, m[i+14], 15, -1416354905);
+      b = II(b, c, d, a, m[i+ 5], 21, -57434055);
+      a = II(a, b, c, d, m[i+12],  6,  1700485571);
+      d = II(d, a, b, c, m[i+ 3], 10, -1894986606);
+      c = II(c, d, a, b, m[i+10], 15, -1051523);
+      b = II(b, c, d, a, m[i+ 1], 21, -2054922799);
+      a = II(a, b, c, d, m[i+ 8],  6,  1873313359);
+      d = II(d, a, b, c, m[i+15], 10, -30611744);
+      c = II(c, d, a, b, m[i+ 6], 15, -1560198380);
+      b = II(b, c, d, a, m[i+13], 21,  1309151649);
+      a = II(a, b, c, d, m[i+ 4],  6, -145523070);
+      d = II(d, a, b, c, m[i+11], 10, -1120210379);
+      c = II(c, d, a, b, m[i+ 2], 15,  718787259);
+      b = II(b, c, d, a, m[i+ 9], 21, -343485551);
+
+      a = (a + aa) >>> 0;
+      b = (b + bb) >>> 0;
+      c = (c + cc) >>> 0;
+      d = (d + dd) >>> 0;
+    }
+
+    return crypt$$1.endian([a, b, c, d]);
+  };
+
+  // Auxiliary functions
+  md5._ff  = function (a, b, c, d, x, s, t) {
+    var n = a + (b & c | ~b & d) + (x >>> 0) + t;
+    return ((n << s) | (n >>> (32 - s))) + b;
+  };
+  md5._gg  = function (a, b, c, d, x, s, t) {
+    var n = a + (b & d | c & ~d) + (x >>> 0) + t;
+    return ((n << s) | (n >>> (32 - s))) + b;
+  };
+  md5._hh  = function (a, b, c, d, x, s, t) {
+    var n = a + (b ^ c ^ d) + (x >>> 0) + t;
+    return ((n << s) | (n >>> (32 - s))) + b;
+  };
+  md5._ii  = function (a, b, c, d, x, s, t) {
+    var n = a + (c ^ (b | ~d)) + (x >>> 0) + t;
+    return ((n << s) | (n >>> (32 - s))) + b;
+  };
+
+  // Package private blocksize
+  md5._blocksize = 16;
+  md5._digestsize = 16;
+
+  module.exports = function (message, options) {
+    if (message === undefined || message === null)
+      throw new Error('Illegal argument ' + message);
+
+    var digestbytes = crypt$$1.wordsToBytes(md5(message, options));
+    return options && options.asBytes ? digestbytes :
+        options && options.asString ? bin.bytesToString(digestbytes) :
+        crypt$$1.bytesToHex(digestbytes);
+  };
+
+})();
+});
+
+/**
+ * @file selection
+ * @author Cuttle Cong
+ * @date 2018/4/30
+ * @description
+ */
+function makeReset(fn) {
+  var wrap = function wrap() {
+    if (wrap.__called) {
+      return;
+    }
+    wrap.__called = true;
+
+    // range.setStart(cloneRange.startContainer, cloneRange.startOffset)
+    // range.setEnd(cloneRange.endContainer, cloneRange.endOffset)
+    fn();
+  };
+  return wrap;
+}
+
+function sliceNode(node) {
+  var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+      offset = _ref.offset,
+      length = _ref.length;
+
+  var window = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : window;
+
+  var document = window.document;
+
+  if (node && node.nodeType === Node.ELEMENT_NODE) {
+    var sumOffset = 0,
+        relativeOffset = offset;
+    for (var i = 0; i < node.childNodes.length; i++) {
+      var child = node.childNodes[i];
+      if (child && 'textContent' in child) {
+        sumOffset += child.textContent.length;
+        relativeOffset = relativeOffset - child.textContent.length;
+      }
+
+      if (sumOffset > offset) {
+        return sliceNode(child, {
+          offset: relativeOffset + child.textContent.length,
+          length: length
+        }, window);
+      }
+    }
+  }
+
+  if (node && 'textContent' in node) {
+    var text = node.textContent;
+    var pNode = node.parentNode;
+    if (!pNode) {
+      return {};
+    }
+
+    if (text.length < offset && node.nextSibling) {
+      return sliceNode(node.nextSibling, { offset: offset - text.length, length: length }, window);
+    }
+    var nodes = [text.slice(offset + length), text.slice(offset, offset + length), text.slice(0, offset)].map(function (text) {
+      return document.createTextNode(text);
+    });
+    // .filter(text => text.trim() !== '')
+
+    var head = nodes[0];
+    pNode.replaceChild(nodes[0], node);
+    var resetNodes = nodes.slice(1);
+
+    var reset = makeReset(function () {
+      pNode.replaceChild(node, nodes[0]);
+      resetNodes.forEach(function (node) {
+        node.remove();
+      });
+    });
+
+    resetNodes.forEach(function (node) {
+      pNode.insertBefore(node, head);
+      head = node;
+    });
+
+    return { reset: reset, nodes: nodes };
+  }
+  return {};
+}
+
+function getLastRangePos(window) {
+  var selection = window.getSelection();
+  var document = window.document;
+
+  var range = selection.getRangeAt(selection.rangeCount - 1);
+  var reset = void 0;
+  var pos = void 0;
+
+  if (range) {
+    // eslint-disable-next-line no-inner-declarations
+
+    var startContainer = range.startContainer;
+    var endContainer = range.endContainer;
+    var startParentContainer = startContainer.parentElement;
+    var endParentContainer = endContainer.parentElement;
+    var commonAncestorContainer = range.commonAncestorContainer;
+    // pure text nodes
+
+    var startWholeText = range.startContainer.textContent;
+    var startOffset = range.startOffset;
+    var endWholeText = range.endContainer.textContent;
+    var endOffset = range.endOffset;
+
+    //  " hello world "
+    //      _____
+    if (startContainer === endContainer) {
+      var data = sliceNode(startContainer, {
+        offset: startOffset,
+        length: endOffset - startOffset
+      }, window);
+      var nodes = data.nodes;
+      range.selectNodeContents(nodes[1]);
+      pos = getTextNodeSize(range, window);
+      reset = data.reset;
+    } else {
+      //  " hello<code>x</code>world "
+      //      ^^^^^^^^^^^^^^^^^^^
+      if (isText(startContainer)) {
+        var _nodes = [startWholeText.slice(startOffset), startWholeText.slice(0, startOffset)].map(function (x) {
+          return document.createTextNode(x);
+        });
+        var head = _nodes[0];
+        startParentContainer.replaceChild(_nodes[0], startContainer);
+        var resetNodes = _nodes.slice(1);
+
+        reset = makeReset(function () {
+          startParentContainer.replaceChild(startContainer, _nodes[0]);
+          resetNodes.forEach(function (node) {
+            node.remove();
+          });
+        });
+
+        resetNodes.forEach(function (node) {
+          startParentContainer.insertBefore(node, head);
+          head = node;
+        });
+        range.setStart(_nodes[0], 0);
+      }
+
+      if (isText(endContainer)) {
+        var _nodes2 = [endWholeText.slice(endOffset), endWholeText.slice(0, endOffset)].map(function (x) {
+          return document.createTextNode(x);
+        });
+        var _head = _nodes2[0];
+        endParentContainer.replaceChild(_nodes2[0], endContainer);
+        var _resetNodes = _nodes2.slice(1);
+
+        reset = function (reset) {
+          return makeReset(function () {
+            reset && reset();
+            endParentContainer.replaceChild(endContainer, _nodes2[0]);
+            _resetNodes.forEach(function (node) {
+              node.remove();
+            });
+          });
+        }(reset);
+
+        _resetNodes.forEach(function (node) {
+          endParentContainer.insertBefore(node, _head);
+          _head = node;
+        });
+        range.setEnd(_nodes2[1], _nodes2[1].textContent.length);
+      }
+
+      pos = getTextNodeSize(range, window);
+    }
+
+    return {
+      reset: reset,
+      pos: pos
+    };
+  }
+
+  return {};
+}
+
+function removeRanges() {
+  var window = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window;
+
+  var selection = window.getSelection();
+  selection.removeAllRanges();
+}
+
+function getSelectionContainsList(cond) {
+  return function () {
+    var selection = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.getSelection();
+
+    if (selection.isCollapsed) {
+      return [];
+    }
+    var list = [];
+    var range = selection.getRangeAt(selection.rangeCount - 1);
+
+    function getTexts(root, range) {
+      var list = [];
+      walk(root, function (node) {
+        if (cond(node)) {
+          if (range.isPointInRange(node, 0)) {
+            list.push(node);
+          }
+        }
+      });
+      return list;
+    }
+    if (cond(range.commonAncestorContainer)) {
+      return [range.commonAncestorContainer];
+    }
+    if (range) {
+      list = getTexts(range.commonAncestorContainer, range);
+    }
+    return list;
+  };
+}
+
+var getTextList = getSelectionContainsList(function (node) {
+  if (isText(node)) {
+    if (node.parentNode) {
+      if (node.parentNode.tagName && ['style', 'script', 'noscript', 'title'].includes(node.parentNode.tagName.toLowerCase())) {
+        return false;
+      }
+    }
+    return true;
+  }
+  return false;
+});
+var getSelectionTextList = getTextList;
+
+function isEmpty(node) {
+  return node.textContent.trim() === '';
+}
+
+function getSelectionTextSeqList(selection) {
+  var textList = getTextList(selection);
+  if (!textList || !textList.length) {
+    return textList;
+  }
+  // debugger
+  var newList = [textList.shift()];
+  while (textList.length) {
+    var head = newList[newList.length - 1];
+    var node = textList.shift();
+    if (node.previousSibling === head) {
+      head.textContent = head.textContent + node.textContent;
+      node.remove();
+    } else {
+      newList.push(node);
+    }
+  }
+
+  return newList.filter(function (x) {
+    return !isEmpty(x);
+  });
+}
+
+var styleText = "\n.mark-highlight-popover {\n  position: absolute;\n  z-index: 9999;\n  background-color: #fff;\n  box-shadow: 0 0 10px 3px #ccc;\n  transform: translate(-54%, 20%);\n  min-width: 40px;\n  max-width: 90vw;\n  padding: 4px 7px;\n  box-sizing: content-box;\n  text-align: center;\n  user-select: none;\n  -moz-user-select: none;\n  -webkit-user-select: none;\n  -ms-user-select: none;\n}\n.mark-highlight-popover > textarea {\n  display: block;\n  resize: none;\n}\n.mark-highlight-popover::before {\n  content: \"\";\n  border-left: 5px solid transparent;\n  border-right: 5px solid transparent;\n  border-top: 5px solid transparent;\n  border-bottom: 5px solid #fff;\n  display: block;\n  position: absolute;\n  top: -10px;\n  left: 50%;\n}\n.mark-highlight-color {\n  display: inline-block;\n  width: 14px;\n  height: 14px;\n  margin: auto 2px;\n  border-radius: 50%;\n  cursor: pointer;\n}\n\n.mark-highlight-active-color {\n  background-size: contain;\n  background-image: url(\"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/PjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+PHN2ZyB0PSIxNTI1MTM3NDcxNDM5IiBjbGFzcz0iaWNvbiIgc3R5bGU9IiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHAtaWQ9IjIwNDYiIGRhdGEtc3BtLWFuY2hvci1pZD0iYTMxM3guNzc4MTA2OS4wLmkwIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiPjxkZWZzPjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+PC9zdHlsZT48L2RlZnM+PHBhdGggZD0iTTE3Ni42NjE2MDEgODE3LjE3Mjg4MUMxNjguNDcyNzk4IDgyNS42NDQwNTUgMTY4LjcwMTcwNiA4MzkuMTQ5NjM2IDE3Ny4xNzI4ODEgODQ3LjMzODQzOCAxODUuNjQ0MDU2IDg1NS41MjcyNDEgMTk5LjE0OTYzNiA4NTUuMjk4MzMyIDIwNy4zMzg0MzggODQ2LjgyNzE1N0w4MjYuMDA1MTA1IDIwNi44MjcxNTdDODM0LjE5MzkwNyAxOTguMzU1OTgzIDgzMy45NjQ5OTggMTg0Ljg1MDQwMyA4MjUuNDkzODI0IDE3Ni42NjE2MDEgODE3LjAyMjY1IDE2OC40NzI3OTggODAzLjUxNzA2OSAxNjguNzAxNzA2IDc5NS4zMjgyNjcgMTc3LjE3Mjg4MUwxNzYuNjYxNjAxIDgxNy4xNzI4ODFaIiBwLWlkPSIyMDQ3Ij48L3BhdGg+PHBhdGggZD0iTTc5NS4zMjgyNjcgODQ2LjgyNzE1N0M4MDMuNTE3MDY5IDg1NS4yOTgzMzIgODE3LjAyMjY1IDg1NS41MjcyNDEgODI1LjQ5MzgyNCA4NDcuMzM4NDM4IDgzMy45NjQ5OTggODM5LjE0OTYzNiA4MzQuMTkzOTA3IDgyNS42NDQwNTUgODI2LjAwNTEwNSA4MTcuMTcyODgxTDIwNy4zMzg0MzggMTc3LjE3Mjg4MUMxOTkuMTQ5NjM2IDE2OC43MDE3MDYgMTg1LjY0NDA1NiAxNjguNDcyNzk4IDE3Ny4xNzI4ODEgMTc2LjY2MTYwMSAxNjguNzAxNzA2IDE4NC44NTA0MDMgMTY4LjQ3Mjc5OCAxOTguMzU1OTgzIDE3Ni42NjE2MDEgMjA2LjgyNzE1N0w3OTUuMzI4MjY3IDg0Ni44MjcxNTdaIiBwLWlkPSIyMDQ4Ij48L3BhdGg+PC9zdmc+\");\n}\n.mark-highlight-color:hover {\n  opacity: .68;\n}\n.mark-highlight-color.disabled {\n  cursor: not-allowed;\n  opacity: .5;\n}\n.mark-highlight-item {\n  cursor: pointer;\n}\n";
+
 var mouseUpCore = function () {
   var _ref9 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee3(opt, ele, popover, _ref8) {
     var target = _ref8.target;
@@ -2192,7 +3295,7 @@ var mouseUpCore = function () {
               break;
             }
 
-            markedList = selectionUtil.getSelectionContainsList(function (node) {
+            markedList = getSelectionContainsList(function (node) {
               return isItemNode(node) || isItemNode(node.parentNode);
             })(opt.window.getSelection());
             // Selected contains marked item
@@ -2205,7 +3308,7 @@ var mouseUpCore = function () {
             return _context3.abrupt('return');
 
           case 5:
-            _selectionUtil$getLas = selectionUtil.getLastRangePos(opt.window), reset = _selectionUtil$getLas.reset, pos = _selectionUtil$getLas.pos;
+            _selectionUtil$getLas = getLastRangePos(opt.window), reset = _selectionUtil$getLas.reset, pos = _selectionUtil$getLas.pos;
 
             if (reset) {
               resetQueue.add('TEMP', reset);
@@ -2244,13 +3347,13 @@ var click = function () {
               color = target.style.backgroundColor;
               words = target.getAttribute('data-mark-words');
               colorList = opt.highlightColors.slice().map(function (x) {
-                return rgbHex(x);
+                return rgbHex$1(x);
               });
 
-              if (!colorList.includes(rgbHex(color))) {
-                colorList.push(rgbHex(color));
+              if (!colorList.includes(rgbHex$1(color))) {
+                colorList.push(rgbHex$1(color));
               }
-              popover.show(domUtil.getPageOffset(target), colorList);
+              popover.show(getPageOffset(target), colorList);
               popover.selectColor(color, id);
               words && popover.setText(words);
             }
@@ -2278,15 +3381,9 @@ var click = function () {
  * @date 2018/4/30
  * @description
  */
-var debounce = require('lodash.debounce');
-var domUtil = require('../../helper/dom');
-var _rgbHex = require('rgb-hex');
-var md5 = require('md5');
-var selectionUtil = require('../../helper/selection');
-
-function rgbHex(str) {
+function rgbHex$1(str) {
   try {
-    return '#' + _rgbHex(str);
+    return '#' + rgbHex(str);
   } catch (e) {
     return str;
   }
@@ -2370,11 +3467,11 @@ var MapQueue = function () {
 var resetQueue = new MapQueue();
 
 function prependTextNodeChunks(textNode) {
-  if (!domUtil.isText(textNode)) {
+  if (!isText(textNode)) {
     return;
   }
   var prev = textNode.previousSibling;
-  while (domUtil.isText(prev)) {
+  while (isText(prev)) {
     textNode.textContent = prev.textContent + textNode.textContent;
     var tmpPrev = prev.previousSibling;
     prev.remove();
@@ -2383,11 +3480,11 @@ function prependTextNodeChunks(textNode) {
 }
 
 function appendTextNodeChunks(textNode) {
-  if (!domUtil.isText(textNode)) {
+  if (!isText(textNode)) {
     return;
   }
   var next = textNode.nextSibling;
-  while (domUtil.isText(next)) {
+  while (isText(next)) {
     textNode.textContent = textNode.textContent + next.textContent;
     var tmpNext = next.nextSibling;
     next.remove();
@@ -2413,7 +3510,7 @@ function batchSetMarkAttribute(id, _ref2, ele) {
   for (var i = 0; i < doms.length; i++) {
     var dom = doms[i];
     words && dom.setAttribute('data-mark-words', words);
-    color && (dom.style.backgroundColor = rgbHex(color));
+    color && (dom.style.backgroundColor = rgbHex$1(color));
   }
 }
 
@@ -2436,7 +3533,7 @@ function getPopover(ele, opt) {
   var _this3 = this;
 
   var self = this;
-  var popover = domUtil.getSingleDOM('div', void 0, document);
+  var popover = getSingleDOM('div', void 0, document);
   popover.style.position = 'absolute';
   popover.style.display = 'none';
   popover.className = 'mark-highlight-popover';
@@ -2462,7 +3559,7 @@ function getPopover(ele, opt) {
       this._resetActive();
       var colors = this.querySelectorAll('.mark-highlight-color');
       for (var i = 0; i < colors.length; i++) {
-        if (rgbHex(colors[i].style.backgroundColor) === rgbHex(color)) {
+        if (rgbHex$1(colors[i].style.backgroundColor) === rgbHex$1(color)) {
           id && colors[i].setAttribute('data-mark-id', id);
           colors[i].classList.add('mark-highlight-active-color');
           this.setText('');
@@ -2576,7 +3673,7 @@ function getPopover(ele, opt) {
               return _context2.abrupt('return');
 
             case 19:
-              list = selectionUtil.getSelectionTextList(opt.window.getSelection());
+              list = getSelectionTextList(opt.window.getSelection());
               containsMarked = list.find(function (textNode) {
                 return isItemNode(textNode.parentNode);
               });
@@ -2591,9 +3688,9 @@ function getPopover(ele, opt) {
             case 23:
 
               // slice side effect
-              selectionUtil.getLastRangePos(opt.window);
+              getLastRangePos(opt.window);
 
-              list = selectionUtil.getSelectionTextSeqList(opt.window.getSelection());
+              list = getSelectionTextSeqList(opt.window.getSelection());
 
               uid = opt.generateUid();
 
@@ -2617,7 +3714,7 @@ function getPopover(ele, opt) {
                 return {
                   offset: offset,
                   length: node.textContent.length,
-                  parentSelector: domUtil.getSelector(parentNode, ele)
+                  parentSelector: getSelector(parentNode, ele)
                 };
               });
 
@@ -2634,7 +3731,7 @@ function getPopover(ele, opt) {
               nodeList.forEach(function (textNode) {
                 replaceToMark(textNode, { uid: uid, color: color }, opt);
               });
-              selectionUtil.removeRanges(window);
+              removeRanges(window);
               /* eslint-disable no-use-before-define */
               resetQueue.clear();
               popover.selectColor(color, uid);
@@ -2669,7 +3766,7 @@ function _fill() {
   var dom = arguments[1];
   var opt = arguments[2];
 
-  var _selectionUtil$sliceN = selectionUtil.sliceNode(dom, { offset: offset, length: length }, opt.window),
+  var _selectionUtil$sliceN = sliceNode(dom, { offset: offset, length: length }, opt.window),
       reset = _selectionUtil$sliceN.reset,
       nodes = _selectionUtil$sliceN.nodes;
   // if (reset) {
@@ -2761,7 +3858,7 @@ function highlight(element, options) {
 
   var document = options.window.document;
   var style = document.createElement('style');
-  style.innerHTML = require('./style');
+  style.innerHTML = styleText;
   document.head.appendChild(style);
 
   function removeStyle() {
@@ -2769,8 +3866,8 @@ function highlight(element, options) {
   }
 
   var popover = getPopover.call(this, element, options);
-  var debouncedMouseUp = debounce(mouseUpCore, 100).bind(this, options, element, popover);
-  var debouncedMouseDown = debounce(mouseDown, 100).bind(this, options, element, popover);
+  var debouncedMouseUp = lodash_debounce(mouseUpCore, 100).bind(this, options, element, popover);
+  var debouncedMouseDown = lodash_debounce(mouseDown, 100).bind(this, options, element, popover);
   var onClick = click.bind(this, options, element, popover);
   var onMouseEnter = mouseEnter.bind(this, options, element, popover);
   var onMouseLeave = mouseLeave.bind(this, options, element, popover);

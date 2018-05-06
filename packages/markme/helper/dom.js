@@ -5,7 +5,7 @@
  * @description
  */
 
-exports.isText = function(node) {
+export function isText(node) {
   return node && node.nodeType === document.TEXT_NODE
 }
 
@@ -13,7 +13,7 @@ function createElem(tagName, document = document) {
   return document.createElement(tagName)
 }
 const doms = new Map()
-function getSingleDOM(tagName = 'div', id = Math.random(), document = document) {
+export function getSingleDOM(tagName = 'div', id = Math.random(), document = document) {
   if (doms.has(id)) {
     return doms.get(id)
   }
@@ -22,9 +22,8 @@ function getSingleDOM(tagName = 'div', id = Math.random(), document = document) 
   return ele
 }
 
-exports.getSingleDOM = getSingleDOM
 
-function getPageOffset(el) {
+export function getPageOffset(el) {
   el = el.getBoundingClientRect()
   return {
     width: el.width,
@@ -33,9 +32,8 @@ function getPageOffset(el) {
     top: el.top + window.scrollY
   }
 }
-exports.getPageOffset = getPageOffset
 
-exports.getTextNodeSize = function(node, window = window) {
+export function getTextNodeSize(node, window = window) {
   if (!(node instanceof window.Range)) {
     const range = window.document.createRange()
     range.selectNodeContents(node)
@@ -57,9 +55,9 @@ function _hasRelaMaker(attr) {
     return true
   }
 }
-exports.hasParent = _hasRelaMaker('parentNode')
-exports.hasNext = _hasRelaMaker('nextSibling')
-exports.hasPrev = _hasRelaMaker('previousSibling')
+export const hasParent = _hasRelaMaker('parentNode')
+export const hasNext = _hasRelaMaker('nextSibling')
+export const hasPrev = _hasRelaMaker('previousSibling')
 
 function walkDOM(node, func) {
   let rlt = func(node) // this will invoke the functionToInvoke from arg
@@ -74,9 +72,9 @@ function walkDOM(node, func) {
   }
 }
 
-exports.walk = walkDOM
+export const walk = walkDOM
 
-function getSelector(el, root = document) {
+export function getSelector(el, root = document) {
   if (!el || el.nodeType !== Node.ELEMENT_NODE) {
     throw new Error('getSelector requires element.')
   }
@@ -105,4 +103,3 @@ function getSelector(el, root = document) {
   let ps = getSelector(el.parentNode, root)
   return ps !== null ? `${ps} > ${selector}` : selector
 }
-exports.getSelector = getSelector

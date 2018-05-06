@@ -4,7 +4,7 @@
  * @date 2018/4/30
  * @description
  */
-const {
+import {
   isText,
   getTextNodeSize,
   hasParent,
@@ -12,7 +12,7 @@ const {
   walk,
   hasNext,
   getSelector
-} = require('./dom')
+} from './dom'
 
 function makeReset(fn) {
   let wrap = function() {
@@ -96,7 +96,7 @@ export function sliceNode(node, { offset, length } = {}, window = window) {
   return {}
 }
 
-exports.getLastRangePos = function(window) {
+export function getLastRangePos(window) {
   let selection = window.getSelection()
   let document = window.document
 
@@ -197,12 +197,12 @@ exports.getLastRangePos = function(window) {
   return {}
 }
 
-exports.removeRanges = function(window = window) {
+export function removeRanges(window = window) {
   const selection = window.getSelection()
   selection.removeAllRanges()
 }
 
-function getSelectionContainsList(cond) {
+export function getSelectionContainsList(cond) {
   return function(selection = window.getSelection()) {
     if (selection.isCollapsed) {
       return []
@@ -230,7 +230,6 @@ function getSelectionContainsList(cond) {
     return list
   }
 }
-exports.getSelectionContainsList = getSelectionContainsList
 
 const getTextList = getSelectionContainsList(node => {
   if (isText(node)) {
@@ -248,13 +247,13 @@ const getTextList = getSelectionContainsList(node => {
   }
   return false
 })
-exports.getSelectionTextList = getTextList
+export const getSelectionTextList = getTextList
 
 function isEmpty(node) {
   return node.textContent.trim() === ''
 }
 
-exports.getSelectionTextSeqList = function(selection) {
+export function getSelectionTextSeqList(selection) {
   const textList = getTextList(selection)
   if (!textList || !textList.length) {
     return textList

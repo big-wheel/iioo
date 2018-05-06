@@ -1,4 +1,4 @@
-module.exports = `
+export default `
 .mark-highlight-popover {
   position: absolute;
   z-index: 9999;

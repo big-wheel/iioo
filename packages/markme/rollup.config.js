@@ -65,13 +65,6 @@ export default [
   Object.assign({}, config, {
     output: {
       ...config.output,
-      file: 'lib/index.umd.js',
-      format: 'umd'
-    }
-  }),
-  Object.assign({}, config, {
-    output: {
-      ...config.output,
       file: 'lib/index.es.js',
       format: 'es'
     },
@@ -82,9 +75,18 @@ export default [
   Object.assign({}, config, {
     output: {
       ...config.output,
+      file: 'lib/index.umd.js',
+      format: 'umd'
+    },
+    external: null
+  }),
+  Object.assign({}, config, {
+    output: {
+      ...config.output,
       file: 'lib/index.umd.min.js',
       format: 'umd'
     },
-    plugins: config.plugins.concat(uglify())
+    plugins: config.plugins.concat(uglify()),
+    external: null
   })
 ]

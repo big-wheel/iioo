@@ -4,11 +4,12 @@
  * @date 2018/4/30
  * @description
  */
-const debounce = require('lodash.debounce')
-const domUtil = require('../../helper/dom')
-const _rgbHex = require('rgb-hex')
-const md5 = require('md5')
-const selectionUtil = require('../../helper/selection')
+import debounce from 'lodash.debounce'
+import * as domUtil from '../../helper/dom'
+import _rgbHex from 'rgb-hex'
+import md5 from 'md5'
+import * as selectionUtil from '../../helper/selection'
+import styleText from './style'
 
 function rgbHex(str) {
   try {
@@ -428,7 +429,7 @@ export default function highlight(element, options) {
 
   const document = options.window.document
   let style = document.createElement('style')
-  style.innerHTML = require('./style')
+  style.innerHTML = styleText
   document.head.appendChild(style)
 
   function removeStyle() {
