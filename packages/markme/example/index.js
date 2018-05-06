@@ -8,6 +8,7 @@
 
 import mark from '../'
 import markLocalStorage from '../localStorage'
+import markmeLeancloud from 'markme-leancloud'
 
 let m
 function run(which) {
@@ -19,13 +20,21 @@ function run(which) {
     case 'ls':
       m = markLocalStorage(window.root, {})
       break
+    case 'lc':
+      m = markmeLeancloud(window.root, {
+        AVOptions: {
+          appId: 'YY0ajzbgR0NlSODErX04ya3E-gzGzoHsz',
+          appKey: 'KRSsdRICas0xDPmnO9znHY5E'
+        }
+      })
+      break
   }
 }
 
 let dom = {
   basic: document.querySelector('#switch-basic'),
   ls: document.querySelector('#switch-ls'),
-  // rs: document.querySelector('#switch-rs')
+  lc: document.querySelector('#switch-lc')
 }
 
 function activateDOM(key, oldKey) {

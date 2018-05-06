@@ -12,6 +12,7 @@ function markInLocalStorage(element) {
 
   options = _extends({
     enableInitialFill: true,
+    key: location.origin + location.pathname,
     AVOptions: {}
   }, options);
 
@@ -53,11 +54,12 @@ function markInLocalStorage(element) {
                 }
 
                 mm.set('id', id);
+                mm.set('ukey', options.key);
                 mm.set('type', type);
                 mm.set('data', data);
                 return _context.abrupt('return', mm.save());
 
-              case 9:
+              case 10:
               case 'end':
                 return _context.stop();
             }
@@ -82,14 +84,15 @@ function markInLocalStorage(element) {
 
                 query.equalTo('type', type);
                 query.equalTo('id', id);
-                _context2.next = 5;
+                query.equalTo('ukey', options.key);
+                _context2.next = 6;
                 return query.find();
 
-              case 5:
+              case 6:
                 _context2.t0 = toJSON;
                 return _context2.abrupt('return', _context2.sent.map(_context2.t0)[0]);
 
-              case 7:
+              case 8:
               case 'end':
                 return _context2.stop();
             }
@@ -147,14 +150,15 @@ function markInLocalStorage(element) {
                 query = new AV.Query('Markme');
 
                 query.equalTo('type', type);
-                _context4.next = 4;
+                query.equalTo('ukey', options.key);
+                _context4.next = 5;
                 return query.find();
 
-              case 4:
+              case 5:
                 _context4.t0 = toJSON;
                 return _context4.abrupt('return', _context4.sent.map(_context4.t0));
 
-              case 6:
+              case 7:
               case 'end':
                 return _context4.stop();
             }

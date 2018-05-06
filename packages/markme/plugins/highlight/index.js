@@ -153,7 +153,7 @@ function getPopover(ele, opt) {
           })
           .join('')
       }
-      this.innerHTML += '<textarea placeholder="input your idea" style="display: none"></textarea>'
+      this.innerHTML += '<textarea autofocus="autofocus" placeholder="input your idea" style="display: none"></textarea>'
       this.style.display = ''
     },
     selectColor(color, id) {

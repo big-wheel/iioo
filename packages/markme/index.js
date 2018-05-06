@@ -49,6 +49,8 @@ export default function mark(element, options = {}) {
 
   const ctx = new AwaitEventEmitter()
   ctx.opt = options
+
+  // TODO
   ctx.addButton = function({ title, icon, action } = {}) {}
 
   enablePlugins.forEach(plugin => {

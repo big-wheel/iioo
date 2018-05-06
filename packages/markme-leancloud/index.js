@@ -11,6 +11,7 @@ import mark from 'markme'
 export default function markInLocalStorage(element, options = {}) {
   options = {
     enableInitialFill: true,
+    key: location.origin + location.pathname,
     AVOptions: {},
     ...options
   }
@@ -43,6 +44,7 @@ export default function markInLocalStorage(element, options = {}) {
       }
 
       mm.set('id', id)
+      mm.set('ukey', options.key)
       mm.set('type', type)
       mm.set('data', data)
       return mm.save()
@@ -51,6 +53,7 @@ export default function markInLocalStorage(element, options = {}) {
       const query = new AV.Query('Markme')
       query.equalTo('type', type)
       query.equalTo('id', id)
+      query.equalTo('ukey', options.key)
       return (await query.find()).map(toJSON)[0]
     },
     remove: async function(type, id) {
@@ -64,6 +67,7 @@ export default function markInLocalStorage(element, options = {}) {
     getAll: async function(type) {
       const query = new AV.Query('Markme')
       query.equalTo('type', type)
+      query.equalTo('ukey', options.key)
       return (await query.find()).map(toJSON)
     }
   }

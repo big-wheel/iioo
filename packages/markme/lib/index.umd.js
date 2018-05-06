@@ -3552,7 +3552,7 @@ function getPopover(ele, opt) {
           return '<span class="' + className + '" style="background-color: ' + c + '"></span>';
         }).join('');
       }
-      this.innerHTML += '<textarea placeholder="input your idea" style="display: none"></textarea>';
+      this.innerHTML += '<textarea autofocus="autofocus" placeholder="input your idea" style="display: none"></textarea>';
       this.style.display = '';
     },
     selectColor: function selectColor(color, id) {
@@ -4144,6 +4144,8 @@ function mark(element) {
 
   var ctx = new awaitEventEmitter();
   ctx.opt = options;
+
+  // TODO
   ctx.addButton = function () {
     var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
         title = _ref.title,
