@@ -19,7 +19,7 @@ function run(func, message, ...args) {
   try {
     func.apply(this, args)
   } catch (e) {
-    console.error(message, e.toString())
+    console.error(message, e)
   }
 }
 

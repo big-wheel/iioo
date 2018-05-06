@@ -1080,7 +1080,7 @@ function run(func, message) {
 
     func.apply(this, args);
   } catch (e) {
-    console.error(message, e.toString());
+    console.error(message, e);
   }
 }
 
