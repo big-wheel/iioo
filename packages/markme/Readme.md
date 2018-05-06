@@ -1,6 +1,8 @@
 # markme
 The browser's implmentment of mark and paint's interaction. \
+
 The effect is shown in figure.
+
 ![](./snapshot.gif)
 
 ## Usage
