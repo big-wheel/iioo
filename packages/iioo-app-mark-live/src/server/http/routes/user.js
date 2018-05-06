@@ -30,51 +30,42 @@ r
   )
   .all(
     '/exists',
+    walli(w.oneOf([
+      w.eq({
+        name: w.string,
+        email: w.string
+      }),
+      w.eq({
+        name: w.string.optional,
+        email: w.string
+      }),
+      w.eq({
+        name: w.string,
+        email: w.string.optional
+      })
+    ])),
     wrap(async (req, res) => {
       const ent = req.ent
-      if (
-        res.walliCheck(
-          w.oneOf([
-            w.eq({
-              name: w.string,
-              email: w.string
-            }),
-            w.eq({
-              name: w.string.optional,
-              email: w.string
-            }),
-            w.eq({
-              name: w.string,
-              email: w.string.optional
-            })
-          ])
-        )
-      ) {
-        res.succ(await User.exists(ent))
-      }
+      res.succ(await User.exists(ent))
     })
   )
   .all(
     '/login',
+    walli({
+      name: w.string,
+      password: w.string
+    }),
     wrap(async (req, res) => {
-      if (
-        res.walliCheck({
-          name: w.string,
-          password: w.string
-        })
-      ) {
-        const user = await User.findOne({
-          name: req.ent.name,
-          password: User.calcPassword(req.ent.password)
-        })
-        if (user) {
-          req.session.userId = user.id
-          res.succ('login ok!')
-          return
-        }
-
-        res.fail('login fail!')
+      const user = await User.findOne({
+        name: req.ent.name,
+        password: User.calcPassword(req.ent.password)
+      })
+      if (user) {
+        req.session.userId = user.id
+        return res.succ('login ok!')
       }
+
+      res.fail('login fail!')
     })
   )
   .all(

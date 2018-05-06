@@ -9,16 +9,15 @@ exports.isText = function(node) {
   return node && node.nodeType === document.TEXT_NODE
 }
 
-function createElem(tagName) {
+function createElem(tagName, document = document) {
   return document.createElement(tagName)
 }
-
 const doms = new Map()
-function getSingleDOM(tagName = 'div', id = Math.random()) {
+function getSingleDOM(tagName = 'div', id = Math.random(), document = document) {
   if (doms.has(id)) {
     return doms.get(id)
   }
-  let ele = createElem(tagName)
+  let ele = createElem(tagName, document)
   doms.set(id, ele)
   return ele
 }
@@ -36,13 +35,9 @@ function getPageOffset(el) {
 }
 exports.getPageOffset = getPageOffset
 
-let place = getSingleDOM('div')
-place.style.display = 'none'
-place.style.width = '0px'
-place.style.height = '0px'
-exports.getTextNodeSize = function(node) {
-  if (!(node instanceof Range)) {
-    const range = document.createRange()
+exports.getTextNodeSize = function(node, window = window) {
+  if (!(node instanceof window.Range)) {
+    const range = window.document.createRange()
     range.selectNodeContents(node)
     node = range
   }

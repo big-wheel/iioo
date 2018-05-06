@@ -7,6 +7,7 @@
 
 
 
-module.exports = function (element, options) {
+module.exports = function (element) {
+  const ctx = this
 
 }

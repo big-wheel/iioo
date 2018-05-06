@@ -1,0 +1,19 @@
+{
+  "name": "markme",
+  "version": "0.0.1",
+  "author": "imcuttle",
+  "main": "index.js",
+  "keywords": [
+    "markme",
+    "highlight",
+    "web"
+  ],
+  "dependencies": {
+    "await-event-emitter": "^1.1.2",
+    "lodash.debounce": "^4.0.8",
+    "md5": "^2.2.1",
+    "rgb-hex": "^2.1.0"
+  },
+  "devDependencies": {
+  }
+}

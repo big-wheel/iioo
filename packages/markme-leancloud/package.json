@@ -1,0 +1,8 @@
+{
+  "name": "markme-leancloud",
+  "version": "0.0.1",
+  "dependencies": {
+    "leancloud-storage": "^3.6.8",
+    "markme": "^0.0.1"
+  }
+}

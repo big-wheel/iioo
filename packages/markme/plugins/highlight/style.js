@@ -15,6 +15,10 @@ module.exports = `
   -webkit-user-select: none;
   -ms-user-select: none;
 }
+.mark-highlight-popover > textarea {
+  display: block;
+  resize: none;
+}
 .mark-highlight-popover::before {
   content: "";
   border-left: 5px solid transparent;

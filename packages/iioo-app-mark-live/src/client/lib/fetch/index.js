@@ -27,6 +27,10 @@ export function setSuffix(sx) {
   suffix = sx
 }
 
+export function concat(url) {
+  return suffix + url
+}
+
 export function getSuffix() {
   return suffix
 }
@@ -41,7 +45,7 @@ export default async (url, options = {}, type = 'json') => {
   restOptions.method = restOptions.method.toLowerCase()
 
   if (!/^(\/\/)|(https?:\/\/)/.test(url)) {
-    url = suffix + url
+    url = concat(url)
   }
 
   restOptions.credentials = restOptions.credentials || 'include'

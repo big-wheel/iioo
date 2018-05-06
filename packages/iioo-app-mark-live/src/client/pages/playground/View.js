@@ -23,7 +23,7 @@ export default class PlayGround extends React.Component {
 
   reset() {
     this._t && clearTimeout(this._t)
-    this.close && this.close()
+    this.socket && this.socket.close()
   }
 
   @reactReaction('local.id')
@@ -31,9 +31,12 @@ export default class PlayGround extends React.Component {
     if (this.local.id) {
       this.reset()
       this._t = setTimeout(() => {
-        this.close = connect(this.playground, {
+        this.socket = connect(this.playground.contentDocument.body, {
           userId: this.app.header.id,
-          docId: this.local.id
+          docId: this.local.id,
+          markOptions: {
+            window: this.playground.contentWindow
+          }
         })
         this._t = null
       }, 200)
@@ -42,6 +45,10 @@ export default class PlayGround extends React.Component {
 
   componentDidMount() {
     this.autoChangedId()
+
+    // console.log(this.playground)
+    this.playground.style.height =
+      this.playground.parentElement.clientHeight + 'px'
   }
 
   componentWillUnmount() {
@@ -50,9 +57,15 @@ export default class PlayGround extends React.Component {
 
   render() {
     return (
-      <div
+      <iframe
+        style={{
+          border: 'none',
+          display: 'block',
+          width: '100%'
+        }}
+        src={this.local.src}
         ref={r => (this.playground = r)}
-        dangerouslySetInnerHTML={{ __html: this.local.content }}
+        // dangerouslySetInnerHTML={{ __html: this.local.content }}
       />
     )
   }

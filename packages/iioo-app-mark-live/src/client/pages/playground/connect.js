@@ -4,14 +4,14 @@
  * @date 2018/5/5
  * @description
  */
-import io, { Manager } from 'socket.io-client'
+import io from 'socket.io-client'
 import { message } from 'antd'
 import history from '../../history'
-import mark from '../../lib/mark'
+import mark from 'markme'
 import md5 from 'md5'
 import join from 'url-join'
 
-module.exports = function connect(element, { userId, docId }) {
+module.exports = function connect(element, { userId, docId, markOptions } = {}) {
   const url = join(
     process.env.NODE_ENV === 'production'
       ? location.origin
@@ -27,7 +27,8 @@ module.exports = function connect(element, { userId, docId }) {
   const emitter = mark(element, {
     generateUid() {
       return md5(userId + '-' + Date.now() + '-' + Math.random())
-    }
+    },
+    ...markOptions
   })
 
   socket.ack = function(event, data) {
@@ -79,7 +80,5 @@ module.exports = function connect(element, { userId, docId }) {
       data.forEach(data => emitter.highlight.fill(data))
     })
 
-  return cb => {
-    socket.close(cb)
-  }
+  return socket
 }

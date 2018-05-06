@@ -28,7 +28,9 @@ function makeReset(fn) {
   return wrap
 }
 
-export function sliceNode(node, { offset, length } = {}) {
+export function sliceNode(node, { offset, length } = {}, window = window) {
+  const document = window.document
+
   if (node && node.nodeType === Node.ELEMENT_NODE) {
     let sumOffset = 0,
       relativeOffset = offset
@@ -40,10 +42,14 @@ export function sliceNode(node, { offset, length } = {}) {
       }
 
       if (sumOffset > offset) {
-        return sliceNode(child, {
-          offset: relativeOffset + child.textContent.length,
-          length
-        })
+        return sliceNode(
+          child,
+          {
+            offset: relativeOffset + child.textContent.length,
+            length
+          },
+          window
+        )
       }
     }
   }
@@ -55,16 +61,19 @@ export function sliceNode(node, { offset, length } = {}) {
       return {}
     }
 
-    if (text.length <= offset && node.nextSibling) {
-      return sliceNode(node.nextSibling, { offset: offset - text.length, length })
+    if (text.length < offset && node.nextSibling) {
+      return sliceNode(
+        node.nextSibling,
+        { offset: offset - text.length, length },
+        window
+      )
     }
     const nodes = [
       text.slice(offset + length),
       text.slice(offset, offset + length),
       text.slice(0, offset)
-    ]
-      // .filter(text => text.trim() !== '')
-      .map(text => document.createTextNode(text))
+    ].map(text => document.createTextNode(text))
+    // .filter(text => text.trim() !== '')
 
     let head = nodes[0]
     pNode.replaceChild(nodes[0], node)
@@ -87,7 +96,10 @@ export function sliceNode(node, { offset, length } = {}) {
   return {}
 }
 
-exports.getLastRangePos = function(selection = window.getSelection()) {
+exports.getLastRangePos = function(window) {
+  let selection = window.getSelection()
+  let document = window.document
+
   let range = selection.getRangeAt(selection.rangeCount - 1)
   let reset
   let pos
@@ -110,13 +122,17 @@ exports.getLastRangePos = function(selection = window.getSelection()) {
     //  " hello world "
     //      _____
     if (startContainer === endContainer) {
-      let data = sliceNode(startContainer, {
-        offset: startOffset,
-        length: endOffset - startOffset
-      })
+      let data = sliceNode(
+        startContainer,
+        {
+          offset: startOffset,
+          length: endOffset - startOffset
+        },
+        window
+      )
       let nodes = data.nodes
       range.selectNodeContents(nodes[1])
-      pos = getTextNodeSize(range)
+      pos = getTextNodeSize(range, window)
       reset = data.reset
     } else {
       //  " hello<code>x</code>world "
@@ -169,7 +185,7 @@ exports.getLastRangePos = function(selection = window.getSelection()) {
         range.setEnd(nodes[1], nodes[1].textContent.length)
       }
 
-      pos = getTextNodeSize(range)
+      pos = getTextNodeSize(range, window)
     }
 
     return {
@@ -181,7 +197,7 @@ exports.getLastRangePos = function(selection = window.getSelection()) {
   return {}
 }
 
-exports.removeRanges = function() {
+exports.removeRanges = function(window = window) {
   const selection = window.getSelection()
   selection.removeAllRanges()
 }
@@ -238,13 +254,12 @@ function isEmpty(node) {
   return node.textContent.trim() === ''
 }
 
-// TODO
-exports.getSelectionTextSeqList = function() {
-  const textList = getTextList()
+exports.getSelectionTextSeqList = function(selection) {
+  const textList = getTextList(selection)
   if (!textList || !textList.length) {
     return textList
   }
-
+  // debugger
   let newList = [textList.shift()]
   while (textList.length) {
     let head = newList[newList.length - 1]
