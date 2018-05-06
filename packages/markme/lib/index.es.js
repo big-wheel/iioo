@@ -1059,7 +1059,7 @@ function registerCommonMethod(ctx, methodName) {
   };
 }
 
-module.exports = function (element) {
+function index (element) {
   var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
   if (!isBrowser) {
@@ -1097,4 +1097,6 @@ module.exports = function (element) {
   // registerCommonMethod(ctx, 'fill', enablePlugins)
 
   return ctx;
-};
+}
+
+export default index;

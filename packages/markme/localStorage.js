@@ -4,9 +4,9 @@
  * @date 2018/5/6
  * @description
  */
-const mark = require('./')
+import mark from './'
 
-module.exports = function markInLocalStorage(element, options = {}) {
+export default function markInLocalStorage(element, options = {}) {
   options = {
     enableInitialFill: true,
     ...options

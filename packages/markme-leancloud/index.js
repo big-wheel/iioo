@@ -8,7 +8,7 @@
 import AV from 'leancloud-storage'
 import mark from 'markme'
 
-module.exports = function markInLocalStorage(element, options = {}) {
+export default function markInLocalStorage(element, options = {}) {
   options = {
     enableInitialFill: true,
     AVOptions: {},

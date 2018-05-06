@@ -33,7 +33,7 @@ function registerCommonMethod(ctx, methodName, plugins = []) {
   }
 }
 
-module.exports = function(element, options = {}) {
+export default function mark(element, options = {}) {
   if (!isBrowser) {
     throw new Error('mark should be used in browser environment.')
   }

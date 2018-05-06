@@ -1,7 +1,7 @@
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory() :
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
 	typeof define === 'function' && define.amd ? define(factory) :
-	(factory());
+	(global.Markme = factory());
 }(this, (function () { 'use strict';
 
 var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
@@ -4124,7 +4124,7 @@ function registerCommonMethod(ctx, methodName) {
   };
 }
 
-module.exports = function (element) {
+function index (element) {
   var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
   if (!isBrowser) {
@@ -4162,6 +4162,8 @@ module.exports = function (element) {
   // registerCommonMethod(ctx, 'fill', enablePlugins)
 
   return ctx;
-};
+}
+
+return index;
 
 })));
