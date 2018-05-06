@@ -89,7 +89,6 @@ function markInLocalStorage(element) {
                 query.equalTo('type', type);
                 query.equalTo('id', id);
                 query.equalTo('ukey', options.key);
-                console.log(query)
                 _context2.next = 6;
                 return query.find();
 
