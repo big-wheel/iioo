@@ -376,8 +376,8 @@ function getSelectionTextSeqList(selection) {
 var styleText = "\n.mark-highlight-popover {\n  position: absolute;\n  z-index: 9999;\n  background-color: #fff;\n  box-shadow: 0 0 10px 3px #ccc;\n  transform: translate(-54%, 20%);\n  min-width: 40px;\n  max-width: 90vw;\n  padding: 4px 7px;\n  box-sizing: content-box;\n  text-align: center;\n  user-select: none;\n  -moz-user-select: none;\n  -webkit-user-select: none;\n  -ms-user-select: none;\n}\n.mark-highlight-popover > textarea {\n  display: block;\n  resize: none;\n}\n.mark-highlight-popover::before {\n  content: \"\";\n  border-left: 5px solid transparent;\n  border-right: 5px solid transparent;\n  border-top: 5px solid transparent;\n  border-bottom: 5px solid #fff;\n  display: block;\n  position: absolute;\n  top: -10px;\n  left: 50%;\n}\n.mark-highlight-color {\n  display: inline-block;\n  width: 14px;\n  height: 14px;\n  margin: auto 2px;\n  border-radius: 50%;\n  cursor: pointer;\n}\n\n.mark-highlight-active-color {\n  background-size: contain;\n  background-image: url(\"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/PjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+PHN2ZyB0PSIxNTI1MTM3NDcxNDM5IiBjbGFzcz0iaWNvbiIgc3R5bGU9IiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHAtaWQ9IjIwNDYiIGRhdGEtc3BtLWFuY2hvci1pZD0iYTMxM3guNzc4MTA2OS4wLmkwIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiPjxkZWZzPjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+PC9zdHlsZT48L2RlZnM+PHBhdGggZD0iTTE3Ni42NjE2MDEgODE3LjE3Mjg4MUMxNjguNDcyNzk4IDgyNS42NDQwNTUgMTY4LjcwMTcwNiA4MzkuMTQ5NjM2IDE3Ny4xNzI4ODEgODQ3LjMzODQzOCAxODUuNjQ0MDU2IDg1NS41MjcyNDEgMTk5LjE0OTYzNiA4NTUuMjk4MzMyIDIwNy4zMzg0MzggODQ2LjgyNzE1N0w4MjYuMDA1MTA1IDIwNi44MjcxNTdDODM0LjE5MzkwNyAxOTguMzU1OTgzIDgzMy45NjQ5OTggMTg0Ljg1MDQwMyA4MjUuNDkzODI0IDE3Ni42NjE2MDEgODE3LjAyMjY1IDE2OC40NzI3OTggODAzLjUxNzA2OSAxNjguNzAxNzA2IDc5NS4zMjgyNjcgMTc3LjE3Mjg4MUwxNzYuNjYxNjAxIDgxNy4xNzI4ODFaIiBwLWlkPSIyMDQ3Ij48L3BhdGg+PHBhdGggZD0iTTc5NS4zMjgyNjcgODQ2LjgyNzE1N0M4MDMuNTE3MDY5IDg1NS4yOTgzMzIgODE3LjAyMjY1IDg1NS41MjcyNDEgODI1LjQ5MzgyNCA4NDcuMzM4NDM4IDgzMy45NjQ5OTggODM5LjE0OTYzNiA4MzQuMTkzOTA3IDgyNS42NDQwNTUgODI2LjAwNTEwNSA4MTcuMTcyODgxTDIwNy4zMzg0MzggMTc3LjE3Mjg4MUMxOTkuMTQ5NjM2IDE2OC43MDE3MDYgMTg1LjY0NDA1NiAxNjguNDcyNzk4IDE3Ny4xNzI4ODEgMTc2LjY2MTYwMSAxNjguNzAxNzA2IDE4NC44NTA0MDMgMTY4LjQ3Mjc5OCAxOTguMzU1OTgzIDE3Ni42NjE2MDEgMjA2LjgyNzE1N0w3OTUuMzI4MjY3IDg0Ni44MjcxNTdaIiBwLWlkPSIyMDQ4Ij48L3BhdGg+PC9zdmc+\");\n}\n.mark-highlight-color:hover {\n  opacity: .68;\n}\n.mark-highlight-color.disabled {\n  cursor: not-allowed;\n  opacity: .5;\n}\n.mark-highlight-item {\n  cursor: pointer;\n}\n";
 
 var mouseUpCore = function () {
-  var _ref9 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee3(opt, ele, popover, _ref8) {
-    var target = _ref8.target;
+  var _ref8 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee3(opt, ele, popover, _ref7) {
+    var target = _ref7.target;
 
     var selection, markedList, _selectionUtil$getLas, reset, pos;
 
@@ -435,12 +435,12 @@ var mouseUpCore = function () {
   }));
 
   return function mouseUpCore(_x7, _x8, _x9, _x10) {
-    return _ref9.apply(this, arguments);
+    return _ref8.apply(this, arguments);
   };
 }();
 
 var click = function () {
-  var _ref11 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee4(opt, ele, popover, evt) {
+  var _ref10 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee4(opt, ele, popover, evt) {
     var target, id, color, words, colorList;
     return _regeneratorRuntime.wrap(function _callee4$(_context4) {
       while (1) {
@@ -485,7 +485,7 @@ var click = function () {
   }));
 
   return function click(_x11, _x12, _x13, _x14) {
-    return _ref11.apply(this, arguments);
+    return _ref10.apply(this, arguments);
   };
 }();
 
@@ -829,7 +829,8 @@ function getPopover(ele, opt) {
 
                 return {
                   offset: offset,
-                  length: node.textContent.length,
+                  content: node.textContent,
+                  // length: node.textContent.length,
                   parentSelector: getSelector(parentNode, ele)
                 };
               });
@@ -839,6 +840,7 @@ function getPopover(ele, opt) {
                 break;
               }
 
+              // Network async for lock other operation
               _this3.highlight.lock = true;
               _context2.prev = 31;
               _context2.next = 34;
@@ -891,10 +893,15 @@ function _fill() {
       words = _ref5.words,
       id = _ref5.id,
       offset = _ref5.offset,
-      length = _ref5.length;
+      length = _ref5.length,
+      content = _ref5.content;
 
   var dom = arguments[1];
   var opt = arguments[2];
+
+  if (isNaN(length) && typeof content !== 'undefined') {
+    length = content.length;
+  }
 
   var _selectionUtil$sliceN = sliceNode(dom, { offset: offset, length: length }, opt.window),
       reset = _selectionUtil$sliceN.reset,
@@ -905,35 +912,50 @@ function _fill() {
 
 
   if (nodes && nodes[1]) {
+    if (typeof content !== 'undefined' && nodes[1].textContent !== content) {
+      // console.warn('expected:', JSON.stringify(nodes[1].textContent), 'actual:', JSON.stringify(content))
+      throw 'highlight-match-fail';
+    }
     replaceToMark(nodes[1], { uid: id, color: color, words: words }, opt);
   }
 }
 
 function _fill2() {
-  var _ref6 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-      color = _ref6.color,
-      id = _ref6.id,
-      words = _ref6.words,
-      _ref6$chunks = _ref6.chunks,
-      chunks = _ref6$chunks === undefined ? [] : _ref6$chunks;
+  var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+  var _this4 = this;
 
   var ele = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : document;
   var opt = arguments[2];
 
+  var color = data.color,
+      id = data.id,
+      words = data.words,
+      _data$chunks = data.chunks,
+      chunks = _data$chunks === undefined ? [] : _data$chunks,
+      rest = _objectWithoutProperties(data, ['color', 'id', 'words', 'chunks']);
+
   if (!Array.isArray(chunks)) {
     return;
   }
-  var domList = chunks.map(function (_ref7) {
-    var parentSelector = _ref7.parentSelector;
+  var domList = chunks.map(function (_ref6) {
+    var parentSelector = _ref6.parentSelector;
     return ele.querySelector(parentSelector);
   });
   chunks.forEach(function (chunk, i) {
-    domList[i] && _fill(_extends({ color: color, id: id, words: words }, chunk), domList[i], opt);
+    var detail = _extends({}, rest, { color: color, id: id, words: words }, chunk);
+    try {
+      domList[i] && _fill.call(_this4, detail, domList[i], opt);
+    } catch (e) {
+      if (e === 'highlight-match-fail') {
+        _this4.emitSync('highlight-match-fail', id);
+      }
+    }
   });
 }
 
-function mouseDown(opt, ele, popover, _ref10) {
-  var target = _ref10.target;
+function mouseDown(opt, ele, popover, _ref9) {
+  var target = _ref9.target;
 
   if (this.highlight.lock) {
     return;
@@ -949,8 +971,8 @@ function mouseDown(opt, ele, popover, _ref10) {
   }
 }
 
-function mouseEnter(opt, ele, popover, _ref12) {
-  var target = _ref12.target;
+function mouseEnter(opt, ele, popover, _ref11) {
+  var target = _ref11.target;
 
   if (target.classList.contains('mark-highlight-item') && target.hasAttribute('data-mark-id')) {
     // let color = target.style.backgroundColor
@@ -964,8 +986,8 @@ function mouseEnter(opt, ele, popover, _ref12) {
   }
 }
 
-function mouseLeave(opt, ele, popover, _ref13) {
-  var target = _ref13.target;
+function mouseLeave(opt, ele, popover, _ref12) {
+  var target = _ref12.target;
 
   if (target.classList.contains('mark-highlight-item') && target.hasAttribute('data-mark-id')) {
     var domList = ele.querySelectorAll('[data-mark-id=' + JSON.stringify(target.getAttribute('data-mark-id')) + ']');
@@ -1026,16 +1048,17 @@ function highlight(element, options) {
   element.addEventListener('mouseup', debouncedMouseUp);
   element.addEventListener('mousedown', debouncedMouseDown);
 
+  var self = this;
   this.highlight = {
     fill: function fill(data) {
       var ele = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : element;
 
       if (Array.isArray(data)) {
         return data.forEach(function (item) {
-          return _fill2(item, ele, options);
+          return _fill2.call(self, item, ele, options);
         });
       }
-      _fill2(data, ele, options);
+      _fill2.call(self, data, ele, options);
     },
     remove: function remove(id) {
       var ele = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : element;
