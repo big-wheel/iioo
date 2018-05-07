@@ -1,5 +1,8 @@
 # markme
-The browser's implmentment of mark and paint's interaction. The effect is shown in figure.
+The browser's implmentment of mark and paint's interaction. \
+
+The effect is shown in figure.
+
 ![](./snapshot.gif)
 
 ## Usage
@@ -26,3 +29,4 @@ const mm = markme(document.body, {
 
 ## Related
 * [markme-leancloud](../markme-leancloud) - Use leancloud as data persistence.
+* [Use markme-leancloud by Violentmonkey](https://gist.github.com/imcuttle/c345279c6b7a690a5722a8506ba8f1a9)
