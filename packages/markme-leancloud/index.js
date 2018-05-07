@@ -107,4 +107,7 @@ export default function markInLocalStorage(element, options = {}) {
         await storage.set('highlight', data.id, old)
       }
     })
+    .on('highlight-match-fail', async id => {
+      await storage.remove('highlight', id)
+    })
 }
