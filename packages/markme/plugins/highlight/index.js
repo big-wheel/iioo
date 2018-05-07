@@ -99,9 +99,7 @@ function getMarkItems(id, ele) {
   if (typeof id === 'undefined') {
     doms = ele.querySelectorAll('mark[data-mark-id]')
   } else {
-    doms = ele.querySelectorAll(
-      `mark[data-mark-id=${JSON.stringify(id)}]`
-    )
+    doms = ele.querySelectorAll(`mark[data-mark-id=${JSON.stringify(id)}]`)
   }
   return doms
 }
@@ -153,7 +151,8 @@ function getPopover(ele, opt) {
           })
           .join('')
       }
-      this.innerHTML += '<textarea placeholder="input your idea" style="display: none"></textarea>'
+      this.innerHTML +=
+        '<textarea placeholder="input your idea" style="display: none"></textarea>'
       this.style.display = ''
     },
     selectColor(color, id) {
@@ -259,11 +258,13 @@ function getPopover(ele, opt) {
 
           return {
             offset,
-            length: node.textContent.length,
+            content: node.textContent,
+            // length: node.textContent.length,
             parentSelector: domUtil.getSelector(parentNode, ele)
           }
         })
         if (chunks && chunks.length) {
+          // Network async for lock other operation
           this.highlight.lock = true
           try {
             await this.emit('highlight-add', { chunks, id: uid, color })
@@ -282,7 +283,6 @@ function getPopover(ele, opt) {
         resetQueue.clear()
         popover.selectColor(color, uid)
       }
-
     }
   })
   return popover
@@ -298,7 +298,15 @@ function isItemNode(node) {
   )
 }
 
-function _fill({ color, words, id, offset, length } = {}, dom, opt) {
+function _fill(
+  { color, words, id, offset, length, content } = {},
+  dom,
+  opt
+) {
+  if (isNaN(length) && typeof content !== 'undefined') {
+    length = content.length
+  }
+
   const { reset, nodes } = selectionUtil.sliceNode(
     dom,
     { offset, length },
@@ -308,11 +316,16 @@ function _fill({ color, words, id, offset, length } = {}, dom, opt) {
   //   resetQueue.add(id, reset)
   // }
   if (nodes && nodes[1]) {
+    if (typeof content !== 'undefined' && nodes[1].textContent !== content) {
+      // console.warn('expected:', JSON.stringify(nodes[1].textContent), 'actual:', JSON.stringify(content))
+      throw 'highlight-match-fail'
+    }
     replaceToMark(nodes[1], { uid: id, color, words }, opt)
   }
 }
 
-function fill({ color, id, words, chunks = [] } = {}, ele = document, opt) {
+function fill(data = {}, ele = document, opt) {
+  const { color, id, words, chunks = [], ...rest } = data
   if (!Array.isArray(chunks)) {
     return
   }
@@ -320,7 +333,14 @@ function fill({ color, id, words, chunks = [] } = {}, ele = document, opt) {
     ele.querySelector(parentSelector)
   )
   chunks.forEach((chunk, i) => {
-    domList[i] && _fill({ color, id, words, ...chunk }, domList[i], opt)
+    const detail = { ...rest, color, id, words, ...chunk }
+    try {
+      domList[i] && _fill.call(this, detail, domList[i], opt)
+    } catch (e) {
+      if (e === 'highlight-match-fail') {
+        this.emitSync('highlight-match-fail', id)
+      }
+    }
   })
 }
 
@@ -493,12 +513,13 @@ export default function highlight(element, options) {
   element.addEventListener('mouseup', debouncedMouseUp)
   element.addEventListener('mousedown', debouncedMouseDown)
 
+  const self = this
   this.highlight = {
     fill: function(data, ele = element) {
       if (Array.isArray(data)) {
-        return data.forEach(item => fill(item, ele, options))
+        return data.forEach(item => fill.call(self, item, ele, options))
       }
-      fill(data, ele, options)
+      fill.call(self, data, ele, options)
     },
     remove: function(id, ele = element) {
       let active = popover.getActive()

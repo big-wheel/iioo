@@ -175,11 +175,42 @@ function markInLocalStorage(element) {
       }
 
       return getAll;
+    }(),
+    getTotal: function () {
+      var _ref5 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee5(type) {
+        var query;
+        return _regeneratorRuntime.wrap(function _callee5$(_context5) {
+          while (1) {
+            switch (_context5.prev = _context5.next) {
+              case 0:
+                query = new AV.Query('Markme');
+
+                query.equalTo('type', type);
+                _context5.next = 4;
+                return query.find();
+
+              case 4:
+                _context5.t0 = toJSON;
+                return _context5.abrupt('return', _context5.sent.map(_context5.t0));
+
+              case 6:
+              case 'end':
+                return _context5.stop();
+            }
+          }
+        }, _callee5, this);
+      }));
+
+      function getTotal(_x10) {
+        return _ref5.apply(this, arguments);
+      }
+
+      return getTotal;
     }()
   };
 
   if (options.enableInitialFill) {
-    storage.getAll('highlight').then(function (list) {
+    storage.getTotal('highlight').then(function (list) {
       if (!list || !list.length) {
         storage.set('null', 'null', null);
       }
@@ -188,36 +219,16 @@ function markInLocalStorage(element) {
   }
 
   return emitter.on('highlight-add', function () {
-    var _ref6 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee5(_ref5) {
-      var id = _ref5.id,
-          data = _objectWithoutProperties(_ref5, ['id']);
+    var _ref7 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee6(_ref6) {
+      var id = _ref6.id,
+          data = _objectWithoutProperties(_ref6, ['id']);
 
-      return _regeneratorRuntime.wrap(function _callee5$(_context5) {
-        while (1) {
-          switch (_context5.prev = _context5.next) {
-            case 0:
-              _context5.next = 2;
-              return storage.set('highlight', id, data);
-
-            case 2:
-            case 'end':
-              return _context5.stop();
-          }
-        }
-      }, _callee5, _this);
-    }));
-
-    return function (_x10) {
-      return _ref6.apply(this, arguments);
-    };
-  }()).on('highlight-remove', function () {
-    var _ref7 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee6(id) {
       return _regeneratorRuntime.wrap(function _callee6$(_context6) {
         while (1) {
           switch (_context6.prev = _context6.next) {
             case 0:
               _context6.next = 2;
-              return storage.remove('highlight', id);
+              return storage.set('highlight', id, data);
 
             case 2:
             case 'end':
@@ -230,29 +241,16 @@ function markInLocalStorage(element) {
     return function (_x11) {
       return _ref7.apply(this, arguments);
     };
-  }()).on('highlight-change:words', function () {
-    var _ref8 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee7(data) {
-      var old;
+  }()).on('highlight-remove', function () {
+    var _ref8 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee7(id) {
       return _regeneratorRuntime.wrap(function _callee7$(_context7) {
         while (1) {
           switch (_context7.prev = _context7.next) {
             case 0:
               _context7.next = 2;
-              return storage.get('highlight', data.id);
+              return storage.remove('highlight', id);
 
             case 2:
-              old = _context7.sent;
-
-              if (!old) {
-                _context7.next = 7;
-                break;
-              }
-
-              old.words = data.words;
-              _context7.next = 7;
-              return storage.set('highlight', data.id, old);
-
-            case 7:
             case 'end':
               return _context7.stop();
           }
@@ -263,7 +261,7 @@ function markInLocalStorage(element) {
     return function (_x12) {
       return _ref8.apply(this, arguments);
     };
-  }()).on('highlight-change:color', function () {
+  }()).on('highlight-change:words', function () {
     var _ref9 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee8(data) {
       var old;
       return _regeneratorRuntime.wrap(function _callee8$(_context8) {
@@ -281,7 +279,7 @@ function markInLocalStorage(element) {
                 break;
               }
 
-              old.color = data.color;
+              old.words = data.words;
               _context8.next = 7;
               return storage.set('highlight', data.id, old);
 
@@ -295,6 +293,39 @@ function markInLocalStorage(element) {
 
     return function (_x13) {
       return _ref9.apply(this, arguments);
+    };
+  }()).on('highlight-change:color', function () {
+    var _ref10 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee9(data) {
+      var old;
+      return _regeneratorRuntime.wrap(function _callee9$(_context9) {
+        while (1) {
+          switch (_context9.prev = _context9.next) {
+            case 0:
+              _context9.next = 2;
+              return storage.get('highlight', data.id);
+
+            case 2:
+              old = _context9.sent;
+
+              if (!old) {
+                _context9.next = 7;
+                break;
+              }
+
+              old.color = data.color;
+              _context9.next = 7;
+              return storage.set('highlight', data.id, old);
+
+            case 7:
+            case 'end':
+              return _context9.stop();
+          }
+        }
+      }, _callee9, _this);
+    }));
+
+    return function (_x14) {
+      return _ref10.apply(this, arguments);
     };
   }());
 }

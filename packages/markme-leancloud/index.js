@@ -69,11 +69,16 @@ export default function markInLocalStorage(element, options = {}) {
       query.equalTo('type', type)
       query.equalTo('ukey', options.key)
       return (await query.find()).map(toJSON)
+    },
+    getTotal: async function(type) {
+      const query = new AV.Query('Markme')
+      query.equalTo('type', type)
+      return (await query.find()).map(toJSON)
     }
   }
 
   if (options.enableInitialFill) {
-    storage.getAll('highlight').then(list => {
+    storage.getTotal('highlight').then(list => {
       if (!list || !list.length) {
         storage.set('null', 'null', null)
       }

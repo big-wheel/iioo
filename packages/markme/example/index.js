@@ -20,21 +20,13 @@ function run(which) {
     case 'ls':
       m = markLocalStorage(document.body, {})
       break
-    case 'lc':
-      m = markmeLeancloud(document.body, {
-        AVOptions: {
-          appId: 'YY0ajzbgR0NlSODErX04ya3E-gzGzoHsz',
-          appKey: 'KRSsdRICas0xDPmnO9znHY5E'
-        }
-      })
-      break
   }
 }
 
 let dom = {
   basic: document.querySelector('#switch-basic'),
   ls: document.querySelector('#switch-ls'),
-  lc: document.querySelector('#switch-lc')
+  // lc: document.querySelector('#switch-lc')
 }
 
 function activateDOM(key, oldKey) {

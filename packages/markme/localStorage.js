@@ -55,11 +55,7 @@ export default function markInLocalStorage(element, options = {}) {
     }
   }
 
-  if (options.enableInitialFill) {
-    emitter.highlight.fill(storage.getAll('highlight'))
-  }
-
-  return emitter
+  emitter
     .on('highlight-add', ({ id, ...data }) => {
       storage.set('highlight', id, data)
     })
@@ -80,4 +76,13 @@ export default function markInLocalStorage(element, options = {}) {
         storage.set('highlight', data.id, old)
       }
     })
+    .on('highlight-match-fail', id => {
+      storage.remove('highlight', id)
+    })
+
+  if (options.enableInitialFill) {
+    emitter.highlight.fill(storage.getAll('highlight'))
+  }
+
+  return emitter
 }
