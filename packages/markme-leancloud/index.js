@@ -5,12 +5,16 @@
  * @description
  */
 
-import AV from 'leancloud-storage'
-import mark from 'markme'
+import * as AV from 'leancloud-storage'
+import { Realtime, TextMessage } from 'leancloud-realtime'
+// TODO
+import mark from '/Users/yucong02/self/iioo-repo/packages/markme/index'
 
-export default function markInLocalStorage(element, options = {}) {
+export default async function markInLocalStorage(element, options = {}) {
   options = {
     enableInitialFill: true,
+    // clientId: Date.now() + '',
+    clientId: location.hash,
     key: location.origin + location.pathname,
     AVOptions: {},
     ...options
@@ -19,6 +23,50 @@ export default function markInLocalStorage(element, options = {}) {
   // AV.
   AV.applicationId = null
   AV.init(options.AVOptions)
+  const realtime = new Realtime(options.AVOptions)
+
+  let admin = await realtime.createIMClient('__admin__')
+  let conversation = await admin.createConversation({
+    name: 'MarkmeLeancloud',
+    members: [],
+    unique: true
+  })
+
+
+  let me = await realtime.createIMClient(options.clientId)
+  me.on('message', function(message, conversation) {
+    console.log(
+      '[me] received a message from [' + message.from + ']: ' + message.text
+    )
+    // 收到消息之后一般的做法是做 UI 展现，示例代码在此处做消息回复，仅为了演示收到消息之后的操作，仅供参考。
+    conversation.send(
+      new TextMessage(
+        'Tom，我在 Jerry 家，你跟 Harry 什么时候过来？还有 William 和你在一起么？'
+      )
+    )
+  })
+
+  // conversation = await me.getConversation(conversation.id)
+  await conversation.add([me.id, '#xxxooo'])
+  // await conversation.join()
+  await conversation.send(new TextMessage('耗子，起床！'))
+  conversation
+    .count()
+    .then(function(count) {
+      console.log('在线人数: ' + count)
+    })
+    .catch(console.error.bind(console))
+
+  var query = me.getQuery()
+  console.warn(me, conversation)
+  query
+    .equalTo('topic', 'MarkmeLeancloud')
+    .equalTo('tr', true)
+    .find()
+    .then(function(conversations) {
+      console.log('conversations', conversations)
+    })
+    .catch(console.error.bind(console))
 
   const Markme = AV.Object.extend('Markme')
 
@@ -77,21 +125,12 @@ export default function markInLocalStorage(element, options = {}) {
     }
   }
 
-  if (options.enableInitialFill) {
-    storage.getTotal('highlight').then(list => {
-      if (!list || !list.length) {
-        storage.set('null', 'null', null)
-      }
-      emitter.highlight.fill(list)
-    })
-  }
-
-  return emitter
+  emitter
     .on('highlight-add', async ({ id, ...data }) => {
       await storage.set('highlight', id, data)
     })
     .on('highlight-remove', async id => {
-      await storage.remove('highlight', id)
+      storage.remove('highlight', id)
     })
     .on('highlight-change:words', async data => {
       let old = await storage.get('highlight', data.id)
@@ -110,4 +149,14 @@ export default function markInLocalStorage(element, options = {}) {
     .on('highlight-match-fail', async id => {
       await storage.remove('highlight', id)
     })
+
+  if (options.enableInitialFill) {
+    let list = await storage.getTotal('highlight')
+    if (!list || !list.length) {
+      storage.set('null', 'null', null)
+    }
+    emitter.highlight.fill(list)
+  }
+
+  return emitter
 }
