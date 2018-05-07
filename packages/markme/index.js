@@ -7,6 +7,7 @@
 import highlight from './plugins/highlight/index'
 import badge from './plugins/badge/index'
 import AwaitEventEmitter from 'await-event-emitter'
+import styleText from './plugins/highlight/style'
 
 const isBrowser = typeof document !== 'undefined'
 
@@ -38,6 +39,7 @@ export default function mark(element, options = {}) {
     throw new Error('mark should be used in browser environment.')
   }
   options = {
+    window: window,
     enablePlugins: ['highlight', 'badge'],
     ...options,
     highlight: {
@@ -48,14 +50,39 @@ export default function mark(element, options = {}) {
   const { enablePlugins, ...restOptions } = options
 
   const ctx = new AwaitEventEmitter()
-  ctx.opt = options
 
-  // TODO
-  ctx.addButton = function({ title, icon, action } = {}) {}
+  Object.assign(ctx, {
+    opt: options,
+    __resets: [],
+    addReset(reset) {
+      reset && this.__resets.push(reset)
+    },
+    exit() {
+      if (element.__reset) {
+        element.__reset()
+      }
+    },
+    addStyle(text) {
+      const document = this.opt.window.document
+      let style = document.createElement('style')
+      style.textContent = text
+      document.head.appendChild(style)
+      this.addReset(() => {
+        document.head.removeChild(style)
+      })
+      return style
+    }
+    // addButton = function({ title, icon, action } = {}) {}
+  })
+
+  ctx.exit()
+  element.__reset = function () {
+    ctx.__resets.forEach(reset => reset())
+  }
 
   enablePlugins.forEach(plugin => {
     if (plugins[plugin]) {
-      run.call(ctx, highlight, plugin, element, restOptions)
+      run.call(ctx, plugins[plugin], plugin, element, restOptions)
     }
   })
 

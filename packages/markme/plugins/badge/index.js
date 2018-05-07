@@ -5,9 +5,9 @@
  * @description
  */
 
+export default function badge(element) {
+  this.opt.badge = Object.assign({}, this.opt.badge)
 
 
-export default function (element) {
   const ctx = this
-
 }

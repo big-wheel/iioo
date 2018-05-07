@@ -609,9 +609,9 @@ function appendTextNodeChunks(textNode) {
 function getMarkItems(id, ele) {
   var doms = [];
   if (typeof id === 'undefined') {
-    doms = ele.querySelectorAll('mark[data-mark-id]');
+    doms = ele.querySelectorAll('mark.mark-highlight-item[data-mark-id]');
   } else {
-    doms = ele.querySelectorAll('mark[data-mark-id=' + JSON.stringify(id) + ']');
+    doms = ele.querySelectorAll('mark.mark-highlight-item[data-mark-id=' + JSON.stringify(id) + ']');
   }
   return doms;
 }
@@ -729,7 +729,9 @@ function getPopover(ele, opt) {
     },
     getActive: function getActive() {
       var active = this.querySelector('.mark-highlight-active-color');
+      var textarea = this.querySelector('textarea');
       return active && {
+        words: textarea.value,
         color: active.style.backgroundColor,
         id: active.getAttribute('data-mark-id')
       };
@@ -746,7 +748,7 @@ function getPopover(ele, opt) {
               target = evt.target;
 
               if (!target.classList.contains('mark-highlight-color')) {
-                _context2.next = 45;
+                _context2.next = 46;
                 break;
               }
 
@@ -767,14 +769,14 @@ function getPopover(ele, opt) {
               _remove(removeId, ele);
               popover.hide();
               target.classList.remove('mark-highlight-active-color');
-              _context2.next = 45;
+              _context2.next = 46;
               break;
 
             case 12:
               active = popover.getActive();
 
               if (!active) {
-                _context2.next = 19;
+                _context2.next = 20;
                 break;
               }
 
@@ -784,24 +786,25 @@ function getPopover(ele, opt) {
             case 16:
 
               popover.selectColor(color, active.id);
+              popover.setText(active.words);
 
-              batchSetMarkAttribute(active.id, { color: color }, ele);
+              batchSetMarkAttribute(active.id, { color: color, words: active.words }, ele);
               return _context2.abrupt('return');
 
-            case 19:
+            case 20:
               list = getSelectionTextList(opt.window.getSelection());
               containsMarked = list.find(function (textNode) {
                 return isItemNode(textNode.parentNode);
               });
 
               if (!containsMarked) {
-                _context2.next = 23;
+                _context2.next = 24;
                 break;
               }
 
               return _context2.abrupt('return');
 
-            case 23:
+            case 24:
 
               // slice side effect
               getLastRangePos(opt.window);
@@ -836,29 +839,29 @@ function getPopover(ele, opt) {
               });
 
               if (!(chunks && chunks.length)) {
-                _context2.next = 41;
+                _context2.next = 42;
                 break;
               }
 
               // Network async for lock other operation
               _this3.highlight.lock = true;
-              _context2.prev = 31;
-              _context2.next = 34;
+              _context2.prev = 32;
+              _context2.next = 35;
               return _this3.emit('highlight-add', { chunks: chunks, id: uid, color: color });
 
-            case 34:
+            case 35:
               _this3.highlight.lock = false;
-              _context2.next = 41;
+              _context2.next = 42;
               break;
 
-            case 37:
-              _context2.prev = 37;
-              _context2.t0 = _context2['catch'](31);
+            case 38:
+              _context2.prev = 38;
+              _context2.t0 = _context2['catch'](32);
 
               _this3.highlight.lock = false;
               throw _context2.t0;
 
-            case 41:
+            case 42:
 
               nodeList.forEach(function (textNode) {
                 replaceToMark(textNode, { uid: uid, color: color }, opt);
@@ -868,12 +871,12 @@ function getPopover(ele, opt) {
               resetQueue.clear();
               popover.selectColor(color, uid);
 
-            case 45:
+            case 46:
             case 'end':
               return _context2.stop();
           }
         }
-      }, _callee2, _this3, [[31, 37]]);
+      }, _callee2, _this3, [[32, 38]]);
     }));
 
     return function (_x3) {
@@ -913,7 +916,7 @@ function _fill() {
 
   if (nodes && nodes[1]) {
     if (typeof content !== 'undefined' && nodes[1].textContent !== content) {
-      // console.warn('expected:', JSON.stringify(nodes[1].textContent), 'actual:', JSON.stringify(content))
+      console.warn('expected:', JSON.stringify(nodes[1].textContent), 'actual:', JSON.stringify(content));
       throw 'highlight-match-fail';
     }
     replaceToMark(nodes[1], { uid: id, color: color, words: words }, opt);
@@ -972,11 +975,23 @@ function mouseDown(opt, ele, popover, _ref9) {
 }
 
 function mouseEnter(opt, ele, popover, _ref11) {
+  var _this5 = this;
+
   var target = _ref11.target;
 
   if (target.classList.contains('mark-highlight-item') && target.hasAttribute('data-mark-id')) {
-    // let color = target.style.backgroundColor
-    var domList = ele.querySelectorAll('.mark-highlight-item[data-mark-id=' + JSON.stringify(target.getAttribute('data-mark-id')) + ']');
+    if (this.highlight.__$tmp_time) {
+      clearTimeout(this.highlight.__$tmp_time);
+    }
+    this.highlight.__$tmp_time = setTimeout(function () {
+      var old = _this5.opt.highlight.disableDefaultClick;
+      _this5.opt.highlight.disableDefaultClick = true;
+      target.click();
+      _this5.opt.highlight.disableDefaultClick = old;
+      delete _this5.highlight.__$tmp_time;
+    }, 2000);
+
+    var domList = getMarkItems(target.getAttribute('data-mark-id'), ele);
     Array.from(domList).forEach(function (dom) {
       dom.style.filter = 'brightness(85%)';
       dom.style.webkitFilter = 'brightness(85%)';
@@ -990,8 +1005,11 @@ function mouseLeave(opt, ele, popover, _ref12) {
   var target = _ref12.target;
 
   if (target.classList.contains('mark-highlight-item') && target.hasAttribute('data-mark-id')) {
-    var domList = ele.querySelectorAll('[data-mark-id=' + JSON.stringify(target.getAttribute('data-mark-id')) + ']');
+    if (this.highlight.__$tmp_time) {
+      clearTimeout(this.highlight.__$tmp_time);
+    }
 
+    var domList = getMarkItems(target.getAttribute('data-mark-id'), ele);
     Array.from(domList).forEach(function (dom) {
       dom.style.filter = '';
       dom.style.webkitFilter = '';
@@ -1011,18 +1029,10 @@ function highlight(element, options) {
       return md5(new Date().getTime() + Math.random() + '');
     },
 
-    window: window,
     highlightColors: ['#fff682', 'pink', '#b2f0ff', '#c57dff']
   }, options);
 
-  var document = options.window.document;
-  var style = document.createElement('style');
-  style.innerHTML = styleText;
-  document.head.appendChild(style);
-
-  function removeStyle() {
-    document.head.removeChild(style);
-  }
+  this.addStyle(styleText);
 
   var popover = getPopover.call(this, element, options);
   var debouncedMouseUp = debounce(mouseUpCore, 100).bind(this, options, element, popover);
@@ -1031,16 +1041,14 @@ function highlight(element, options) {
   var onMouseEnter = mouseEnter.bind(this, options, element, popover);
   var onMouseLeave = mouseLeave.bind(this, options, element, popover);
 
-  element.__reset && element.__reset();
-  element.__reset = function () {
+  this.addReset(function () {
     popover.parentNode && popover.parentNode.removeChild(popover);
     element.removeEventListener('click', onClick);
     element.removeEventListener('mouseover', onMouseEnter);
     element.removeEventListener('mouseout', onMouseLeave);
     element.removeEventListener('mouseup', debouncedMouseUp);
     element.removeEventListener('mousedown', debouncedMouseDown);
-    removeStyle();
-  };
+  });
 
   element.addEventListener('click', onClick);
   element.addEventListener('mouseover', onMouseEnter);
@@ -1068,9 +1076,6 @@ function highlight(element, options) {
         popover.hide();
       }
       return _remove(id, ele);
-    },
-    exit: function exit() {
-      element.__reset && element.__reset();
     }
   };
 }
@@ -1082,7 +1087,9 @@ function highlight(element, options) {
  * @description
  */
 
-function badge (element) {
+function badge(element) {
+  this.opt.badge = Object.assign({}, this.opt.badge);
+
   
 }
 
@@ -1132,6 +1139,7 @@ function mark(element) {
     throw new Error('mark should be used in browser environment.');
   }
   options = _extends({
+    window: window,
     enablePlugins: ['highlight', 'badge']
   }, options, {
     highlight: _extends({
@@ -1144,19 +1152,42 @@ function mark(element) {
       restOptions = _objectWithoutProperties(_options, ['enablePlugins']);
 
   var ctx = new AwaitEventEmitter();
-  ctx.opt = options;
 
-  // TODO
-  ctx.addButton = function () {
-    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-        title = _ref.title,
-        icon = _ref.icon,
-        action = _ref.action;
+  Object.assign(ctx, {
+    opt: options,
+    __resets: [],
+    addReset: function addReset(reset) {
+      reset && this.__resets.push(reset);
+    },
+    exit: function exit() {
+      if (element.__reset) {
+        element.__reset();
+      }
+    },
+    addStyle: function addStyle(text) {
+      var document = this.opt.window.document;
+      var style = document.createElement('style');
+      style.textContent = text;
+      document.head.appendChild(style);
+      this.addReset(function () {
+        document.head.removeChild(style);
+      });
+      return style;
+    }
+    // addButton = function({ title, icon, action } = {}) {}
+
+  });
+
+  ctx.exit();
+  element.__reset = function () {
+    ctx.__resets.forEach(function (reset) {
+      return reset();
+    });
   };
 
   enablePlugins.forEach(function (plugin) {
     if (plugins[plugin]) {
-      run.call(ctx, highlight, plugin, element, restOptions);
+      run.call(ctx, plugins[plugin], plugin, element, restOptions);
     }
   });
 

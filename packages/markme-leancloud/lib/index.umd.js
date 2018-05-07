@@ -2435,6 +2435,26 @@
 	    return function (_x14) {
 	      return _ref10.apply(this, arguments);
 	    };
+	  }()).on('highlight-match-fail', function () {
+	    var _ref11 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee10(id) {
+	      return regenerator.wrap(function _callee10$(_context10) {
+	        while (1) {
+	          switch (_context10.prev = _context10.next) {
+	            case 0:
+	              _context10.next = 2;
+	              return storage.remove('highlight', id);
+
+	            case 2:
+	            case 'end':
+	              return _context10.stop();
+	          }
+	        }
+	      }, _callee10, _this);
+	    }));
+
+	    return function (_x15) {
+	      return _ref11.apply(this, arguments);
+	    };
 	  }());
 	}
 

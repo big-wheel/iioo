@@ -97,9 +97,9 @@ function appendTextNodeChunks(textNode) {
 function getMarkItems(id, ele) {
   let doms = []
   if (typeof id === 'undefined') {
-    doms = ele.querySelectorAll('mark[data-mark-id]')
+    doms = ele.querySelectorAll('mark.mark-highlight-item[data-mark-id]')
   } else {
-    doms = ele.querySelectorAll(`mark[data-mark-id=${JSON.stringify(id)}]`)
+    doms = ele.querySelectorAll(`mark.mark-highlight-item[data-mark-id=${JSON.stringify(id)}]`)
   }
   return doms
 }
@@ -192,8 +192,10 @@ function getPopover(ele, opt) {
     },
     getActive() {
       let active = this.querySelector('.mark-highlight-active-color')
+      let textarea = this.querySelector('textarea')
       return (
         active && {
+          words: textarea.value,
           color: active.style.backgroundColor,
           id: active.getAttribute('data-mark-id')
         }
@@ -221,8 +223,9 @@ function getPopover(ele, opt) {
           await this.emit('highlight-change:color', { id: active.id, color })
 
           popover.selectColor(color, active.id)
+          popover.setText(active.words)
 
-          batchSetMarkAttribute(active.id, { color }, ele)
+          batchSetMarkAttribute(active.id, { color, words: active.words }, ele)
           return
         }
 
@@ -317,7 +320,7 @@ function _fill(
   // }
   if (nodes && nodes[1]) {
     if (typeof content !== 'undefined' && nodes[1].textContent !== content) {
-      // console.warn('expected:', JSON.stringify(nodes[1].textContent), 'actual:', JSON.stringify(content))
+      console.warn('expected:', JSON.stringify(nodes[1].textContent), 'actual:', JSON.stringify(content))
       throw 'highlight-match-fail'
     }
     replaceToMark(nodes[1], { uid: id, color, words }, opt)
@@ -423,12 +426,18 @@ function mouseEnter(opt, ele, popover, { target }) {
     target.classList.contains('mark-highlight-item') &&
     target.hasAttribute('data-mark-id')
   ) {
-    // let color = target.style.backgroundColor
-    let domList = ele.querySelectorAll(
-      `.mark-highlight-item[data-mark-id=${JSON.stringify(
-        target.getAttribute('data-mark-id')
-      )}]`
-    )
+    if (this.highlight.__$tmp_time) {
+      clearTimeout(this.highlight.__$tmp_time)
+    }
+    this.highlight.__$tmp_time = setTimeout(() => {
+      let old = this.opt.highlight.disableDefaultClick
+      this.opt.highlight.disableDefaultClick = true
+      target.click()
+      this.opt.highlight.disableDefaultClick = old
+      delete this.highlight.__$tmp_time
+    }, 2000)
+
+    let domList = getMarkItems(target.getAttribute('data-mark-id'), ele)
     Array.from(domList).forEach(dom => {
       dom.style.filter = 'brightness(85%)'
       dom.style.webkitFilter = 'brightness(85%)'
@@ -443,10 +452,11 @@ function mouseLeave(opt, ele, popover, { target }) {
     target.classList.contains('mark-highlight-item') &&
     target.hasAttribute('data-mark-id')
   ) {
-    let domList = ele.querySelectorAll(
-      `[data-mark-id=${JSON.stringify(target.getAttribute('data-mark-id'))}]`
-    )
+    if (this.highlight.__$tmp_time) {
+      clearTimeout(this.highlight.__$tmp_time)
+    }
 
+    let domList = getMarkItems(target.getAttribute('data-mark-id'), ele)
     Array.from(domList).forEach(dom => {
       dom.style.filter = ''
       dom.style.webkitFilter = ''
@@ -465,19 +475,11 @@ export default function highlight(element, options) {
     generateUid() {
       return md5(new Date().getTime() + Math.random() + '')
     },
-    window: window,
     highlightColors: ['#fff682', 'pink', '#b2f0ff', '#c57dff'],
     ...options
   }
 
-  const document = options.window.document
-  let style = document.createElement('style')
-  style.innerHTML = styleText
-  document.head.appendChild(style)
-
-  function removeStyle() {
-    document.head.removeChild(style)
-  }
+  this.addStyle(styleText)
 
   const popover = getPopover.call(this, element, options)
   const debouncedMouseUp = debounce(mouseUpCore, 100).bind(
@@ -496,16 +498,14 @@ export default function highlight(element, options) {
   const onMouseEnter = mouseEnter.bind(this, options, element, popover)
   const onMouseLeave = mouseLeave.bind(this, options, element, popover)
 
-  element.__reset && element.__reset()
-  element.__reset = () => {
+  this.addReset(function () {
     popover.parentNode && popover.parentNode.removeChild(popover)
     element.removeEventListener('click', onClick)
     element.removeEventListener('mouseover', onMouseEnter)
     element.removeEventListener('mouseout', onMouseLeave)
     element.removeEventListener('mouseup', debouncedMouseUp)
     element.removeEventListener('mousedown', debouncedMouseDown)
-    removeStyle()
-  }
+  })
 
   element.addEventListener('click', onClick)
   element.addEventListener('mouseover', onMouseEnter)
@@ -527,9 +527,6 @@ export default function highlight(element, options) {
         popover.hide()
       }
       return remove(id, ele)
-    },
-    exit() {
-      element.__reset && element.__reset()
     }
   }
 }
