@@ -9,7 +9,7 @@
   "jsdelivr": "lib/index.umd.min.js",
   "jsnext:main": "lib/index.es.js",
   "module": "lib/index.es.js",
-  "main": "mlib/index.js",
+  "main": "lib/index.js",
   "scripts": {
     "prepublish": "rollup -c"
   },

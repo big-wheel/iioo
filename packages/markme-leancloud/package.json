@@ -14,6 +14,7 @@
   "main": "lib/index.js",
   "dependencies": {
     "babel-runtime": "^6.26.0",
+    "leancloud-realtime": "^3.5.7",
     "leancloud-storage": "^3.6.8",
     "markme": "^0.0.14"
   },

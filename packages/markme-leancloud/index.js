@@ -1,3 +1,4 @@
+/* eslint-disable indent,no-use-before-define */
 /**
  * @file remoteStorage
  * @author Cuttle Cong
@@ -5,17 +6,16 @@
  * @description
  */
 
-import AV from 'leancloud-storage'
+import * as AV from 'leancloud-storage/live-query'
 import mark from 'markme'
 
-export default function markInLocalStorage(element, options = {}) {
+export default async function markInLocalStorage(element, options = {}) {
   options = {
     enableInitialFill: true,
     key: location.origin + location.pathname,
     AVOptions: {},
     ...options
   }
-
   // AV.
   AV.applicationId = null
   AV.init(options.AVOptions)
@@ -23,7 +23,6 @@ export default function markInLocalStorage(element, options = {}) {
   const Markme = AV.Object.extend('Markme')
 
   const emitter = mark(element, options)
-
   function toJSON(x) {
     let { data, ...json } = x.toJSON()
 
@@ -47,6 +46,7 @@ export default function markInLocalStorage(element, options = {}) {
       mm.set('ukey', options.key)
       mm.set('type', type)
       mm.set('data', data)
+
       return mm.save()
     },
     get: async function(type, id) {
@@ -64,10 +64,14 @@ export default function markInLocalStorage(element, options = {}) {
         )
       }
     },
-    getAll: async function(type) {
+    getLiveQuery(type) {
       const query = new AV.Query('Markme')
       query.equalTo('type', type)
       query.equalTo('ukey', options.key)
+      return query
+    },
+    getAll: async function(type) {
+      const query = this.getLiveQuery(type)
       return (await query.find()).map(toJSON)
     },
     getTotal: async function(type) {
@@ -77,23 +81,38 @@ export default function markInLocalStorage(element, options = {}) {
     }
   }
 
-  if (options.enableInitialFill) {
-    storage.getAll('highlight').then(list => {
-      // if (!list || !list.length) {
-      //   storage.set('null', 'null', null)
-      // }
-      emitter.highlight.fill(list)
+  // LiveQuery
+  const query = storage.getLiveQuery('highlight')
+  const liveQuery = await query.subscribe()
+  liveQuery
+    .on('create', created => {
+      created = created.toJSON()
+      // console.log('created', created)
+      created && created.data && emitter.highlight.fill(created.data)
     })
-  }
+    .on('update', (updated) => {
+      // 自己修改也会触发
+      updated = updated.toJSON()
+      // console.log('updated', updated)
+      const { id, words, color } = updated.data || {}
+      id && emitter.highlight.change(id, { color, words })
+    })
+    .on('delete', deleted => {
+      deleted = deleted.toJSON()
+      // console.log('deleted', deleted)
+      emitter.highlight.remove(deleted.id)
+    })
 
-  return emitter
+  emitter
     .on('highlight-add', async ({ id, ...data }) => {
+      console.warn('highlight-add')
       await storage.set('highlight', id, data)
     })
     .on('highlight-remove', async id => {
-      await storage.remove('highlight', id)
+      storage.remove('highlight', id)
     })
     .on('highlight-change:words', async data => {
+      console.warn('highlight-change:words')
       let old = await storage.get('highlight', data.id)
       if (old) {
         old.words = data.words
@@ -101,6 +120,7 @@ export default function markInLocalStorage(element, options = {}) {
       }
     })
     .on('highlight-change:color', async data => {
+      console.warn('highlight-change:color')
       let old = await storage.get('highlight', data.id)
       if (old) {
         old.color = data.color
@@ -110,4 +130,14 @@ export default function markInLocalStorage(element, options = {}) {
     .on('highlight-match-fail', async id => {
       await storage.remove('highlight', id)
     })
+
+  if (options.enableInitialFill) {
+    let list = await storage.getAll('highlight')
+    // if (!list || !list.length) {
+    //   storage.set('null', 'null', null)
+    // }
+    emitter.highlight.fill(list)
+  }
+
+  return emitter
 }
