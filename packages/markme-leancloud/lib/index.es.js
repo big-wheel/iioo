@@ -10,7 +10,7 @@ var index = (function () {
     var _this = this;
 
     var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    var Markme, emitter, toJSON, storage, query, liveQuery, list;
+    var Markme, emitter, toJSON, runtime, storage, query, liveQuery, list;
     return _regeneratorRuntime.wrap(function _callee11$(_context11) {
       while (1) {
         switch (_context11.prev = _context11.next) {
@@ -35,6 +35,7 @@ var index = (function () {
 
             Markme = AV.Object.extend('Markme');
             emitter = mark(element, options);
+            runtime = {};
             storage = {
               set: function () {
                 var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee(type, id, data) {
@@ -60,10 +61,10 @@ var index = (function () {
                           mm.set('ukey', options.key);
                           mm.set('type', type);
                           mm.set('data', data);
-
+                          runtime.set = true;
                           return _context.abrupt('return', mm.save());
 
-                        case 10:
+                        case 11:
                         case 'end':
                           return _context.stop();
                       }
@@ -112,7 +113,7 @@ var index = (function () {
               }(),
               remove: function () {
                 var _ref4 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee3(type, id) {
-                  var data;
+                  var data, rlt;
                   return _regeneratorRuntime.wrap(function _callee3$(_context3) {
                     while (1) {
                       switch (_context3.prev = _context3.next) {
@@ -124,13 +125,18 @@ var index = (function () {
                           data = _context3.sent;
 
                           if (!data.objectId) {
-                            _context3.next = 5;
+                            _context3.next = 9;
                             break;
                           }
 
-                          return _context3.abrupt('return', AV.Query.doCloudQuery('delete from Markme where objectId=' + JSON.stringify(data.objectId)));
+                          console.error('remove', id);
+                          console.trace();
+                          rlt = AV.Query.doCloudQuery('delete from Markme where objectId=' + JSON.stringify(data.objectId));
 
-                        case 5:
+                          runtime.rm = true;
+                          return _context3.abrupt('return', rlt);
+
+                        case 9:
                         case 'end':
                           return _context3.stop();
                       }
@@ -216,24 +222,33 @@ var index = (function () {
             };
 
             if (!options.enableLiveQuery) {
-              _context11.next = 13;
+              _context11.next = 14;
               break;
             }
 
             query = storage.getLiveQuery('highlight');
-            _context11.next = 11;
+            _context11.next = 12;
             return query.subscribe();
 
-          case 11:
+          case 12:
             liveQuery = _context11.sent;
 
             liveQuery.on('create', function (created) {
               created = created.toJSON();
-              // console.log('created', created)
+              // console.log('create', runtime, created.id, created.data)
+              if (runtime.set) {
+                delete runtime.set;
+                return;
+              }
               created.id && created.data && emitter.highlight.fill(_extends({ id: created.id }, created.data));
             }).on('update', function (updated) {
-              // 自己修改也会触发
               updated = updated.toJSON();
+              // console.log('update', runtime, updated.id)
+              // 自己修改也会触发
+              if (runtime.set) {
+                delete runtime.set;
+                return;
+              }
               // console.log('updated', updated)
 
               var _ref7 = updated.data || {},
@@ -243,11 +258,16 @@ var index = (function () {
               updated.id && emitter.highlight.change(updated.id, { color: color, words: words });
             }).on('delete', function (deleted) {
               deleted = deleted.toJSON();
+              // console.log('delete', runtime, deleted.id, deleted.data)
+              if (runtime.rm) {
+                delete runtime.rm;
+                return;
+              }
               // console.log('deleted', deleted)
               emitter.highlight.remove(deleted.id);
             });
 
-          case 13:
+          case 14:
 
             emitter.on('highlight-add', function () {
               var _ref9 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee6(_ref8) {
@@ -279,9 +299,10 @@ var index = (function () {
                   while (1) {
                     switch (_context7.prev = _context7.next) {
                       case 0:
+                        console.warn('highlight-remove');
                         storage.remove('highlight', id);
 
-                      case 1:
+                      case 2:
                       case 'end':
                         return _context7.stop();
                     }
@@ -366,10 +387,6 @@ var index = (function () {
                   while (1) {
                     switch (_context10.prev = _context10.next) {
                       case 0:
-                        _context10.next = 2;
-                        return storage.remove('highlight', id);
-
-                      case 2:
                       case 'end':
                         return _context10.stop();
                     }
@@ -380,17 +397,20 @@ var index = (function () {
               return function (_x16) {
                 return _ref13.apply(this, arguments);
               };
-            }());
+            }()
+            // console.warn('highlight-match-fail')
+            // await storage.remove('highlight', id)
+            );
 
             if (!options.enableInitialFill) {
-              _context11.next = 19;
+              _context11.next = 20;
               break;
             }
 
-            _context11.next = 17;
+            _context11.next = 18;
             return storage.getAll('highlight');
 
-          case 17:
+          case 18:
             list = _context11.sent;
 
             // if (!list || !list.length) {
@@ -398,10 +418,10 @@ var index = (function () {
             // }
             emitter.highlight.fill(list);
 
-          case 19:
+          case 20:
             return _context11.abrupt('return', emitter);
 
-          case 20:
+          case 21:
           case 'end':
             return _context11.stop();
         }
