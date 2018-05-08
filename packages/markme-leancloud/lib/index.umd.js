@@ -2237,18 +2237,18 @@
 	                          data = _context3.sent;
 
 	                          if (!data.objectId) {
-	                            _context3.next = 9;
+	                            _context3.next = 7;
 	                            break;
 	                          }
 
-	                          console.error('remove', id);
-	                          console.trace();
+	                          // console.error('remove', id)
+	                          // console.trace()
 	                          rlt = AV.Query.doCloudQuery('delete from Markme where objectId=' + JSON.stringify(data.objectId));
 
 	                          runtime.rm = true;
 	                          return _context3.abrupt('return', rlt);
 
-	                        case 9:
+	                        case 7:
 	                        case 'end':
 	                          return _context3.stop();
 	                      }

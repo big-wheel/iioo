@@ -61,8 +61,8 @@ export default async function markLeancloud(element, options = {}) {
     remove: async function(type, id) {
       let data = await this.get(type, id)
       if (data.objectId) {
-        console.error('remove', id)
-        console.trace()
+        // console.error('remove', id)
+        // console.trace()
         let rlt = AV.Query.doCloudQuery(
           `delete from Markme where objectId=${JSON.stringify(data.objectId)}`
         )
