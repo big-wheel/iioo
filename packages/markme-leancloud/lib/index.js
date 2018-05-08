@@ -210,10 +210,10 @@ function markInLocalStorage(element) {
   };
 
   if (options.enableInitialFill) {
-    storage.getTotal('highlight').then(function (list) {
-      if (!list || !list.length) {
-        storage.set('null', 'null', null);
-      }
+    storage.getAll('highlight').then(function (list) {
+      // if (!list || !list.length) {
+      //   storage.set('null', 'null', null)
+      // }
       emitter.highlight.fill(list);
     });
   }

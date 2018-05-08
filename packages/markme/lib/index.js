@@ -687,7 +687,7 @@ function getPopover(ele, opt) {
       var textarea = this.querySelector('textarea');
       textarea.style.display = '';
       textarea.value = text;
-
+      var oldVal = text;
       textarea.focus();
       textarea.onblur = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee() {
         var activeItem, words;
@@ -706,13 +706,22 @@ function getPopover(ele, opt) {
 
               case 3:
                 words = textarea.value;
-                _context.next = 6;
-                return self.emit('highlight-change:words', { id: activeItem.id, words: words });
+
+                if (!(oldVal === words)) {
+                  _context.next = 6;
+                  break;
+                }
+
+                return _context.abrupt('return');
 
               case 6:
+                _context.next = 8;
+                return self.emit('highlight-change:words', { id: activeItem.id, words: words });
+
+              case 8:
                 batchSetMarkAttribute(activeItem.id, { words: words }, ele);
 
-              case 7:
+              case 9:
               case 'end':
                 return _context.stop();
             }
@@ -748,14 +757,14 @@ function getPopover(ele, opt) {
               target = evt.target;
 
               if (!target.classList.contains('mark-highlight-color')) {
-                _context2.next = 46;
+                _context2.next = 47;
                 break;
               }
 
               color = target.style.backgroundColor;
 
               if (!(target.classList.contains('mark-highlight-active-color') && target.hasAttribute('data-mark-id'))) {
-                _context2.next = 12;
+                _context2.next = 13;
                 break;
               }
 
@@ -769,21 +778,22 @@ function getPopover(ele, opt) {
               _remove(removeId, ele);
               popover.hide();
               target.classList.remove('mark-highlight-active-color');
-              _context2.next = 46;
+              evt.preventDefault();
+              _context2.next = 47;
               break;
 
-            case 12:
+            case 13:
               active = popover.getActive();
 
               if (!active) {
-                _context2.next = 20;
+                _context2.next = 21;
                 break;
               }
 
-              _context2.next = 16;
+              _context2.next = 17;
               return _this3.emit('highlight-change:color', { id: active.id, color: color });
 
-            case 16:
+            case 17:
 
               popover.selectColor(color, active.id);
               popover.setText(active.words);
@@ -791,20 +801,20 @@ function getPopover(ele, opt) {
               batchSetMarkAttribute(active.id, { color: color, words: active.words }, ele);
               return _context2.abrupt('return');
 
-            case 20:
+            case 21:
               list = getSelectionTextList(opt.window.getSelection());
               containsMarked = list.find(function (textNode) {
                 return isItemNode(textNode.parentNode);
               });
 
               if (!containsMarked) {
-                _context2.next = 24;
+                _context2.next = 25;
                 break;
               }
 
               return _context2.abrupt('return');
 
-            case 24:
+            case 25:
 
               // slice side effect
               getLastRangePos(opt.window);
@@ -839,29 +849,29 @@ function getPopover(ele, opt) {
               });
 
               if (!(chunks && chunks.length)) {
-                _context2.next = 42;
+                _context2.next = 43;
                 break;
               }
 
               // Network async for lock other operation
               _this3.highlight.lock = true;
-              _context2.prev = 32;
-              _context2.next = 35;
+              _context2.prev = 33;
+              _context2.next = 36;
               return _this3.emit('highlight-add', { chunks: chunks, id: uid, color: color });
 
-            case 35:
+            case 36:
               _this3.highlight.lock = false;
-              _context2.next = 42;
+              _context2.next = 43;
               break;
 
-            case 38:
-              _context2.prev = 38;
-              _context2.t0 = _context2['catch'](32);
+            case 39:
+              _context2.prev = 39;
+              _context2.t0 = _context2['catch'](33);
 
               _this3.highlight.lock = false;
               throw _context2.t0;
 
-            case 42:
+            case 43:
 
               nodeList.forEach(function (textNode) {
                 replaceToMark(textNode, { uid: uid, color: color }, opt);
@@ -871,12 +881,12 @@ function getPopover(ele, opt) {
               resetQueue.clear();
               popover.selectColor(color, uid);
 
-            case 46:
+            case 47:
             case 'end':
               return _context2.stop();
           }
         }
-      }, _callee2, _this3, [[32, 38]]);
+      }, _callee2, _this3, [[33, 39]]);
     }));
 
     return function (_x3) {

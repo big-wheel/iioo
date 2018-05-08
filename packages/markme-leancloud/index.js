@@ -78,10 +78,10 @@ export default function markInLocalStorage(element, options = {}) {
   }
 
   if (options.enableInitialFill) {
-    storage.getTotal('highlight').then(list => {
-      if (!list || !list.length) {
-        storage.set('null', 'null', null)
-      }
+    storage.getAll('highlight').then(list => {
+      // if (!list || !list.length) {
+      //   storage.set('null', 'null', null)
+      // }
       emitter.highlight.fill(list)
     })
   }
