@@ -1,6 +1,6 @@
 {
   "name": "markme-leancloud",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "scripts": {
     "prepublish": "rollup -c"
   },
@@ -16,7 +16,7 @@
     "babel-runtime": "^6.26.0",
     "leancloud-realtime": "^3.5.7",
     "leancloud-storage": "^3.6.8",
-    "markme": "^0.0.17"
+    "markme": "^0.0.18"
   },
   "devDependencies": {
     "babel-plugin-external-helpers": "^6.22.0",
