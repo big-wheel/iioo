@@ -171,7 +171,7 @@ function getPopover(ele, opt) {
       let textarea = this.querySelector('textarea')
       textarea.style.display = ''
       textarea.value = text
-
+      let oldVal = text
       textarea.focus()
       textarea.onblur = async () => {
         let activeItem = popover.getActive()
@@ -179,6 +179,9 @@ function getPopover(ele, opt) {
           return
         }
         const words = textarea.value
+        if (oldVal === words) {
+          return
+        }
         await self.emit('highlight-change:words', { id: activeItem.id, words })
         batchSetMarkAttribute(activeItem.id, { words }, ele)
       }
@@ -217,6 +220,7 @@ function getPopover(ele, opt) {
         remove(removeId, ele)
         popover.hide()
         target.classList.remove('mark-highlight-active-color')
+        evt.preventDefault()
       } else {
         let active = popover.getActive()
         if (active) {
