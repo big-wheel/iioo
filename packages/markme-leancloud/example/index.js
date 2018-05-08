@@ -1,4 +1,4 @@
-/* eslint-disable indent */
+/* eslint-disable indent,quotes */
 /**
  * @file index.js
  * @author Cuttle Cong
@@ -9,12 +9,15 @@
 import markmeLeancloud from '../index'
 // import markmeLeancloud from 'markme-leancloud'
 
+// let name = location.hash
+
 let m
 function run(which) {
   m && m.remove()
   switch (which) {
     case 'rs':
       m = markmeLeancloud(document.body, {
+        clientId: name || Date.now() + '',
         AVOptions: {
           appId: 'YY0ajzbgR0NlSODErX04ya3E-gzGzoHsz',
           appKey: 'KRSsdRICas0xDPmnO9znHY5E'
@@ -43,5 +46,6 @@ Object.keys(dom).forEach(key => {
 })
 
 
+let name = prompt("What's Your Name?")
 let defaultView = 'rs'
 run(defaultView)
