@@ -1,6 +1,6 @@
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('leancloud-storage'), require('markme')) :
-	typeof define === 'function' && define.amd ? define(['leancloud-storage', 'markme'], factory) :
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('leancloud-storage/live-query'), require('markme')) :
+	typeof define === 'function' && define.amd ? define(['leancloud-storage/live-query', 'markme'], factory) :
 	(global.MarkmeLeancloud = factory(global.AV,global.Markme));
 }(this, (function (AV,mark) { 'use strict';
 
@@ -782,36 +782,24 @@
 
 	var regenerator = runtimeModule;
 
-	// 7.1.4 ToInteger
-	var ceil = Math.ceil;
-	var floor = Math.floor;
-	var _toInteger = function (it) {
-	  return isNaN(it = +it) ? 0 : (it > 0 ? floor : ceil)(it);
-	};
+	var objectWithoutProperties = createCommonjsModule(function (module, exports) {
 
-	// 7.2.1 RequireObjectCoercible(argument)
-	var _defined = function (it) {
-	  if (it == undefined) throw TypeError("Can't call method on  " + it);
-	  return it;
-	};
+	exports.__esModule = true;
 
-	// true  -> String#at
-	// false -> String#codePointAt
-	var _stringAt = function (TO_STRING) {
-	  return function (that, pos) {
-	    var s = String(_defined(that));
-	    var i = _toInteger(pos);
-	    var l = s.length;
-	    var a, b;
-	    if (i < 0 || i >= l) return TO_STRING ? '' : undefined;
-	    a = s.charCodeAt(i);
-	    return a < 0xd800 || a > 0xdbff || i + 1 === l || (b = s.charCodeAt(i + 1)) < 0xdc00 || b > 0xdfff
-	      ? TO_STRING ? s.charAt(i) : a
-	      : TO_STRING ? s.slice(i, i + 2) : (a - 0xd800 << 10) + (b - 0xdc00) + 0x10000;
-	  };
-	};
+	exports.default = function (obj, keys) {
+	  var target = {};
 
-	var _library = true;
+	  for (var i in obj) {
+	    if (keys.indexOf(i) >= 0) continue;
+	    if (!Object.prototype.hasOwnProperty.call(obj, i)) continue;
+	    target[i] = obj[i];
+	  }
+
+	  return target;
+	};
+	});
+
+	var _objectWithoutProperties = unwrapExports(objectWithoutProperties);
 
 	var _global = createCommonjsModule(function (module) {
 	// https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
@@ -997,10 +985,6 @@
 	$export.R = 128; // real proto method for `library`
 	var _export = $export;
 
-	var _redefine = _hide;
-
-	var _iterators = {};
-
 	var toString = {}.toString;
 
 	var _cof = function (it) {
@@ -1014,11 +998,24 @@
 	  return _cof(it) == 'String' ? it.split('') : Object(it);
 	};
 
+	// 7.2.1 RequireObjectCoercible(argument)
+	var _defined = function (it) {
+	  if (it == undefined) throw TypeError("Can't call method on  " + it);
+	  return it;
+	};
+
 	// to indexed object, toObject with fallback for non-array-like ES3 strings
 
 
 	var _toIobject = function (it) {
 	  return _iobject(_defined(it));
+	};
+
+	// 7.1.4 ToInteger
+	var ceil = Math.ceil;
+	var floor = Math.floor;
+	var _toInteger = function (it) {
+	  return isNaN(it = +it) ? 0 : (it > 0 ? floor : ceil)(it);
 	};
 
 	// 7.1.15 ToLength
@@ -1106,6 +1103,120 @@
 	  return _objectKeysInternal(O, _enumBugKeys);
 	};
 
+	var f$1 = Object.getOwnPropertySymbols;
+
+	var _objectGops = {
+		f: f$1
+	};
+
+	var f$2 = {}.propertyIsEnumerable;
+
+	var _objectPie = {
+		f: f$2
+	};
+
+	// 7.1.13 ToObject(argument)
+
+	var _toObject = function (it) {
+	  return Object(_defined(it));
+	};
+
+	// 19.1.2.1 Object.assign(target, source, ...)
+
+
+
+
+
+	var $assign = Object.assign;
+
+	// should work with symbols and should have deterministic property order (V8 bug)
+	var _objectAssign = !$assign || _fails(function () {
+	  var A = {};
+	  var B = {};
+	  // eslint-disable-next-line no-undef
+	  var S = Symbol();
+	  var K = 'abcdefghijklmnopqrst';
+	  A[S] = 7;
+	  K.split('').forEach(function (k) { B[k] = k; });
+	  return $assign({}, A)[S] != 7 || Object.keys($assign({}, B)).join('') != K;
+	}) ? function assign(target, source) { // eslint-disable-line no-unused-vars
+	  var T = _toObject(target);
+	  var aLen = arguments.length;
+	  var index = 1;
+	  var getSymbols = _objectGops.f;
+	  var isEnum = _objectPie.f;
+	  while (aLen > index) {
+	    var S = _iobject(arguments[index++]);
+	    var keys = getSymbols ? _objectKeys(S).concat(getSymbols(S)) : _objectKeys(S);
+	    var length = keys.length;
+	    var j = 0;
+	    var key;
+	    while (length > j) if (isEnum.call(S, key = keys[j++])) T[key] = S[key];
+	  } return T;
+	} : $assign;
+
+	// 19.1.3.1 Object.assign(target, source)
+
+
+	_export(_export.S + _export.F, 'Object', { assign: _objectAssign });
+
+	var assign = _core.Object.assign;
+
+	var assign$1 = createCommonjsModule(function (module) {
+	module.exports = { "default": assign, __esModule: true };
+	});
+
+	unwrapExports(assign$1);
+
+	var _extends = createCommonjsModule(function (module, exports) {
+
+	exports.__esModule = true;
+
+
+
+	var _assign2 = _interopRequireDefault(assign$1);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	exports.default = _assign2.default || function (target) {
+	  for (var i = 1; i < arguments.length; i++) {
+	    var source = arguments[i];
+
+	    for (var key in source) {
+	      if (Object.prototype.hasOwnProperty.call(source, key)) {
+	        target[key] = source[key];
+	      }
+	    }
+	  }
+
+	  return target;
+	};
+	});
+
+	var _extends$1 = unwrapExports(_extends);
+
+	// true  -> String#at
+	// false -> String#codePointAt
+	var _stringAt = function (TO_STRING) {
+	  return function (that, pos) {
+	    var s = String(_defined(that));
+	    var i = _toInteger(pos);
+	    var l = s.length;
+	    var a, b;
+	    if (i < 0 || i >= l) return TO_STRING ? '' : undefined;
+	    a = s.charCodeAt(i);
+	    return a < 0xd800 || a > 0xdbff || i + 1 === l || (b = s.charCodeAt(i + 1)) < 0xdc00 || b > 0xdfff
+	      ? TO_STRING ? s.charAt(i) : a
+	      : TO_STRING ? s.slice(i, i + 2) : (a - 0xd800 << 10) + (b - 0xdc00) + 0x10000;
+	  };
+	};
+
+	var _library = true;
+
+	var _redefine = _hide;
+
+	var _iterators = {};
+
 	var _objectDps = _descriptors ? Object.defineProperties : function defineProperties(O, Properties) {
 	  _anObject(O);
 	  var keys = _objectKeys(Properties);
@@ -1191,12 +1302,6 @@
 	var _iterCreate = function (Constructor, NAME, next) {
 	  Constructor.prototype = _objectCreate(IteratorPrototype, { next: _propertyDesc(1, next) });
 	  _setToStringTag(Constructor, NAME + ' Iterator');
-	};
-
-	// 7.1.13 ToObject(argument)
-
-	var _toObject = function (it) {
-	  return Object(_defined(it));
 	};
 
 	// 19.1.2.9 / 15.2.3.2 Object.getPrototypeOf(O)
@@ -1607,12 +1712,12 @@
 	  this.reject = _aFunction(reject);
 	}
 
-	var f$1 = function (C) {
+	var f$3 = function (C) {
 	  return new PromiseCapability(C);
 	};
 
 	var _newPromiseCapability = {
-		f: f$1
+		f: f$3
 	};
 
 	var _perform = function (exec) {
@@ -2012,453 +2117,418 @@
 
 	var _asyncToGenerator = unwrapExports(asyncToGenerator);
 
-	var objectWithoutProperties = createCommonjsModule(function (module, exports) {
+	var index = (function () {
+	  var _ref = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee11(element) {
+	    var _this = this;
 
-	exports.__esModule = true;
+	    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+	    var Markme, emitter, toJSON, storage, query, liveQuery, list;
+	    return regenerator.wrap(function _callee11$(_context11) {
+	      while (1) {
+	        switch (_context11.prev = _context11.next) {
+	          case 0:
+	            toJSON = function toJSON(x) {
+	              var _x$toJSON = x.toJSON(),
+	                  data = _x$toJSON.data,
+	                  json = _objectWithoutProperties(_x$toJSON, ['data']);
 
-	exports.default = function (obj, keys) {
-	  var target = {};
+	              return _extends$1({}, json, data);
+	            };
 
-	  for (var i in obj) {
-	    if (keys.indexOf(i) >= 0) continue;
-	    if (!Object.prototype.hasOwnProperty.call(obj, i)) continue;
-	    target[i] = obj[i];
-	  }
+	            options = _extends$1({
+	              enableInitialFill: true,
+	              key: location.origin + location.pathname,
+	              AVOptions: {},
+	              enableLiveQuery: true
+	            }, options);
+	            // AV.
+	            AV.applicationId = null;
+	            AV.init(options.AVOptions);
 
-	  return target;
-	};
-	});
+	            Markme = AV.Object.extend('Markme');
+	            emitter = mark(element, options);
+	            storage = {
+	              set: function () {
+	                var _ref2 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee(type, id, data) {
+	                  var old, mm;
+	                  return regenerator.wrap(function _callee$(_context) {
+	                    while (1) {
+	                      switch (_context.prev = _context.next) {
+	                        case 0:
+	                          _context.next = 2;
+	                          return this.get(type, id);
 
-	var _objectWithoutProperties = unwrapExports(objectWithoutProperties);
+	                        case 2:
+	                          old = _context.sent;
+	                          mm = void 0;
 
-	var f$2 = Object.getOwnPropertySymbols;
+	                          if (old && old.objectId) {
+	                            mm = AV.Object.createWithoutData('Markme', old.objectId);
+	                          } else {
+	                            mm = new Markme();
+	                          }
 
-	var _objectGops = {
-		f: f$2
-	};
+	                          mm.set('id', id);
+	                          mm.set('ukey', options.key);
+	                          mm.set('type', type);
+	                          mm.set('data', data);
 
-	var f$3 = {}.propertyIsEnumerable;
+	                          return _context.abrupt('return', mm.save());
 
-	var _objectPie = {
-		f: f$3
-	};
+	                        case 10:
+	                        case 'end':
+	                          return _context.stop();
+	                      }
+	                    }
+	                  }, _callee, this);
+	                }));
 
-	// 19.1.2.1 Object.assign(target, source, ...)
-
-
-
-
-
-	var $assign = Object.assign;
-
-	// should work with symbols and should have deterministic property order (V8 bug)
-	var _objectAssign = !$assign || _fails(function () {
-	  var A = {};
-	  var B = {};
-	  // eslint-disable-next-line no-undef
-	  var S = Symbol();
-	  var K = 'abcdefghijklmnopqrst';
-	  A[S] = 7;
-	  K.split('').forEach(function (k) { B[k] = k; });
-	  return $assign({}, A)[S] != 7 || Object.keys($assign({}, B)).join('') != K;
-	}) ? function assign(target, source) { // eslint-disable-line no-unused-vars
-	  var T = _toObject(target);
-	  var aLen = arguments.length;
-	  var index = 1;
-	  var getSymbols = _objectGops.f;
-	  var isEnum = _objectPie.f;
-	  while (aLen > index) {
-	    var S = _iobject(arguments[index++]);
-	    var keys = getSymbols ? _objectKeys(S).concat(getSymbols(S)) : _objectKeys(S);
-	    var length = keys.length;
-	    var j = 0;
-	    var key;
-	    while (length > j) if (isEnum.call(S, key = keys[j++])) T[key] = S[key];
-	  } return T;
-	} : $assign;
-
-	// 19.1.3.1 Object.assign(target, source)
-
-
-	_export(_export.S + _export.F, 'Object', { assign: _objectAssign });
-
-	var assign = _core.Object.assign;
-
-	var assign$1 = createCommonjsModule(function (module) {
-	module.exports = { "default": assign, __esModule: true };
-	});
-
-	unwrapExports(assign$1);
-
-	var _extends = createCommonjsModule(function (module, exports) {
-
-	exports.__esModule = true;
-
-
-
-	var _assign2 = _interopRequireDefault(assign$1);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	exports.default = _assign2.default || function (target) {
-	  for (var i = 1; i < arguments.length; i++) {
-	    var source = arguments[i];
-
-	    for (var key in source) {
-	      if (Object.prototype.hasOwnProperty.call(source, key)) {
-	        target[key] = source[key];
-	      }
-	    }
-	  }
-
-	  return target;
-	};
-	});
-
-	var _extends$1 = unwrapExports(_extends);
-
-	function markInLocalStorage(element) {
-	  var _this = this;
-
-	  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-	  options = _extends$1({
-	    enableInitialFill: true,
-	    key: location.origin + location.pathname,
-	    AVOptions: {}
-	  }, options);
-
-	  // AV.
-	  AV.applicationId = null;
-	  AV.init(options.AVOptions);
-
-	  var Markme = AV.Object.extend('Markme');
-
-	  var emitter = mark(element, options);
-
-	  function toJSON(x) {
-	    var _x$toJSON = x.toJSON(),
-	        data = _x$toJSON.data,
-	        json = _objectWithoutProperties(_x$toJSON, ['data']);
-
-	    return _extends$1({}, json, data);
-	  }
-
-	  var storage = {
-	    set: function () {
-	      var _ref = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee(type, id, data) {
-	        var old, mm;
-	        return regenerator.wrap(function _callee$(_context) {
-	          while (1) {
-	            switch (_context.prev = _context.next) {
-	              case 0:
-	                _context.next = 2;
-	                return this.get(type, id);
-
-	              case 2:
-	                old = _context.sent;
-	                mm = void 0;
-
-	                if (old && old.objectId) {
-	                  mm = AV.Object.createWithoutData('Markme', old.objectId);
-	                } else {
-	                  mm = new Markme();
+	                function set(_x3, _x4, _x5) {
+	                  return _ref2.apply(this, arguments);
 	                }
 
-	                mm.set('id', id);
-	                mm.set('ukey', options.key);
-	                mm.set('type', type);
-	                mm.set('data', data);
-	                return _context.abrupt('return', mm.save());
+	                return set;
+	              }(),
+	              get: function () {
+	                var _ref3 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2(type, id) {
+	                  var query;
+	                  return regenerator.wrap(function _callee2$(_context2) {
+	                    while (1) {
+	                      switch (_context2.prev = _context2.next) {
+	                        case 0:
+	                          query = new AV.Query('Markme');
 
-	              case 10:
-	              case 'end':
-	                return _context.stop();
-	            }
-	          }
-	        }, _callee, this);
-	      }));
+	                          query.equalTo('type', type);
+	                          query.equalTo('id', id);
+	                          query.equalTo('ukey', options.key);
+	                          _context2.next = 6;
+	                          return query.find();
 
-	      function set(_x2, _x3, _x4) {
-	        return _ref.apply(this, arguments);
-	      }
+	                        case 6:
+	                          _context2.t0 = toJSON;
+	                          return _context2.abrupt('return', _context2.sent.map(_context2.t0)[0]);
 
-	      return set;
-	    }(),
-	    get: function () {
-	      var _ref2 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2(type, id) {
-	        var query;
-	        return regenerator.wrap(function _callee2$(_context2) {
-	          while (1) {
-	            switch (_context2.prev = _context2.next) {
-	              case 0:
-	                query = new AV.Query('Markme');
+	                        case 8:
+	                        case 'end':
+	                          return _context2.stop();
+	                      }
+	                    }
+	                  }, _callee2, this);
+	                }));
 
-	                query.equalTo('type', type);
-	                query.equalTo('id', id);
-	                query.equalTo('ukey', options.key);
-	                _context2.next = 6;
-	                return query.find();
-
-	              case 6:
-	                _context2.t0 = toJSON;
-	                return _context2.abrupt('return', _context2.sent.map(_context2.t0)[0]);
-
-	              case 8:
-	              case 'end':
-	                return _context2.stop();
-	            }
-	          }
-	        }, _callee2, this);
-	      }));
-
-	      function get(_x5, _x6) {
-	        return _ref2.apply(this, arguments);
-	      }
-
-	      return get;
-	    }(),
-	    remove: function () {
-	      var _ref3 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee3(type, id) {
-	        var data;
-	        return regenerator.wrap(function _callee3$(_context3) {
-	          while (1) {
-	            switch (_context3.prev = _context3.next) {
-	              case 0:
-	                _context3.next = 2;
-	                return this.get(type, id);
-
-	              case 2:
-	                data = _context3.sent;
-
-	                if (!data.objectId) {
-	                  _context3.next = 5;
-	                  break;
+	                function get(_x6, _x7) {
+	                  return _ref3.apply(this, arguments);
 	                }
 
-	                return _context3.abrupt('return', AV.Query.doCloudQuery('delete from Markme where objectId=' + JSON.stringify(data.objectId)));
+	                return get;
+	              }(),
+	              remove: function () {
+	                var _ref4 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee3(type, id) {
+	                  var data;
+	                  return regenerator.wrap(function _callee3$(_context3) {
+	                    while (1) {
+	                      switch (_context3.prev = _context3.next) {
+	                        case 0:
+	                          _context3.next = 2;
+	                          return this.get(type, id);
 
-	              case 5:
-	              case 'end':
-	                return _context3.stop();
-	            }
-	          }
-	        }, _callee3, this);
-	      }));
+	                        case 2:
+	                          data = _context3.sent;
 
-	      function remove(_x7, _x8) {
-	        return _ref3.apply(this, arguments);
-	      }
+	                          if (!data.objectId) {
+	                            _context3.next = 5;
+	                            break;
+	                          }
 
-	      return remove;
-	    }(),
-	    getAll: function () {
-	      var _ref4 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee4(type) {
-	        var query;
-	        return regenerator.wrap(function _callee4$(_context4) {
-	          while (1) {
-	            switch (_context4.prev = _context4.next) {
-	              case 0:
-	                query = new AV.Query('Markme');
+	                          return _context3.abrupt('return', AV.Query.doCloudQuery('delete from Markme where objectId=' + JSON.stringify(data.objectId)));
 
+	                        case 5:
+	                        case 'end':
+	                          return _context3.stop();
+	                      }
+	                    }
+	                  }, _callee3, this);
+	                }));
+
+	                function remove(_x8, _x9) {
+	                  return _ref4.apply(this, arguments);
+	                }
+
+	                return remove;
+	              }(),
+	              getLiveQuery: function getLiveQuery(type) {
+	                var query = new AV.Query('Markme');
 	                query.equalTo('type', type);
 	                query.equalTo('ukey', options.key);
-	                _context4.next = 5;
-	                return query.find();
+	                return query;
+	              },
 
-	              case 5:
-	                _context4.t0 = toJSON;
-	                return _context4.abrupt('return', _context4.sent.map(_context4.t0));
+	              getAll: function () {
+	                var _ref5 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee4(type) {
+	                  var query;
+	                  return regenerator.wrap(function _callee4$(_context4) {
+	                    while (1) {
+	                      switch (_context4.prev = _context4.next) {
+	                        case 0:
+	                          query = this.getLiveQuery(type);
+	                          _context4.next = 3;
+	                          return query.find();
 
-	              case 7:
-	              case 'end':
-	                return _context4.stop();
+	                        case 3:
+	                          _context4.t0 = toJSON;
+	                          return _context4.abrupt('return', _context4.sent.map(_context4.t0));
+
+	                        case 5:
+	                        case 'end':
+	                          return _context4.stop();
+	                      }
+	                    }
+	                  }, _callee4, this);
+	                }));
+
+	                function getAll(_x10) {
+	                  return _ref5.apply(this, arguments);
+	                }
+
+	                return getAll;
+	              }(),
+	              getTotal: function () {
+	                var _ref6 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee5(type) {
+	                  var query;
+	                  return regenerator.wrap(function _callee5$(_context5) {
+	                    while (1) {
+	                      switch (_context5.prev = _context5.next) {
+	                        case 0:
+	                          query = new AV.Query('Markme');
+
+	                          query.equalTo('type', type);
+	                          _context5.next = 4;
+	                          return query.find();
+
+	                        case 4:
+	                          _context5.t0 = toJSON;
+	                          return _context5.abrupt('return', _context5.sent.map(_context5.t0));
+
+	                        case 6:
+	                        case 'end':
+	                          return _context5.stop();
+	                      }
+	                    }
+	                  }, _callee5, this);
+	                }));
+
+	                function getTotal(_x11) {
+	                  return _ref6.apply(this, arguments);
+	                }
+
+	                return getTotal;
+	              }()
+
+	              // LiveQuery
+	            };
+
+	            if (!options.enableLiveQuery) {
+	              _context11.next = 13;
+	              break;
 	            }
-	          }
-	        }, _callee4, this);
-	      }));
 
-	      function getAll(_x9) {
-	        return _ref4.apply(this, arguments);
-	      }
+	            query = storage.getLiveQuery('highlight');
+	            _context11.next = 11;
+	            return query.subscribe();
 
-	      return getAll;
-	    }(),
-	    getTotal: function () {
-	      var _ref5 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee5(type) {
-	        var query;
-	        return regenerator.wrap(function _callee5$(_context5) {
-	          while (1) {
-	            switch (_context5.prev = _context5.next) {
-	              case 0:
-	                query = new AV.Query('Markme');
+	          case 11:
+	            liveQuery = _context11.sent;
 
-	                query.equalTo('type', type);
-	                _context5.next = 4;
-	                return query.find();
+	            liveQuery.on('create', function (created) {
+	              created = created.toJSON();
+	              // console.log('created', created)
+	              created.id && created.data && emitter.highlight.fill(_extends$1({ id: created.id }, created.data));
+	            }).on('update', function (updated) {
+	              // 自己修改也会触发
+	              updated = updated.toJSON();
+	              // console.log('updated', updated)
 
-	              case 4:
-	                _context5.t0 = toJSON;
-	                return _context5.abrupt('return', _context5.sent.map(_context5.t0));
+	              var _ref7 = updated.data || {},
+	                  words = _ref7.words,
+	                  color = _ref7.color;
 
-	              case 6:
-	              case 'end':
-	                return _context5.stop();
+	              updated.id && emitter.highlight.change(updated.id, { color: color, words: words });
+	            }).on('delete', function (deleted) {
+	              deleted = deleted.toJSON();
+	              // console.log('deleted', deleted)
+	              emitter.highlight.remove(deleted.id);
+	            });
+
+	          case 13:
+
+	            emitter.on('highlight-add', function () {
+	              var _ref9 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee6(_ref8) {
+	                var id = _ref8.id,
+	                    data = _objectWithoutProperties(_ref8, ['id']);
+
+	                return regenerator.wrap(function _callee6$(_context6) {
+	                  while (1) {
+	                    switch (_context6.prev = _context6.next) {
+	                      case 0:
+	                        console.warn('highlight-add');
+	                        _context6.next = 3;
+	                        return storage.set('highlight', id, data);
+
+	                      case 3:
+	                      case 'end':
+	                        return _context6.stop();
+	                    }
+	                  }
+	                }, _callee6, _this);
+	              }));
+
+	              return function (_x12) {
+	                return _ref9.apply(this, arguments);
+	              };
+	            }()).on('highlight-remove', function () {
+	              var _ref10 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee7(id) {
+	                return regenerator.wrap(function _callee7$(_context7) {
+	                  while (1) {
+	                    switch (_context7.prev = _context7.next) {
+	                      case 0:
+	                        storage.remove('highlight', id);
+
+	                      case 1:
+	                      case 'end':
+	                        return _context7.stop();
+	                    }
+	                  }
+	                }, _callee7, _this);
+	              }));
+
+	              return function (_x13) {
+	                return _ref10.apply(this, arguments);
+	              };
+	            }()).on('highlight-change:words', function () {
+	              var _ref11 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee8(data) {
+	                var old;
+	                return regenerator.wrap(function _callee8$(_context8) {
+	                  while (1) {
+	                    switch (_context8.prev = _context8.next) {
+	                      case 0:
+	                        console.warn('highlight-change:words');
+	                        _context8.next = 3;
+	                        return storage.get('highlight', data.id);
+
+	                      case 3:
+	                        old = _context8.sent;
+
+	                        if (!old) {
+	                          _context8.next = 8;
+	                          break;
+	                        }
+
+	                        old.words = data.words;
+	                        _context8.next = 8;
+	                        return storage.set('highlight', data.id, old);
+
+	                      case 8:
+	                      case 'end':
+	                        return _context8.stop();
+	                    }
+	                  }
+	                }, _callee8, _this);
+	              }));
+
+	              return function (_x14) {
+	                return _ref11.apply(this, arguments);
+	              };
+	            }()).on('highlight-change:color', function () {
+	              var _ref12 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee9(data) {
+	                var old;
+	                return regenerator.wrap(function _callee9$(_context9) {
+	                  while (1) {
+	                    switch (_context9.prev = _context9.next) {
+	                      case 0:
+	                        console.warn('highlight-change:color');
+	                        _context9.next = 3;
+	                        return storage.get('highlight', data.id);
+
+	                      case 3:
+	                        old = _context9.sent;
+
+	                        if (!old) {
+	                          _context9.next = 8;
+	                          break;
+	                        }
+
+	                        old.color = data.color;
+	                        _context9.next = 8;
+	                        return storage.set('highlight', data.id, old);
+
+	                      case 8:
+	                      case 'end':
+	                        return _context9.stop();
+	                    }
+	                  }
+	                }, _callee9, _this);
+	              }));
+
+	              return function (_x15) {
+	                return _ref12.apply(this, arguments);
+	              };
+	            }()).on('highlight-match-fail', function () {
+	              var _ref13 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee10(id) {
+	                return regenerator.wrap(function _callee10$(_context10) {
+	                  while (1) {
+	                    switch (_context10.prev = _context10.next) {
+	                      case 0:
+	                        _context10.next = 2;
+	                        return storage.remove('highlight', id);
+
+	                      case 2:
+	                      case 'end':
+	                        return _context10.stop();
+	                    }
+	                  }
+	                }, _callee10, _this);
+	              }));
+
+	              return function (_x16) {
+	                return _ref13.apply(this, arguments);
+	              };
+	            }());
+
+	            if (!options.enableInitialFill) {
+	              _context11.next = 19;
+	              break;
 	            }
-	          }
-	        }, _callee5, this);
-	      }));
 
-	      function getTotal(_x10) {
-	        return _ref5.apply(this, arguments);
+	            _context11.next = 17;
+	            return storage.getAll('highlight');
+
+	          case 17:
+	            list = _context11.sent;
+
+	            // if (!list || !list.length) {
+	            //   storage.set('null', 'null', null)
+	            // }
+	            emitter.highlight.fill(list);
+
+	          case 19:
+	            return _context11.abrupt('return', emitter);
+
+	          case 20:
+	          case 'end':
+	            return _context11.stop();
+	        }
 	      }
+	    }, _callee11, this);
+	  }));
 
-	      return getTotal;
-	    }()
-	  };
-
-	  if (options.enableInitialFill) {
-	    storage.getAll('highlight').then(function (list) {
-	      // if (!list || !list.length) {
-	      //   storage.set('null', 'null', null)
-	      // }
-	      emitter.highlight.fill(list);
-	    });
+	  function markLeancloud(_x2) {
+	    return _ref.apply(this, arguments);
 	  }
 
-	  return emitter.on('highlight-add', function () {
-	    var _ref7 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee6(_ref6) {
-	      var id = _ref6.id,
-	          data = _objectWithoutProperties(_ref6, ['id']);
+	  return markLeancloud;
+	})();
 
-	      return regenerator.wrap(function _callee6$(_context6) {
-	        while (1) {
-	          switch (_context6.prev = _context6.next) {
-	            case 0:
-	              _context6.next = 2;
-	              return storage.set('highlight', id, data);
-
-	            case 2:
-	            case 'end':
-	              return _context6.stop();
-	          }
-	        }
-	      }, _callee6, _this);
-	    }));
-
-	    return function (_x11) {
-	      return _ref7.apply(this, arguments);
-	    };
-	  }()).on('highlight-remove', function () {
-	    var _ref8 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee7(id) {
-	      return regenerator.wrap(function _callee7$(_context7) {
-	        while (1) {
-	          switch (_context7.prev = _context7.next) {
-	            case 0:
-	              _context7.next = 2;
-	              return storage.remove('highlight', id);
-
-	            case 2:
-	            case 'end':
-	              return _context7.stop();
-	          }
-	        }
-	      }, _callee7, _this);
-	    }));
-
-	    return function (_x12) {
-	      return _ref8.apply(this, arguments);
-	    };
-	  }()).on('highlight-change:words', function () {
-	    var _ref9 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee8(data) {
-	      var old;
-	      return regenerator.wrap(function _callee8$(_context8) {
-	        while (1) {
-	          switch (_context8.prev = _context8.next) {
-	            case 0:
-	              _context8.next = 2;
-	              return storage.get('highlight', data.id);
-
-	            case 2:
-	              old = _context8.sent;
-
-	              if (!old) {
-	                _context8.next = 7;
-	                break;
-	              }
-
-	              old.words = data.words;
-	              _context8.next = 7;
-	              return storage.set('highlight', data.id, old);
-
-	            case 7:
-	            case 'end':
-	              return _context8.stop();
-	          }
-	        }
-	      }, _callee8, _this);
-	    }));
-
-	    return function (_x13) {
-	      return _ref9.apply(this, arguments);
-	    };
-	  }()).on('highlight-change:color', function () {
-	    var _ref10 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee9(data) {
-	      var old;
-	      return regenerator.wrap(function _callee9$(_context9) {
-	        while (1) {
-	          switch (_context9.prev = _context9.next) {
-	            case 0:
-	              _context9.next = 2;
-	              return storage.get('highlight', data.id);
-
-	            case 2:
-	              old = _context9.sent;
-
-	              if (!old) {
-	                _context9.next = 7;
-	                break;
-	              }
-
-	              old.color = data.color;
-	              _context9.next = 7;
-	              return storage.set('highlight', data.id, old);
-
-	            case 7:
-	            case 'end':
-	              return _context9.stop();
-	          }
-	        }
-	      }, _callee9, _this);
-	    }));
-
-	    return function (_x14) {
-	      return _ref10.apply(this, arguments);
-	    };
-	  }()).on('highlight-match-fail', function () {
-	    var _ref11 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee10(id) {
-	      return regenerator.wrap(function _callee10$(_context10) {
-	        while (1) {
-	          switch (_context10.prev = _context10.next) {
-	            case 0:
-	              _context10.next = 2;
-	              return storage.remove('highlight', id);
-
-	            case 2:
-	            case 'end':
-	              return _context10.stop();
-	          }
-	        }
-	      }, _callee10, _this);
-	    }));
-
-	    return function (_x15) {
-	      return _ref11.apply(this, arguments);
-	    };
-	  }());
-	}
-
-	return markInLocalStorage;
+	return index;
 
 })));
 //# sourceMappingURL=index.umd.js.map

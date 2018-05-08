@@ -115,10 +115,10 @@ function batchSetMarkAttribute(id, { words, color }, ele) {
 
 function remove(removeId, ele) {
   let doms = getMarkItems(removeId, ele)
-
   /* eslint-disable no-use-before-define */
   for (let i = 0; i < doms.length; i++) {
     let dom = doms[i]
+    // debugger
     if (dom.parentNode) {
       let textNode = dom.firstChild
       dom.parentNode.replaceChild(textNode, dom)

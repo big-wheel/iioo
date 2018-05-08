@@ -23,11 +23,11 @@ const config = {
     name: 'MarkmeLeancloud',
     sourcemap: true,
     globals: {
-      'leancloud-storage': 'AV',
+      'leancloud-storage/live-query': 'AV',
       markme: 'Markme'
     }
   },
-  external: ['leancloud-storage', 'markme'],
+  external: ['leancloud-storage/live-query', 'markme'],
   plugins: [
     babel({
       babelrc: false,
@@ -63,8 +63,9 @@ export default [
       format: 'cjs'
     },
     external: id =>
-      id.indexOf('babel-runtime') === 0 ||
-      ['leancloud-storage', 'markme'].includes(id)
+      id.startsWith('babel-runtime/') ||
+      id.startsWith('leancloud-storage/') ||
+      ['markme'].includes(id)
   }),
   Object.assign({}, config, {
     output: {
@@ -73,8 +74,9 @@ export default [
       format: 'es'
     },
     external: id =>
-      id.indexOf('babel-runtime') === 0 ||
-      ['leancloud-storage', 'markme'].includes(id)
+      id.startsWith('babel-runtime/') ||
+      id.startsWith('leancloud-storage/') ||
+      ['markme'].includes(id)
   }),
   Object.assign({}, config, {
     output: {

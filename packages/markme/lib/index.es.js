@@ -626,10 +626,10 @@ function batchSetMarkAttribute(id, _ref2, ele) {
 
 function _remove(removeId, ele) {
   var doms = getMarkItems(removeId, ele);
-
   /* eslint-disable no-use-before-define */
   for (var i = 0; i < doms.length; i++) {
     var dom = doms[i];
+    // debugger
     if (dom.parentNode) {
       var textNode = dom.firstChild;
       dom.parentNode.replaceChild(textNode, dom);
@@ -1064,6 +1064,7 @@ function highlight(element, options) {
 
   var self = this;
   this.highlight = {
+    popover: popover,
     fill: function fill(data) {
       var ele = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : element;
 
@@ -1082,6 +1083,9 @@ function highlight(element, options) {
         popover.hide();
       }
       return _remove(id, ele);
+    },
+    change: function change(id, data) {
+      batchSetMarkAttribute(id, data, element);
     }
   };
 }

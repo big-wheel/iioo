@@ -60,7 +60,7 @@ export default [
       format: 'cjs'
     },
     external: id =>
-      id.indexOf('babel-runtime') === 0 ||
+      id.startsWith('babel-runtime/') ||
       ['md5', 'rgb-hex', 'lodash.debounce', 'await-event-emitter'].includes(id)
   }),
   Object.assign({}, config, {
@@ -70,7 +70,7 @@ export default [
       format: 'es'
     },
     external: id =>
-      id.indexOf('babel-runtime') === 0 ||
+      id.startsWith('babel-runtime/') ||
       ['md5', 'rgb-hex', 'lodash.debounce', 'await-event-emitter'].includes(id)
   }),
   Object.assign({}, config, {
