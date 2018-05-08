@@ -17,7 +17,6 @@ function run(which) {
   switch (which) {
     case 'rs':
       m = markmeLeancloud(document.body, {
-        clientId: name || Date.now() + '',
         AVOptions: {
           appId: 'YY0ajzbgR0NlSODErX04ya3E-gzGzoHsz',
           appKey: 'KRSsdRICas0xDPmnO9znHY5E'
@@ -46,6 +45,5 @@ Object.keys(dom).forEach(key => {
 })
 
 
-let name = prompt("What's Your Name?")
 let defaultView = 'rs'
 run(defaultView)

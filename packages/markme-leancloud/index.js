@@ -6,64 +6,19 @@
  * @description
  */
 
-import * as AV from 'leancloud-storage'
-import { Realtime, MessagePriority, TextMessage } from 'leancloud-realtime'
-// TODO
-import mark from '/Users/yucong02/self/iioo-repo/packages/markme/index'
+import * as AV from 'leancloud-storage/live-query'
+import mark from 'markme'
 
 export default async function markInLocalStorage(element, options = {}) {
   options = {
     enableInitialFill: true,
-    // clientId: Date.now() + '',
-    clientId: null,
     key: location.origin + location.pathname,
     AVOptions: {},
     ...options
   }
-  if (!options.clientId) {
-    throw new Error('clientId is required.')
-  }
   // AV.
   AV.applicationId = null
   AV.init(options.AVOptions)
-  const realtime = new Realtime(options.AVOptions)
-
-  let admin = await realtime.createIMClient('__admin__')
-  let conversation = await admin.createConversation({
-    name: 'MarkmeLeancloud',
-    members: [],
-    unique: true
-  })
-
-  let me = await realtime.createIMClient(options.clientId)
-  me.on('message', function(message, conversation) {
-    const data = JSON.parse(message.text)
-    console.log(
-      '[me] received a message from [' + message.from + ']:', data
-    )
-    // 收到消息之后一般的做法是做 UI 展现，示例代码在此处做消息回复，仅为了演示收到消息之后的操作，仅供参考。
-    switch (data.type) {
-      case 'highlight-add':
-        emitter.highlight.fill(data.data)
-        break
-      case 'highlight-remove':
-        emitter.highlight.remove(data.data)
-        break
-    }
-  })
-
-  // conversation = await me.getConversation(conversation.id)
-  await conversation.add([me.id])
-
-  let meConversation = await me.getConversation(conversation.id)
-  await meConversation.join()
-  console.warn('clientId', options.clientId)
-  async function send(type, data) {
-    console.warn('will send', { type, data })
-    await meConversation.send(
-      new TextMessage(JSON.stringify({ type, data }), { priority: MessagePriority.HIGH })
-    )
-  }
 
   const Markme = AV.Object.extend('Markme')
 
@@ -92,7 +47,6 @@ export default async function markInLocalStorage(element, options = {}) {
       mm.set('type', type)
       mm.set('data', data)
 
-      send('highlight-add', { id, ...data })
       return mm.save()
     },
     get: async function(type, id) {
@@ -105,17 +59,19 @@ export default async function markInLocalStorage(element, options = {}) {
     remove: async function(type, id) {
       let data = await this.get(type, id)
       if (data.objectId) {
-        send('highlight-remove', id)
-
         return AV.Query.doCloudQuery(
           `delete from Markme where objectId=${JSON.stringify(data.objectId)}`
         )
       }
     },
-    getAll: async function(type) {
+    getLiveQuery(type) {
       const query = new AV.Query('Markme')
       query.equalTo('type', type)
       query.equalTo('ukey', options.key)
+      return query
+    },
+    getAll: async function(type) {
+      const query = this.getLiveQuery(type)
       return (await query.find()).map(toJSON)
     },
     getTotal: async function(type) {
@@ -124,6 +80,28 @@ export default async function markInLocalStorage(element, options = {}) {
       return (await query.find()).map(toJSON)
     }
   }
+
+  // LiveQuery
+  const query = storage.getLiveQuery('highlight')
+  const liveQuery = await query.subscribe()
+  liveQuery
+    .on('create', created => {
+      created = created.toJSON()
+      // console.log('created', created)
+      created && created.data && emitter.highlight.fill(created.data)
+    })
+    .on('update', (updated) => {
+      // 自己修改也会触发
+      updated = updated.toJSON()
+      // console.log('updated', updated)
+      const { id, words, color } = updated.data || {}
+      id && emitter.highlight.change(id, { color, words })
+    })
+    .on('delete', deleted => {
+      deleted = deleted.toJSON()
+      // console.log('deleted', deleted)
+      emitter.highlight.remove(deleted.id)
+    })
 
   emitter
     .on('highlight-add', async ({ id, ...data }) => {

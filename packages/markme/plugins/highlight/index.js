@@ -519,6 +519,7 @@ export default function highlight(element, options) {
 
   const self = this
   this.highlight = {
+    popover,
     fill: function(data, ele = element) {
       if (Array.isArray(data)) {
         return data.forEach(item => fill.call(self, item, ele, options))
@@ -531,6 +532,9 @@ export default function highlight(element, options) {
         popover.hide()
       }
       return remove(id, ele)
+    },
+    change: function (id, data) {
+      batchSetMarkAttribute(id, data, element)
     }
   }
 }
